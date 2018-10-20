@@ -1,0 +1,50 @@
+$color-1: #242424;
+$color-2: #3e3e3e;
+$color-3: #2a2a2a;
+$color-4: #525252;
+$color-5: #5e5e5e;
+$color-6: #3b79c3;
+
+$color-text-1: #d6d6d6;
+$color-text-2: #787878;
+$color-text-3: #29a2ff;
+$color-text-4: #a3d425;
+$color-text-5: #ffffff;
+
+$color-link: $color-text-1;
+$color-link-hover: lighten($color-link,10%);
+
+$scale: 1.0;
+
+$font-myriad-regular: 'MyriadProReg';
+$font-myriad-bold: 'MyriadProBold';
+$font-myriad-light: 'MyriadProLight';
+
+$font-roboto-regular: 'RobotoReg';
+$font-roboto-bold: 'RobotoBold';
+$font-roboto-black: 'RobotoBlack';
+$font-roboto-medium: 'RobotoMedium';
+$font-roboto-light: 'RobotoLight';
+
+$font-oswald-regular: 'OswaldReg';
+$font-oswald-bold: 'OswaldBold';
+$font-oswald-medium: 'OswaldMedium';
+$font-oswald-light: 'OswaldLight';
+
+
+$font-size-1: 12px*$scale;
+$font-size-2: 14px*$scale;
+$font-size-3: 16px*$scale;
+$font-size-4: 18px*$scale;
+$font-size-5: 22px*$scale;
+$font-size-6: 30px*$scale;
+$font-size-7: 32px*$scale;
+$font-size-8: 38px*$scale;
+$font-size-9: 42px*$scale;
+
+$letter-spacing-1: 2px*$scale;
+$letter-spacing-2: 5px*$scale;
+$letter-spacing-3: 10px*$scale;
+
+$padding: 10px*$scale;
+$margin: 10px*$scale;

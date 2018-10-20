@@ -1,0 +1,141 @@
+@mixin border-radius($radius: 20px) {
+	-webkit-border-radius: $radius;
+	   -moz-border-radius: $radius;
+	    -ms-border-radius: $radius;
+	        border-radius: $radius;
+}
+
+@mixin after() {
+	display: block;
+	content: '';
+}
+
+@mixin after-layer($left,$top,$width,$height) {
+	display: block;
+	content: '';
+	position: absolute;
+	left: $left;
+	top: $top;
+	width: $width;
+	height: $height;
+	margin-left: -$width / 2;
+	margin-top: -$height / 2; 
+}
+
+@mixin after-bg($left,$top,$width,$height,$url,$size) {
+	display: block;
+	content: '';
+	position: absolute;
+	left: $left;
+	top: $top;
+	width: $width;
+	height: $height;
+	@include bg-img-center($url);
+	background-size: $size;
+}
+
+@mixin clearfix() {
+	display: block;
+	content: '';
+	clear: both;
+}
+
+@mixin ul-display() {
+	list-style: none;
+	margin: 0;
+	padding: 0
+}
+
+@mixin layer() {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+@mixin round-box($width,$height){
+	width: $width;
+	height: $height;
+	border-radius: 100%;
+}
+
+@mixin font($name,$file,$weight) {
+	@font-face {
+	    font-family: '#{$name}';
+	    src: url('../fonts/#{$file}');
+	    font-weight: $weight;
+	    font-style: normal;
+	}
+}
+
+@mixin transition($name, $time) {
+	-webkit-transition: $name $time ease;
+	-moz-transition: $name $time ease;
+	-o-transition: $name $time ease;
+	transition: $name $time ease;
+}
+
+@mixin transform($name) {
+	-webkit-transform: $name;
+	-moz-transform: $name;
+	-o-transform: $name;
+	transform: $name;
+}
+
+
+@mixin flex-center(){
+	display: -webkit-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+}
+
+
+
+@mixin absolute($left,$top){
+	position: absolute;
+	left: $left;
+	top: $top;
+}
+
+@mixin margin-items($margin){
+	margin-bottom: $margin;
+
+	&:last-child{
+		margin-bottom: 0;
+	}
+}
+
+@mixin bg-img-center($url){
+	background-image: url($url);
+	background-repeat: no-repeat;
+	background-position: 50% 50%;
+	background-size: cover;
+}
+@mixin bg-elem($url,$width,$height,$size){
+	@include bg-img-center($url);
+
+	width: $width;
+	height: $height;
+
+	background-size: $size;
+}
+@mixin bg-img-position($url,$left,$top){
+	background-image: url($url);
+	background-repeat: no-repeat;
+	background-position: $left $top;
+}
+@mixin text-style($font,$size,$color){
+	font-family: $font;
+	font-size: $size;
+	color: $color;
+}

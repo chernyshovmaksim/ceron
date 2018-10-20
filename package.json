@@ -1,0 +1,38 @@
+{
+  "main": "index.html",
+  "name": "CERON",
+  "description": "",
+  "version": "2.29",
+  "version_min": 2,
+  "node-remote": "*://*/*",
+  "window": {
+    "icon": "style/img/icon_program.png",
+    "show": true,
+    "title": "",
+    "toolbar": false,
+    "width": 1200,
+    "height": 680,
+    "min_width": 1000,
+    "min_height": 560
+  },
+  "devDependencies": {
+    "del": "^3.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-rename": "^1.2.2"
+  },
+  "dependencies": {
+    "autoprefixer": "^7.2.3",
+    "browser-sync": "^2.24.1",
+    "chokidar": "^1.7.0",
+    "gulp-google-webfonts": "^2.0.0",
+    "js-beautify": "^1.7.5",
+    "pan-zoom": "^2.0.0",
+    "postcss": "^6.0.14",
+    "psd": "^3.2.0",
+    "request": "^2.87.0",
+    "sass": "^1.0.0-rc.1",
+    "sass-parser": "^0.1.2",
+    "scss-parser": "^1.0.0",
+    "unzip": "^0.1.11"
+  }
+}

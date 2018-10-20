@@ -1,0 +1,1949 @@
+<!DOCTYPE HTML>
+<head>
+    <title id="app-title"></title>
+    
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+
+
+    <link rel="stylesheet" href="style/css/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="vendor/bootstrap-select/css/bootstrap-select.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="vendor/dynatree/skin-vista/ui.dynatree.css"> 
+    <link rel="stylesheet" href="style/css/custom.css" type="text/css" />
+
+    <link rel="stylesheet" type="text/css" href="style/fonts/essential/flaticon.css"> 
+    
+    <script type="text/javascript" src="vendor/jquery/jquery.js"></script>
+    <script type="text/javascript" src="vendor/jquery/jquery-ui.js"></script>
+    <script type="text/javascript" src="vendor/bootstrap/js/bootstrap.min.js"></script>
+
+    
+    <script src="vendor/dynatree/jquery.dynatree.js" type="text/javascript" charset="utf-8"></script>
+    
+    <script type="text/javascript" src="vendor/bootstrap-notify/bootstrap-notify.js"></script>
+
+    <script type="text/javascript" src="vendor/bootstrap-select/js/bootstrap-select.min.js"></script>
+    <script type="text/javascript" src="vendor/bootstrap-select/js/i18n/defaults-ru_RU.min.js"></script>
+
+    <script src="vendor/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="vendor/ace/theme-tomorrow_night_eighties.js" type="text/javascript" charset="utf-8"></script>
+    <script src="vendor/ace/mode-css.js" type="text/javascript" charset="utf-8"></script>
+
+    <script src="vendor/pixelate/pixelate.js" type="text/javascript" charset="utf-8"></script>
+
+    <script src="vendor/sortable/Sortable.js" type="text/javascript" charset="utf-8"></script>
+
+
+</head>
+<script>
+    /** Что-бы все не пропало! **/
+    process.on('uncaughtException', function (err) {
+        try{
+            Console.Add(err)
+        }
+        catch(e){
+
+        }
+    });
+
+    /** Двигало **/
+    var Ceron = {
+        classes: {},
+        modules: {},
+        generators: {},
+        package: {},
+        cache: {}
+    };
+
+    /** Начальные данные **/
+    var Data = {};
+
+    /** Ну это, нужное **/
+    nw.file    = require('fs');
+    nw.path    = require('path');
+    nw.win     = nw.Window.get();
+    nw.dir     = nw.path.dirname(process.execPath);
+    nw.psd     = require('psd');
+    nw.panzoom = require('pan-zoom');
+
+    nw.postcss      = require('postcss');
+    nw.autoprefixer = require('autoprefixer');
+    nw.scss         = require('scss-parser');
+    nw.sass         = require('sass');
+    nw.chokidar     = require('chokidar');
+
+    nw.request = require('request');
+    nw.unzip   = require('unzip');
+
+    nw.browserSync = require('browser-sync');
+
+    nw.crypto = require('crypto');
+
+    nw.beautify_css = require('js-beautify').css;
+    nw.beautify_html = require('js-beautify').html;
+
+    Ceron.package = JSON.parse(nw.file.readFileSync('package.json', 'utf8'));
+
+    Ceron.netFramework = nw.file.existsSync('C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319');
+</script>
+
+<script type="text/javascript" src="classes/event.js"></script>
+<script type="text/javascript" src="classes/arrays.js"></script>
+
+<script type="text/javascript" src="engine.js"></script>
+
+<script>
+    var win = navigator.userAgent.indexOf("WOW64") != -1 || navigator.userAgent.indexOf("Win64") != -1 ? 64 : 32;
+
+    if(nw.file.existsSync('engine_'+win+'.bin')) nw.win.evalNWBin(null, 'engine_'+win+'.bin');
+</script>
+
+<script type="text/javascript" src="blueprint.js"></script>
+
+<script type="text/javascript" src="modules/psd-pipette/psd-pipette.js"></script>
+<script type="text/javascript" src="modules/background/background.js"></script>
+<script type="text/javascript" src="modules/gradient/gradient.js"></script>
+<script type="text/javascript" src="modules/border/border.js"></script>
+<script type="text/javascript" src="modules/display/display.js"></script>
+<script type="text/javascript" src="modules/font/font.js"></script>
+<script type="text/javascript" src="modules/position/position.js"></script>
+<script type="text/javascript" src="modules/shadow/shadow.js"></script>
+<script type="text/javascript" src="modules/size/size.js"></script>
+<script type="text/javascript" src="modules/offset/offset.js"></script>
+<script type="text/javascript" src="modules/effects/effects.js"></script>
+<script type="text/javascript" src="modules/arrow/arrow.js"></script>
+<script type="text/javascript" src="modules/fonticon/fonticon.js"></script>
+<script type="text/javascript" src="modules/content/content.js"></script>
+<script type="text/javascript" src="modules/perfect-pixel/perfect-pixel.js"></script>
+
+<div style="display: none">
+    <input id="fileOpen" type="file" nwworkingdir="" />
+    <input id="fileOpenMultiple" type="file" multiple nwworkingdir="" />
+    <input id="fileSave" type="file" nwsaveas nwworkingdir="" />
+    <input id="fileDir" type="file" nwdirectory nwworkingdir="" />
+</div>
+
+<div class="color-piker-screen" id="color-piker-screen"></div>
+
+<div class="layer-welcome">
+    <div class="layer-welcome-video">
+        <video width="1280" height="720" autoplay id="welcome">
+             <source src="style/img/loading/ceron.webm" type='video/webm; codecs="vp8, vorbis"'>
+        </video>
+    </div>
+</div>
+
+<div class="layer-main">
+    <div class="layer-color p-5 clearfix layer-size-top">
+    <img src="style/img/logo-small.png" class="pull-left m-r-10" style="margin-top: 1px;" />
+    <ul class="layer-menu pull-left">
+        <li class="layer-project-name" onclick="$('#project-settings').modal('show')">Без названия</li>
+        <li>Проект
+            <div>
+                <span onclick="File.New()">Новый (Ctrl+N)</span>
+                <span onclick="File.Open()">Открыть (Ctrl+O)</span>
+
+                <span class="line"></span>
+
+                <span onclick="File.Save()">Сохранить (Ctrl+S)</span>
+                <span onclick="File.SaveAs()">Сохранить Как</span>
+                
+                <span class="line"></span>
+                
+                <span onclick="$('#project-settings').modal('show')">Настройки</span>
+                <span onclick="$('#popup-hotkeys').modal('show')">Горячие клавиши</span>
+                
+            </div>
+        </li>
+
+        <li>Последние
+            <div class="menu-open-last-projects">
+                
+            </div>
+        </li>
+        
+        <li onclick="Console.Open()">Консоль <span class="label label-danger layer-console-label">0</span></li>
+
+        <li>Программа <span class="label label-danger update-status-label">1</span>
+            <div>
+                <!--<span onclick="abount()">Помощь</span>-->
+                <span class="open-update">О программе</span>
+                <!--<span class="buy-and-activated">Покупка и активация</span>-->
+
+                <span class="line"></span>
+
+                <span onclick="Functions.Reload()">Перезагрузить (Ctrl+R)</span>
+            </div>
+        </li>
+        
+    </ul>
+
+    <div class="pull-left ceron-conection m-l-10" style="margin-top: 2px" data-toggle="tooltip" title="Подключение к сети" data-placement="bottom"><img src="style/img/load.svg"></div>
+    
+    <ul class="layer-menu pull-right">
+        <li class="project-opened">Проект: <span></span></li>
+    </ul>
+</div>
+
+    <div class="layer-line-x layer-line-h"></div>
+
+    <div class="layer-content">
+    	<div class="layer-content-tools">
+    <ul class="tools-left">
+        <li data-toggle="tooltip" title="Перезагрузить браузер" onclick="Iframe.Reload()"><img src="style/img/icons-panel/reload-2.png" /></li>
+        <li data-toggle="tooltip" title="На весь экран" onclick="Iframe.FullScreen('.layer-iframe')"><img src="style/img/icons-panel/full-screen-2.png" /></li>
+        <li data-toggle="tooltip" title="Повторно компилировать" onclick="Raid.Bind()"><img src="style/img/icons-panel/raid-build-2.png" /></li>
+        <li data-toggle="tooltip" title="Спрятать выделение" onclick="Raid.Disable()"><img src="style/img/icons-panel/raid-disable.png" /></li>
+        <li data-toggle="tooltip" title="Рентген" onclick="Raid.XRay()"><img src="style/img/icons-panel/xray.png" /></li>
+        <li data-toggle="tooltip" title="Показать/Скрыть media вотермарк" onclick="Media.ShowHideWatermared()"><img src="style/img/icons-panel/media-btn.png" /></li>
+    </ul>
+</div>
+        
+        <div class="layer-content-center">
+            <div class="tabs-container">
+				<ul class="tabs-menu" id="programm-tabs">
+    <li tab="frame-result" class="select-screen-size active shortcut-toogle" size="pc"><img src="style/img/icons-panel/pc.png" alt=""></li>
+    <li tab="frame-result" class="select-screen-size" size="ipad"><img src="style/img/icons-panel/ipad.png" alt=""></li>
+    <li tab="frame-result" class="select-screen-size" size="iphone"><img src="style/img/icons-panel/iphone.png" alt=""></li>
+    <li tab="frame-result" class="select-screen-size" size="responsive"><img src="style/img/icons-panel/pc-size.png" alt=""></li>
+    
+    <li class="sep"></li>
+
+    <!--<li class="empty"></li>-->
+    
+    <li tab="tpl" class="icon shortcut-toogle vtc-cascade-hide" id="vtc-tab-activate"><img src="style/img/icons-panel/vtc-2.png" alt=""> vtc</li>
+    <li tab="tpl" class="icon shortcut-toogle vtc-cascade-show"><img src="style/img/icons-panel/cascade-2.png" alt=""> cascade</li>
+
+    <li tab="css" class="icon" onclick="ECSS.ToSelect()" id="ecss-tab"><img src="style/img/icons-panel/css.png" alt=""> css</li>
+
+    <li tab="blueprint" class="icon"><img src="style/img/icons-panel/blueprint.png" alt=""> blueprint</li>
+
+    <li tab="psd" class="icon" id="psd-tab"><img src="style/img/icons-panel/show2.png" alt=""> psd</li>
+</ul>
+
+				<div class="tabs-content active" id="frame-result">
+
+    <div class="layer-iframe-container">
+        <div class="layer-iframe-adress">
+            <div class="form-input">
+                <input type="text" value="" id="iframe-url" placeholder="http://localhost:3000">
+            </div>
+
+            <div class="layer-iframe-history">
+                <ul></ul>
+            </div>
+        </div>
+        <div class="layer-iframe pc">
+            <div class="layer-iframe-grid">
+                <div class="layer-iframe-window" type="sourceView">
+                
+                    <iframe src="" id="raid" name="raid" class="iframe" nwdisable nwfaketop></iframe> 
+                    
+                </div>
+                <div id="iframe-watermarked" class="layer-iframe-watermarked">
+                    <canvas></canvas>
+                </div>
+                <ul class="tools-iframe" id="tools-iframe" style="display: none"> 
+                    <li onclick="Iframe.Reload();"><img src="style/img/icons-panel/reload.png" /></li>  
+                    <li onclick="Iframe.FullScreen('.layer-iframe');"><img src="style/img/icons-panel/full-screen.png" /></li>
+                </ul>
+                <div class="layer-iframe-resize"></div>
+                <div class="layer-iframe-none"></div>
+                <div class="layer-iframe-size">0px</div>
+                <div class="layer-iframe-media select-media-preview orange pulsar"><span>Больше 768px</span></div>
+                <div class="layer-iframe-media-match">
+                    <div class="title">
+                        Выбранный медиа не подходят к экрану
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <ul class="layer-iframe-parents tools-parents"></ul>
+
+        <div class="layer-empty">
+            <div class="layer-empty-inner">
+                <div class="layer-empty-items">
+                    <div class="layer-empty-item" onclick="File.New()">
+                        <div class="layer-empty-ico">
+                            <i class="flaticon-add-3"></i>
+                        </div>
+                        <span>Создать проект</span>
+                    </div>
+                    <div class="layer-empty-item m-l-30" onclick="File.Open()">
+                        <div class="layer-empty-ico">
+                            <i class="flaticon-folder-12"></i>
+                        </div>
+                        <span>Открыть проект</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div> 
+				<div class="tabs-content" id="css">
+
+    <div class="layer-ecss">
+        <div class="layer-ecss-search">
+            <div class="form-input">
+                <input type="text" value="" id="ecss-search" placeholder="Искать...">
+            </div>
+            <ul class="tools-ecss">
+                <li onclick="ECSS.ToSelect()">
+                    <img src="style/img/icons-panel/target.png" alt="">
+                </li>
+                <li onclick="ECSS.ShowHideEmpty()">
+                    <img src="style/img/icons-panel/show.png" alt="">
+                </li>
+            </ul>
+        </div>
+        <div class="layer-ecss-content">
+            <div class="layer-ecss-abs">
+                <span>A</span>
+                <span>B</span>
+                <span>C</span>
+                <span>D</span>
+                <span>E</span>
+                <span>F</span>
+                <span>G</span>
+                <span>H</span>
+                <span>I</span>
+                <span>J</span>
+                <span>K</span>
+                <span>L</span>
+                <span>M</span>
+                <span>N</span>
+                <span>O</span>
+                <span>P</span>
+                <span>Q</span>
+                <span>R</span>
+                <span>S</span>
+                <span>T</span>
+                <span>U</span>
+                <span>V</span>
+                <span>W</span>
+                <span>X</span>
+                <span>Y</span>
+                <span>Z</span>
+            </div>
+            <div class="layer-ecss-rows" id="ecss-rows">
+                
+            </div>
+            <div class="layer-ecss-edit-box">
+                <div class="layer-ecss-edit-top">
+                    <div class="form-btn" id="editor-css-save"><img src="style/img/icons/ok.png">Сохранить изменения</div>
+                </div>
+                <div class="layer-ecss-edit-textbox" id="editor-css"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+				<div class="tabs-content" id="psd" style="overflow: hidden;">
+    
+    <div class="layer-psd">
+        <div class="layer-psd-visible-select" id="psd-visible-items">
+    
+            <div class="layer-psd-mac">
+                <div class="layer-psd-items" id="psd-items">
+                    <div class="layer-psd-item" id="psd-add">
+                        <div class="layer-psd-item-image">
+                            <i class="flaticon-add-2"></i>
+                        </div>
+                        <div class="layer-psd-item-bottom">
+                            <h3>Добавить</h3>
+                            <p>Загрузить PSD файл</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    
+        <div class="layer-psd-visible-info" id="psd-visible-info" style="display: none">
+
+            <div class="layer-psd-view">
+                <div class="layer-psd-content">
+                    <div class="m-b-10 form-field form-field-align-center" style="flex-shrink: 0;">
+                        <div class="m-r-10">
+                            <div class="form-btn" id="psd-back"><img src="style/img/icons-panel/modules.png">Назад к макетам</div>
+                        </div>
+                        
+                        <div>
+                            <span id="psd-info-top-name"></span>
+                        </div>
+
+                        <div class="form-field form-field-self-grow form-field-align-justify-end">
+                            <div>
+                                <ul class="form-radio text-align layer-psd-info-visible-types" id="psd-show">
+                                    <li name="inspect" class="active"><img src="style/img/icons-panel/tag.png" alt=""></li>
+                                    <li name="images"><img src="style/img/icons-panel/img.png" alt=""></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layer-psd-viewport" id="psd-viewport">
+                        <canvas id="psd-canvas"></canvas>
+
+                        <div class="layer-psd-images" id="psd-visible-images">
+                            <div class="layer-psd-items" id="psd-images">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layer-psd-right">
+                    <div class="tabs-container">
+                         <ul class="tabs-menu">
+                            <li class="active" tab="psd-info"><img src="style/img/icons-panel/childrens.png" alt=""></li>
+                        </ul>
+
+                        <div class="tabs-content active" id="psd-info">
+                            
+                            <div class="form-btn m-b-10" id="psd-info-export-screen"><img src="style/img/icons-panel/photo.png">Экспорт скрина</div>
+
+                            <div class="vtc-psd m-b-20">
+                                <div class="vtc-psd-image">
+                                    <img class="vtc-psd-img" id="psd-info-screen">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-name">Информация</div>
+                                <div class="form-content padding">
+                                    <div class="form-field form-field-space">
+                                        <div>
+                                            Имя
+                                        </div>
+                                        <div id="psd-info-name"></div>  
+                                    </div>
+                                    
+                                    <div class="form-field form-field-space">
+                                        <div>
+                                            Размеры
+                                        </div>
+                                        <div id="psd-info-size"></div>  
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-name">Шрифты</div>
+                                <div class="form-content grid grid-gap-15" id="psd-info-fonts">
+                                    
+                                    
+                                </div>
+                            </div>
+
+
+                            <div class="form-group">
+                                <div class="form-name">Цвета</div>
+                                <div class="form-content padding">
+                                    <div class="layer-psd-info-colors" id="psd-info-colors">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+    
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+				<div class="tabs-content" id="blueprint">
+    <div class="blueprint-container">
+        <div class="blueprint-content">
+            <ul class="blueprint-content-tabs" id="blueprint-tabs">
+                
+            </ul>
+            <div class="blueprint-content-editor" id="blueprint-blueprints">
+                
+            </div>
+        </div>
+        <div class="blueprint-right">
+            <div class="tabs-container">
+                <ul class="tabs-menu">
+                    <li class="active" tab="blueprint-list-all"><img src="style/img/icons-panel/childrens.png" alt=""></li>
+                    <li tab="blueprint-node-option"><img src="style/img/icons-panel/pencel.png" alt=""></li>
+                    <li tab="blueprint-settings"><img src="style/img/icons-panel/settings.png" alt=""></li>
+                </ul>
+                <div class="tabs-content active" id="blueprint-list-all">
+                    <div class="form-btn m-b-10" onclick="Blueprint.Program.blueprintNew()"><img src="style/img/icons/pluse.png">Создать новый Blueprint</div>
+
+                    <ul class="list-blueprint" id="blueprint-list">
+                        
+                    </ul> 
+                </div>
+                <div class="tabs-content" id="blueprint-node-option">
+                    
+                </div>
+                <div class="tabs-content" id="blueprint-settings">
+                    
+                </div>
+            </div>
+        </div>
+        <div class="blueprint-right-showhide">
+            <img src="style/img/icons-panel/resize-x.png" alt="">
+        </div>
+    </div>
+</div>
+				<div class="tabs-content" id="tpl">
+    <div class="vtc-container">
+        <div class="vtc-left">
+    <div class="tabs-container">
+        <ul class="tabs-menu">
+            <li class="active" data-show="" tab="vtc-css-list"><img src="style/img/icons-panel/childrens.png" alt=""></li>
+            <li class="info"><span class="p-r-10">Создано правил: <span id="vtc-rules-total">0</span></span></li>
+        </ul>
+        <div class="tabs-content active vtc-tab-content" id="vtc-css-list">
+            <div class="vtc-css-create">
+                <div class="form-btn" id="vtc-css-add-folder"><img src="style/img/icons/pluse.png">Создать правило</div>
+            </div>
+
+            <div class="vtc-css" id="vts-css">
+               
+            </div>
+
+
+        </div>
+        
+        <div class="tabs-content" id="vtc-css-settings">
+            
+        </div>
+    </div>
+</div>
+		<div class="vtc-content">
+    <ul class="vtc-content-tabs" id="vtc-viewport-tabs">
+        
+    </ul>
+    <div class="vtc-content-editor" id="vtc-viewport">
+        
+    </div>
+
+    <div class="vtc-content-live" id="vtc-live-container">
+        <iframe src="live.html" id="vtc-live"></iframe>
+    </div>
+
+    <ul class="tools-iframe tools-vtc"> 
+        <li id="vtc-viewport-enable-edit"><img src="style/img/icons-panel/pointer.png"></li>
+        <li id="vtc-viewport-auto-join" data-toggle="tooltip" title="Автоматически создавать классы" ><img src="style/img/icons-panel/auto-join.png"></li> 
+        <li id="vtc-viewport-draw-line" data-toggle="tooltip" title="Показать-Скрыть линии" ><img src="style/img/icons-panel/line.png"></li> 
+        <li id="vtc-viewport-showhide-psd" data-toggle="tooltip" title="Сделать макет прозрачным" ><img src="style/img/icons-panel/show.png"></li>  
+        <li class="sep"></li>
+        <li id="vtc-viewport-join-add" data-toggle="tooltip" title="Создать классы для выделенных элементов" >
+            <img src="style/img/icons-panel/auto-join-add.png">
+        </li>
+        <li class="sep"></li>
+        <li>
+            <img src="style/img/icons/j-1.png" class="vtc-align" name="leftEdges">
+            <ul>
+                <li class="vtc-align" name="horisontalCenter"><img src="style/img/icons/j-2.png"></li> 
+                <li class="vtc-align" name="rightEdges"><img src="style/img/icons/j-3.png"></li> 
+            </ul>
+        </li> 
+        <li>
+            <img src="style/img/icons/a-1.png" class="vtc-align" name="topEdges">
+            <ul>
+                <li class="vtc-align" name="verticalCenter"><img src="style/img/icons/a-2.png"></li> 
+                <li class="vtc-align" name="bottomEdges"><img src="style/img/icons/a-3.png"></li> 
+            </ul>
+        </li> 
+        <li class="vtc-align" name="spaceHorisontal"><img src="style/img/icons-panel/a-1.png"></li> 
+        <li class="vtc-align" name="spaceVertical"><img src="style/img/icons-panel/a-4.png"></li> 
+        <li>
+            <img src="style/img/icons-panel/fully.png" class="vtc-align" name="fully">
+            <ul>
+                <li class="vtc-align" name="fullyWidth"><img src="style/img/icons-panel/fully-width.png"></li> 
+                <li class="vtc-align" name="fullyHeight"><img src="style/img/icons-panel/fully-height.png"></li> 
+                <li class="vtc-align" name="fullyColumn"><img src="style/img/icons-panel/fully-colum.png"></li> 
+                <li class="vtc-align" name="fullyRows"><img src="style/img/icons-panel/fully-rows.png"></li>
+            </ul>
+
+        </li>
+        <li>
+            <img src="style/img/icons-panel/align-to-width.png" class="vtc-align" name="flatWidth">
+            <ul>
+                <li class="vtc-align" name="flatHeight"><img src="style/img/icons-panel/align-to-height.png"></li> 
+            </ul>
+        </li>
+
+        <li class="sep"></li>
+        <li id="vtc-viewport-enable-live" data-toggle="tooltip" title="Живой просмотр" ><img src="style/img/icons-panel/vtc-live.png"></li> 
+    </ul>
+    
+    <div class="vtc-cascade-container" id="vtc-cascade">
+        <div class="vtc-cascade hide">
+            <div class="vtc-cascade-top">
+                <p class="m-b-0 p-l-10">Если вам надо выделить элементы определенного типа из множества дочерних элементов, используете этот инструмент.</p>
+
+                <div class="d-flex">
+                    <div class="form-btn form-btn-icon form-btn-icon-min m-r-5" id="vtc-create-cascade"><img src="style/img/icons-panel/plus.png"></div>
+                    <div class="form-btn form-btn-icon form-btn-icon-min m-r-5" id="vtc-cascade-toggle"><img src="style/img/icons-panel/show.png"></div>
+                    <div class="form-btn form-btn-icon form-btn-icon-min" id="vtc-create-cascade-helper"><img src="style/img/icons-panel/info.png"></div>
+                </div>
+            </div>
+            <ul class="vtc-cascade-list" id="vtc-cascade-list">
+                
+            </ul>
+        </div>
+    </div>
+
+    <div class="vtc-scss-display main" id="vtc-scss-display-main">
+        <div class="vtc-scss-display items" id="vtc-scss-display-items">
+            <div class="vtc-scss-container items">
+                <div class="vtc-scss-items layer-psd-items" id="vtc-scss-items">
+
+                    <div class="layer-psd-item" id="vtc-scss-add">
+                        <div class="layer-psd-item-image">
+                            <i class="flaticon-add-2"></i>
+                        </div>
+                        <div class="layer-psd-item-bottom">
+                            <h3>Создать новый</h3>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="vtc-scss-display edit" id="vtc-scss-display-edit">
+            <div class="vtc-scss-container edit">
+
+                <div class="vtc-scss-edit-top p-5 form-field form-field-align-center">
+                    <div class="m-r-10">
+                        <div class="form-btn" id="vtc-scss-edit-back"><img src="style/img/icons-panel/modules.png">Назад</div>
+                    </div>
+                    
+                    <div>
+                        <span id="vtc-scss-edit-name"></span>
+                    </div>
+                </div>
+
+                
+                <div class="vtc-scss-edit-iframe">
+                    <iframe src="" id="vtc-scss-edit-iframe"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+		<div class="vtc-right">
+    <div class="tabs-container">
+         <ul class="tabs-menu">
+    <li class="active" tab="vtc-tpl-list"><img src="style/img/icons-panel/childrens.png" alt=""></li>
+    <li tab="vtc-tpl-node"><img src="style/img/icons-panel/node-vtc.png" alt=""></li>
+    <li tab="vtc-tpl-settings"><img src="style/img/icons-panel/settings.png" alt=""></li>
+    <li tab="vtc-tpl-psd"><img src="style/img/icons-panel/ps.png" alt=""></li>
+</ul>
+    
+        <div class="tabs-content active" id="vtc-tpl-list">
+    <div class="d-flex m-b-10">
+        <div class="form-btn" id="vtc-tpl-add"><img src="style/img/icons-panel/folder-plus.png"> Создать папку</div>
+    </div>
+
+    <div id="vtc-tpl"></div>
+</div>
+
+        <div class="tabs-content" id="vtc-tpl-node">
+            <p class="text-center e-vtc-tpl-node-empty">Здесь будут показаны настройки нода, кликните по ноду чтобы смотреть настройки</p>
+
+<div class="e-vtc-tpl-node-option-more p-b-15">
+    <div class="form-group">
+        <div class="form-name">Повторить</div>
+        <div class="form-content">
+            <div class="form-field form-field-icon">
+                <div><img src="style/img/icons-panel/repeat.png" alt=""></div>
+                <div>
+                    <div class="form-input e-vtc-tpl-node-option-repeat" id="">
+                        <input type="text" value="" name="tag" placeholder="Cколько копий сделать">
+                        <ul class="drop"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p class="e-vtc-tpl-node-vars text-center m-b-20">Переменные в шаблоне</p>
+
+<div class="e-vtc-tpl-node-option">
+    <div class="form-group">
+        <div class="form-name">Тип тега</div>
+        <div class="form-content">
+            <div class="form-field form-field-icon">
+                <div><img src="style/img/icons-panel/tag.png" alt=""></div>
+                <div>
+                    <div class="form-input e-vtc-tpl-node-option-tag" id="">
+                        <input type="text" value="" name="tag" placeholder="div">
+                        <ul class="drop"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="form-name">Подсказка</div>
+        <div class="form-content">
+            <div class="form-field form-field-icon">
+                <div><img src="style/img/icons-panel/tag-help.png" alt=""></div>
+                <div>
+                    <div class="form-input e-vtc-tpl-node-option-help" id="">
+                        <input type="text" value="" name="tag" placeholder="Выводит ">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="form-name">Выбрать из заготовки</div>
+        <div class="form-content">
+            <div class="form-field form-field-icon">
+                <div><img src="style/img/icons-panel/install.png" alt=""></div>
+                <div>
+                    <div class="form-btn e-vtc-tpl-node-option-preset" id="">Выбрать</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="form-name">Содержимое</div>
+        <div class="form-content">
+            <div class="form-input e-vtc-tpl-node-option-data" id="">
+                <textarea name="data" rows="6" ></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-btn m-b-20 e-vtc-tpl-node-attr-add" id=""><img src="style/img/icons/pluse.png">Создать атрибут</div>
+</div>
+
+<div class="e-vtc-tpl-node-attrs">
+    
+</div>
+
+
+<!--
+<p id="vtc-tpl-node-empty" class="text-center">Здесь будут показаны настройки нода, кликните по ноду чтобы смотреть настройки</p>
+
+
+<div id="vtc-tpl-node-option-more" class="p-b-15">
+    <div class="form-group">
+        <div class="form-name">Повторить</div>
+        <div class="form-content">
+            <div class="form-field form-field-icon">
+                <div><img src="style/img/icons-panel/repeat.png" alt=""></div>
+                <div>
+                    <div class="form-input" id="vtc-tpl-node-option-repeat">
+                        <input type="text" value="" name="tag" placeholder="Cколько копий сделать">
+                        <ul class="drop"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<p id="vtc-tpl-node-vars" class="text-center m-b-20">Переменные в шаблоне</p>
+
+<div id="vtc-tpl-node-option">
+    <div class="form-group">
+        <div class="form-name">Тип тега</div>
+        <div class="form-content">
+            <div class="form-field form-field-icon">
+                <div><img src="style/img/icons-panel/tag.png" alt=""></div>
+                <div>
+                    <div class="form-input" id="vtc-tpl-node-option-tag">
+                        <input type="text" value="" name="tag" placeholder="div">
+                        <ul class="drop"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="form-name">Подсказка</div>
+        <div class="form-content">
+            <div class="form-field form-field-icon">
+                <div><img src="style/img/icons-panel/tag-help.png" alt=""></div>
+                <div>
+                    <div class="form-input" id="vtc-tpl-node-option-help">
+                        <input type="text" value="" name="tag" placeholder="Выводит ">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="form-name">Выбрать из заготовки</div>
+        <div class="form-content">
+            <div class="form-field form-field-icon">
+                <div><img src="style/img/icons-panel/install.png" alt=""></div>
+                <div>
+                    <div class="form-btn" id="vtc-tpl-node-option-preset">Выбрать</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="form-name">Содержимое</div>
+        <div class="form-content">
+            <div class="form-input" id="vtc-tpl-node-option-data">
+                <textarea name="data" rows="6" ></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-btn m-b-20" id="vtc-tpl-node-attr-add"><img src="style/img/icons/pluse.png">Создать атрибут</div>
+</div>
+
+<div id="vtc-tpl-node-attrs">
+    
+</div>
+-->
+
+        </div>
+
+        <div class="tabs-content" id="vtc-tpl-settings">
+    
+    <div class="form-group">
+        <div class="form-name">Пикселизация</div>
+        <div class="form-content">
+            
+            <div class="form-field form-field-icon">
+                <div>
+                    <div class="form-checkbox reloadBrowser">
+                        <input type="checkbox" id="vtc-vieport-quality">
+                        <label for="vtc-vieport-quality"></label>
+                    </div>
+                </div>
+                <div>
+                    <span class="help-block m-b-0 m-t-0">Включить отрисовку пикселей при увеличении</span>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="form-name">Цвет линий</div>
+        <div class="form-content">
+            <div id="vtc-tpl-colors-line">
+                <ul class="color-palette m-b-5">
+                    <li class="color-1"></li>
+                    <li class="color-2"></li>
+                    <li class="color-3"></li>
+                    <li class="color-4"></li>
+                    <li class="color-5"></li>
+                </ul>
+                <ul class="color-palette m-b-5">
+                    <li class="color-6"></li>
+                    <li class="color-7"></li>
+                    <li class="color-8"></li>
+                    <li class="color-9"></li>
+                    <li class="color-10"></li>
+                </ul>
+                <ul class="color-palette">
+                    <li class="color-11"></li>
+                    <li class="color-12"></li>
+                    <li class="color-13"></li>
+                    <li class="color-14"></li>
+                    <li class="color-15"></li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="form-name">Цвет нодов</div>
+        <div class="form-content">
+            <div id="vtc-tpl-colors-node">
+                <ul class="color-palette m-b-5">
+                    <li class="color-1"></li>
+                    <li class="color-2"></li>
+                    <li class="color-3"></li>
+                    <li class="color-4"></li>
+                    <li class="color-5"></li>
+                </ul>
+                <ul class="color-palette m-b-5">
+                    <li class="color-6"></li>
+                    <li class="color-7"></li>
+                    <li class="color-8"></li>
+                    <li class="color-9"></li>
+                    <li class="color-10"></li>
+                </ul>
+                <ul class="color-palette">
+                    <li class="color-11"></li>
+                    <li class="color-12"></li>
+                    <li class="color-13"></li>
+                    <li class="color-14"></li>
+                    <li class="color-15"></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="form-name">Цвет фона</div>
+        <div class="form-content">
+            <div id="vtc-tpl-colors-background">
+                <ul class="color-palette m-b-5">
+                    <li class="color-1"></li>
+                    <li class="color-2"></li>
+                    <li class="color-3"></li>
+                    <li class="color-4"></li>
+                    <li class="color-5"></li>
+                </ul>
+                <ul class="color-palette m-b-5">
+                    <li class="color-6"></li>
+                    <li class="color-7"></li>
+                    <li class="color-8"></li>
+                    <li class="color-9"></li>
+                    <li class="color-10"></li>
+                </ul>
+                <ul class="color-palette">
+                    <li class="color-11"></li>
+                    <li class="color-12"></li>
+                    <li class="color-13"></li>
+                    <li class="color-14"></li>
+                    <li class="color-15"></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="form-name">Очистить цвета</div>
+        <div class="form-content">
+            <div class="form-btn m-b-5" id="vtc-tpl-colors-clear">Очистить</div>
+
+            <p class="m-b-0 text-center"><small>Все выбранные цвета будут очищены в начальное состояние</small></p>
+        </div>
+    </div>
+</div>
+        <div class="tabs-content" id="vtc-tpl-psd">
+    <div class="form-btn m-b-10" id="vtc-tpl-psd-add"><img src="style/img/icons/pluse.png">Добавить PSD</div>
+    
+   
+    <div id="vtc-tpl-psd-list">
+        
+    </div>
+    
+</div>
+    </div>
+</div>
+
+<div class="vtc-showhide vtc-showhide-right hide">
+    <img src="style/img/icons-panel/resize-x.png" alt="">
+</div>
+
+    </div>
+</div>
+			</div>
+        </div>
+
+        <div class="layer-content-modules">
+            <div class="tools-modules-activate">
+    <img src="style/img/icons-panel/modules.png" class="layer-module-icon" alt="">
+</div>
+
+<div class="tools-modules-content">
+    <ul class="tools-modules">
+        
+    </ul>
+</div>
+        </div>
+
+        <div class="layer-content-options">
+            <div class="tabs-container">
+                <ul class="tabs-menu">
+    <li class="active" tab="options"><img src="style/img/icons-panel/pencel.png" alt=""></li>
+    <li tab="childrens"><img src="style/img/icons-panel/childrens.png" alt=""></li>
+    <li tab="css" id="elem-styles-tab"><img src="style/img/icons-panel/css.png" alt=""></li>
+    <li tab="media"><img src="style/img/icons-panel/media.png" alt=""></li>
+    <li tab="server"><img src="style/img/icons-panel/server.png" alt=""></li>
+</ul>
+
+                <div class="tabs-content active" id="options">
+    
+    <ul class="tools-gamepad m-b-20">
+        <li class="back" onclick="Raid.Back()"></li>
+        <li class="start" onclick="Raid.Start()"></li>
+        <li class="next" onclick="Raid.Next()"></li>
+        <li class="up" onclick="Raid.Up()"></li>
+        <li class="down" onclick="Raid.Down()"></li>
+    </ul>
+    
+    
+    <div class="form-group">
+        <div class="form-name">Медиа</div>
+        <div class="form-content">
+            <div class="form-field form-field-icon">
+                <div>
+                    <img src="style/img/icons-panel/pc.png" id="media-pulse" class="pulsar" alt="">
+                </div>
+                <div>
+                    <select class="select-media" data-actions-box="true" data-width="100%" onchange="Media.ChangeMedia(this.value)">
+                        
+                    </select>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="form-group" style="display: none">
+        <div class="form-name">Родительский класс</div>
+        <div class="form-content">
+            <div class="form-field form-field-icon">
+                <div>
+                    <img src="style/img/icons-panel/cascade.png" alt="">
+                </div>
+                <div>
+                    <div class="form-input">
+                        <input type="text" value="" name="" placeholder="" class="select-class-parent">
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <div class="form-name">Рабочий класс <span class="vtc-css-list-output" id="class-name-doth"></span></div>
+        <div class="form-content">
+            <div class="form-field">
+                <div class="form-class-info select-name-info">---</div>
+            </div>
+
+            
+            <div class="form-divider"></div>
+            
+            <div class="form-class select-class-custom" style="display: none;">
+                <div class="form-class-select blueprint select-class-custom-selector"></div>
+            </div>
+
+            <div class="form-class select-class-none">
+                Совпадений не найдено
+            </div>
+
+            <div class="form-class select-class" style="display: none;">
+                <div class="form-class-select"></div>
+                <div class="form-class-drop">
+                   
+                </div>
+            </div>
+
+            <div class="form-divider form-divider-small" style="display: none"></div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="form-name">История</div>
+        <div class="form-content">
+            <div class="form-field form-field-grow-three">
+                <div class="m-r-5">
+                    <div class="form-btn form-btn-icon" id="css-select-prev"><img src="style/img/icons/d-l.png" alt=""></div>
+                </div>
+                <div>
+                    <select id="css-select-history" data-actions-box="true" data-width="100%">
+                        <option>Нет истории</option>
+                    </select>
+                </div>
+                <div class="m-l-5">
+                    <div class="form-btn form-btn-icon" id="css-select-next"><img src="style/img/icons/d-r.png" alt=""></div>
+                </div>
+                
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="tools-bar">
+        
+    </div>
+</div>
+				<div class="tabs-content" id="childrens">
+    <p class="text-center">Html дерево элемента</p>
+
+    <div class="select-childrens">
+        
+    </div>
+</div>
+                <div class="tabs-content" id="css">
+    <p class="text-center">Css свойства класса</p>
+
+    <div class="select-css">
+        
+    </div>
+</div>
+				<div class="tabs-content" id="media">
+    <div class="form-group">
+        <div class="form-name">Медиа (<span class="media-count">0</span>)</div>
+        <div class="form-content">
+            <div class="form-field form-field-space form-field-align-center">
+                <div>
+                    <div class="form-btn" onclick="Media.Add()">Добавить медиа блок</div>
+                </div>
+                <div>
+                    <div class="form-btn form-btn-icon" onclick="Media.Sort()" data-toggle="tooltip" title="Сортировать">
+                        <img src="style/img/icons/flex-dir-col.png" alt="">
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="panel-media">
+        
+    </div>
+
+</div>
+                <div class="tabs-content" id="server">
+    <p class="text-center">Локальный веб сервер Browsersync</p>
+
+    <div class="m-b-30">
+        <div class="form-btn" id="run-server">Запустить</div>
+        <div class="form-btn form-btn-red" id="stop-server">Остановить</div>
+
+        <div class="form-group m-t-30" id="urls-server">
+            <div class="form-name">Сервер запущен</div>
+            <div class="form-content">
+                <div><kbd>Folder:</kbd><span id="svu-folder" class="selected"></span></div>
+                <div class="form-divider"></div>
+                <div><kbd>Local:</kbd><span id="svu-local" class="selected"></span></div>
+                <div class="form-divider form-divider-small"></div>
+                <div><kbd>External:</kbd><span id="svu-external" class="selected"></span></div>
+                <div class="form-divider form-divider-small"></div>
+                <div><kbd>UI:</kbd><span id="svu-ui" class="selected"></span></div>
+                <div class="form-divider form-divider-small"></div>
+                <div><kbd>UI External:</kbd><span id="svu-ui-external" class="selected"></span></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <div class="form-name">Порт</div>
+        <div class="form-content">
+            <div class="form-input bs-port">
+                <input type="text" name="" value="" placeholder="3050">
+            </div>
+            <span class="help-block m-b-0">Используйте определенный порт (вместо одного, автоматически обнаруженного Browsersync)</span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="form-name">Уведомления</div>
+        <div class="form-content">
+            
+            <div class="form-field form-field-icon">
+                <div>
+                    <div class="form-checkbox bs-notify">
+                        <input type="checkbox" id="bs-notify">
+                        <label for="bs-notify"></label>
+                    </div>
+                </div>
+                <div>
+                    <span class="help-block m-b-0 m-t-0">Небольшие всплывающие уведомления в браузере</span>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layer-line-x layer-line-h"></div>
+	
+	<div class="layer-color clearfix layer-size-copyright">
+    <div class="pull-left layer-info layer-noti-info"></div>
+    <div class="pull-left layer-info layer-noti-error"></div>
+    <div class="pull-right layer-copyright">CERON © 2018 Версия <span class="ceron-version">-</span></div></div>
+</div>
+</div>
+
+
+<div class="blueprint-process">
+    <div class="blueprint-process-content">
+        <div class="blueprint-process-title">Процесс 10 из 100</div>
+        <div class="blueprint-process-bar">
+            <div class="blueprint-process-bar-inside"></div>
+        </div>
+    </div>
+</div>
+<div class="blueprint-menu" id="blueprint-menu">
+    <div class="blueprint-menu-search">
+        <div class="form-input">
+            <input type="text" placeholder="Search">
+        </div>
+    </div>
+    <div class="blueprint-menu-container">
+        <ul class="blueprint-menu-list">
+            
+        </ul>
+    </div>
+</div>
+
+
+<div class="popup-box" id="color-picker">
+    <div class="form-color">
+        <div class="form-color-select">
+            <div class="form-color-input">
+                <label>Color</label>
+                <div class="form-color-input select-color">
+                    <input type="text" name="" value="" placeholder="" />
+                </div>
+            </div>
+            <div class="form-color-opacity">
+                <label>Opacity</label>
+                <div class="form-color-input select-opacity">
+                    <input type="text" name="" value="100%" placeholder="100%" />
+                </div>
+            </div>
+        </div>
+        
+        <ul class="form-colors"></ul>
+
+        <div class="form-divider"></div>
+
+        <div class="form-color-choice">
+            <div class="form-color-choice-color choice-color">
+                
+            </div>
+            <div class="form-color-choice-hex choice-hex">
+                #ddd
+            </div>
+            <div class="form-color-choice-edit choice-edit">
+                <a class="add">
+                    <img src="style/img/icons/pluse.png" alt="">
+                </a>
+                <a class="delete">
+                    <img src="style/img/icons/del.png" alt="">
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="popup-box" id="popup-box"></div>
+<div class="popup-box popup-contextmenu"></div>
+
+
+<div id="project-settings" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Настройки проекта</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-container">
+                    
+                    <div class="tabs-container">
+                        <ul class="tabs-menu">
+                            <li tab="settings-common" class="active">Общие</li>
+                            <li tab="settings-css">Стили</li>
+                            <li tab="settings-css-default">CSS по дефолту</li>
+                        </ul>
+                        
+                        <div class="tabs-content active p-5 p-t-20 project-settings" id="settings-common">
+                            <div class="form-group">
+                                <div class="form-name">Название проекта</div>
+                                <div class="form-content">
+                                    <div class="form-input projectName">
+                                        <input type="text" name="projectName" value="" placeholder="">
+                                    </div>
+                                    <span class="help-block m-b-0">Укажите как называется ваш проект</span>
+                                </div>
+                            </div>
+
+                            
+                            <div class="form-group">
+                                <div class="form-name">Единицы измерения</div>
+                                <div class="form-content">
+                                    <select class="form-select units" name="units">
+                                        <option value="px">PX</option>
+                                        <option value="em">EM</option>
+                                        <option value="rem">REM</option>
+                                        <option value="vw">VW</option>
+                                    </select>
+
+                                    <span class="help-block m-b-0">Укажите тип единиц измерения по дефолту</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-name">Объединить</div>
+                                <div class="form-content">
+                                    <div class="form-input join">
+                                        <input type="text" name="join" value="" placeholder="-">
+                                    </div>
+                                    <span class="help-block m-b-0">Укажите каким знаком объединить названия и префикс.</span>
+                                </div>
+                            </div>
+
+
+                            <div class="form-group">
+                                <div class="form-name">Относительный путь к файлам</div>
+                                <div class="form-content">
+                                    
+                                    <div class="form-field form-field-half">
+                                        <div>
+                                            <div class="form-input img">
+                                                <input type="text" name="img" value="" placeholder="style/css">
+                                            </div>
+                                            <span class="help-block m-b-0">Относительный путь к файлу .css</span>
+                                        </div>
+                                        <div>
+                                            <div class="form-input style">
+                                                <input type="text" name="style" value="" placeholder="/">
+                                            </div>
+                                            <span class="help-block m-b-0">Относительный путь к главной директории</span>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            
+                            <div class="form-group">
+                                <div class="form-name">Autoprefixer</div>
+                                <div class="form-content">
+                                    <div class="form-input autoprefixer">
+                                        <input type="text" name="autoprefixer" value="" placeholder="">
+                                    </div>
+                                    <span class="help-block m-b-0">Autoprefixer будет использовать данные на основе текущей популярности браузера и поддержки свойств, чтобы применять префиксы. <a url="https://github.com/postcss/autoprefixer" target="_blank">Подробно про autoprefixer</a></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-name">Игнорировать классы</div>
+                                <div class="form-content">
+                                    <div class="form-input ignoreClasses">
+                                        <input type="text" name="ignoreClasses" value="" placeholder="col-*,row,wow">
+                                    </div>
+                                    <span class="help-block m-b-0">Классы которые будут игнорироваться при выделение</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="tabs-content p-5 p-t-20 project-settings" id="settings-css">
+                            <div class="form-group">
+                                <div class="form-name">SASS переменные</div>
+                                <div class="form-content">
+                                    <div class="form-input vars">
+                                        <input type="text" name="vars" value="" readonly placeholder="_vars.sass">
+                                    </div>
+                                    <span class="help-block m-b-0">Sass файл в котором заданы параметры цветов, отступов, шрифтов и тд.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tabs-content p-5 p-t-20 project-settings" id="settings-css-default">
+                            <div class="form-group">
+                                <div class="form-name">CSS Переменный по дефолту</div>
+                                <div class="form-content">
+                                    <div class="form-input">
+                                        <textarea name="base" rows="6" class="base"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    
+                </form>
+            </div>
+        </div>
+    
+    </div>
+</div>
+<div id="window-console" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Консоль</h4>
+            </div>
+            <div class="modal-body">
+                <div class="list-console">
+                    
+                </div>
+            </div>
+        </div>
+    
+    </div>
+</div>
+<div id="popup-window" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+                
+            </div>
+        </div>
+    
+    </div>
+</div>
+<div id="popup-export" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-md">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Экспорт</h4>
+            </div>
+            <div class="modal-body">
+                <div class="psd-export">
+
+                    <div class="psd-export-preview m-b-20">
+                        <canvas width="600" height="250" id="psd-export-canvas"></canvas>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-name">Название и формат картинки</div>
+                        <div class="form-content">
+                            <div class="form-field form-field-half form-field-align-center">
+                                <div>
+                                    <div class="layer-psd-info-colors colors"></div>
+                                </div>
+                                <div class="form-field form-field-grow-one form-field-align-center">
+                                    <div class="text-right p-r-10"><span class="width">0px</span> <span class="psd-export-x">x</span> <span class="height">0px</span></div>
+
+                                    <div class="form-field" style="width: 100px">
+                                        <select class="form-select size">
+                                            <option value="0.25">0.25x</option>
+                                            <option value="0.5">0.5x</option>
+                                            <option value="1">1x</option>
+                                        </select>
+                                        <select class="form-select format m-l-5">
+                                            <option value="png">PNG</option>
+                                            <option value="jpg">JPG</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-name">Заливка</div>
+                        <div class="form-content">
+                            <div class="form-field form-field-half">
+                                <div>
+                                    <div class="form-color-picker fill-image">
+                                        <div class="form-color-picker-select"></div>
+                                        <input type="text" class="form-color-picker-input" disabled>
+                                        <div class="form-color-picker-pick"><img src="style/img/icons-panel/pip.png"></div>
+                                    </div>
+                                    <span class="help-block m-b-0">Залить изображение цветом</span>
+                                </div>
+                                <div>
+                                    <div class="form-color-picker fill-background">
+                                        <div class="form-color-picker-select"></div>
+                                        <input type="text" class="form-color-picker-input" disabled>
+                                        <div class="form-color-picker-pick"><img src="style/img/icons-panel/pip.png"></div>
+                                    </div>
+                                    <span class="help-block m-b-0">Залить задний фон</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                   
+                    <div class="form-group-wrap">
+                        <button class="form-btn form-btn-big text-uppercase export">Сохранить изображение</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    
+    </div>
+</div>
+<div id="popup-hotkeys" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-md">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Горячие клавиши</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row m-b-10">
+                    <div class="col-sm-1"><img src="style/img/icons-panel/mouse-click.png" style="margin-left: 3px" /></div> <div class="col-sm-11">Левый клик мыши</div>
+                </div>
+                <div class="row m-b-10">
+                    <div class="col-sm-1"><img src="style/img/icons-panel/mouse-move.png" /></div> <div class="col-sm-11">Передвижение мыши</div>
+                </div>
+                <div class="row m-b-10">
+                    <div class="col-sm-1"><img src="style/img/icons-panel/mouse-down.png" style="margin-left: 5px" /></div> <div class="col-sm-11">Зажатая левая клавиша мыши</div>
+                </div>
+                <div id="hotkeys-list" style="color: #949494;"></div>
+            </div>
+        </div>
+    
+    </div>
+</div>
+<div id="window-license" class="modal modal-license fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content intro">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">покупка и активация</h4>
+
+                <p>Привет! Хотите быстро верстать свои проекты?</p>
+                <p>Используйте Ceron чтобы верстать быстрее и легче, чем когда-либо прежде.</p>
+            </div>
+            <div class="reguest-code">
+                Код запроса: <b class="intro-reguest-code"></b>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="step-count">Шаг 1</div>
+                            
+                            <section class="intro-section-buy-done" style="display: none;">
+                                <h3>Лицензия на Ceron куплена <img src="style/img/ok.png" style="margin-top: -2px;" alt=""></h3>
+                                <p class="intro-thanks">Спасибо!</p>
+                            </section>
+                            <section class="intro-section-trial-active">
+                                <h3>Пробная версия!</h3>
+                                <p>Посетите портал <a href="http://docs.pinegrow.com" target="_blank" class="external">документации и поддержки</a>, чтобы узнать больше о том, как Ceron может облегчить вашу работу.</p>
+                                <div class="trial-days-left">осталось дней: <span class="intro-days">7</span></div>
+                            </section>               
+                        </div>
+                        <div class="col-md-4">
+                            <div class="step-count">Шаг 2</div>
+                            <section class="intro-section-buy-new">
+                                <h3 class="trial-activated">Купить Ceron</h3>
+                                <div> 
+                                    <p class="buy-text">Купите копию Ceron для себя, <b>затем введите серийный код на шаге 3.</b></p> 
+                                    <p><a class="btn btn-success" target="_blank" href="http://pinegrow.com/#buy">&nbsp;&nbsp;Купить сейчас&nbsp;&nbsp;</a></p> 
+                                </div>
+                            </section>              
+                        </div>
+                        <div class="col-md-4">
+                            <div class="step-count">Шаг 3</div>
+                            <section class="intro-section-buy">
+                                <h3 class="trial-activated">Введите свой серийный код после покупки Ceron</h3>
+                            
+                                <p>Введите свой адрес электронной почты (тот же, который использовался для совершения платежа), и серийный код, который вы получили в конце процесса оплаты:</p>
+                                
+                                <div class="form-group-simple">
+                                    <div>
+                                        <input type="text" class="form-control" id="buyEmail" placeholder="Введите email">
+                                    </div>
+                                </div>
+                                <div class="form-group-simple">
+                                    <div>
+                                        <input type="text" class="form-control" id="buySerial" placeholder="Серийный код">
+                                    </div>
+                                </div>
+                                <div class="form-group-simple">
+                                    <div>
+                                        <button type="submit" class="btn btn-success btn-block intro-activated">
+                                            Активировать
+                                        </button>
+                                        <a class="btn btn-link btn-block forgot-serial external" target="_blank" href="http://shop.pinegrow.com/mylicences"><small>Как получить серийный код?</small></a>
+                                    </div>
+                                </div>
+                                
+                                <p class="text-danger text-center intro-activated-error" style="display: none;"></p>
+                                        
+                            </section>                         
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn cancel btn-link" data-dismiss="modal">Использовать Ceron</button>
+            </div>
+
+        </div>
+    
+    </div>
+</div>
+<div id="window-license-no-connect" class="modal modal-license modal-license-noconnect fade" role="dialog">
+    <div class="modal-dialog modal-md">
+        <!-- Modal content-->
+        <div class="modal-content intro">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">нет подключения к сети</h4>
+
+            </div>
+            
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-8 col-md-offset-2 text-center">
+                            <h3>Что-то пошло не так</h3>
+                            <p>Не удалось подключится к интернету, попробуйте повторить попытку еще раз.</p> 
+
+                            <button type="button" class="btn cancel btn-link intro-try-again">Повторить попытку</button>             
+                        </div>
+                        
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    
+    </div>
+</div>
+<div id="window-about" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">О программе</h4>
+            </div>
+            <div class="modal-body">
+                <div class="layer-about-ceron">
+                     <img src="style/img/logo.png" alt="">
+                </div>
+
+                
+                <div class="update-status check">
+
+                    <div class="layer-about-update">
+                        <div class="layer-about-update-col1">
+                            <div class="layer-about-update-status load"></div>
+                        </div>
+                        <div class="layer-about-update-col2">
+                            <p class="layer-about-update-name">Проверка наличия обновлений</p>
+                            <span class="layer-about-update-version">Версия <span class="ceron-version">-</span> (Официальная сборка)</span>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <div class="update-status last">
+
+                    <div class="layer-about-update">
+                        <div class="layer-about-update-col1">
+                            <div class="layer-about-update-status complite"></div>
+                        </div>
+                        <div class="layer-about-update-col2">
+                            <p class="layer-about-update-name">Последняя версия Ceron уже установлена</p>
+                            <span class="layer-about-update-version">Версия <span class="ceron-version">-</span> (Официальная сборка)</span>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <div class="update-status update">
+
+                    <div class="layer-about-update">
+                        <div class="layer-about-update-col1">
+                            <div class="layer-about-update-status download"></div>
+                        </div>
+                        <div class="layer-about-update-col2">
+                            <p class="layer-about-update-name">Доступна новая версия Ceron</p>
+                            <span class="layer-about-update-version">Версия <span class="update-new-version">-</span> (Официальная сборка)</span>
+                        </div>
+                        <div class="layer-about-update-col3">
+                            <button type="button" class="form-btn update-btn-install">Обновить</button>       
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="update-status install">
+
+                    <div class="layer-about-update">
+                        <div class="layer-about-update-col1">
+                            <div class="layer-about-update-status load"></div>
+                        </div>
+                        <div class="layer-about-update-col2">
+                            <p class="layer-about-update-name">Обновление программы, пожалуйста подождите</p>
+                            <span class="layer-about-update-version">Версия <span class="update-new-version">-</span> (Загрузка <span class="update-download-progress">0%</span> из 100%)</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <p>Дизайн и разработка командой Ceron.</p>
+                <p>Ceron использует следующие проекты с открытым исходным кодом:</p> 
+
+                <ul> 
+                    <li><a target="_blank" class="link" href="http://nwjs.io/">NWJS</a> (Node.js + Chromium)</li>
+                    <li><a target="_blank" class="link" href="http://getbootstrap.com/">Twitter Bootstrap</a></li> 
+                    <li><a target="_blank" class="link" href="http://jquery.com">jQuery and jQuery UI</a></li>
+                </ul>                
+            </div>
+        </div>
+    
+    </div>
+</div>
+
+
+<div class="layer-side">
+	<div class="layer-side-inner">
+		
+	</div>
+</div>
+<!--
+<div class="ringMenu" id="vtc-smart-menu">
+	<div class="ringMenu-inner">
+		<div class="ringMenu-background"></div>
+		<div class="ringMenu-center"></div>
+		<div>
+			<div class="ringMenu-elem">
+				<div class="ringMenu-button" data-method="modeNormal">
+					<div class="ringMenu-button-inner"><img src="style/img/icons/b-c.png"><span class="ringMenu-text">Обычный</span></div>
+				</div>
+			</div>
+			<div class="ringMenu-elem">
+				<div class="ringMenu-button" data-method="modeText">
+					<div class="ringMenu-button-inner"><img src="style/img/icons/aa.png"><span class="ringMenu-text">Текста</span></div>
+				</div>
+			</div>
+			<div class="ringMenu-elem">
+				<div class="ringMenu-button" data-method="modeTextSplit">
+					<div class="ringMenu-button-inner"><img src="style/img/icons/aa.png"><span class="ringMenu-text">Разбить текст</span></div>
+				</div>
+			</div>
+			<div class="ringMenu-elem">
+				<div class="ringMenu-button" data-method="modeList">
+					<div class="ringMenu-button-inner"><img src="style/img/icons-panel/childrens.png"><span class="ringMenu-text">Ul список</span></div>
+				</div>
+			</div>
+			<div class="ringMenu-elem">
+				<div class="ringMenu-button" data-method="modeMenu">
+					<div class="ringMenu-button-inner"><img src="style/img/icons-panel/menu.png"><span class="ringMenu-text">Меню</span></div>
+				</div>
+			</div>
+			<div class="ringMenu-elem">
+				<div class="ringMenu-button" data-method="modeColumnsTwo">
+					<div class="ringMenu-button-inner"><img src="style/img/icons-panel/fully-colum.png"><span class="ringMenu-text">Колонки 2</span></div>
+				</div>
+			</div>
+			<div class="ringMenu-elem">
+				<div class="ringMenu-button" data-method="modeColumnsThree">
+					<div class="ringMenu-button-inner"><img src="style/img/icons-panel/fully-colum.png"><span class="ringMenu-text">Колонки 3</span></div>
+				</div>
+			</div>
+			<div class="ringMenu-elem">
+				<div class="ringMenu-button" data-method="modeIconHorisontal">
+					<div class="ringMenu-button-inner"><img src="style/img/icons/flex-dir-row.png"><span class="ringMenu-text">IconBox Horisontal</span></div>
+				</div>
+			</div>
+			<div class="ringMenu-elem">
+				<div class="ringMenu-button" data-method="modeIconVertical">
+					<div class="ringMenu-button-inner"><img src="style/img/icons/flex-dir-col.png"><span class="ringMenu-text">IconBox Vertical</span></div>
+				</div>
+			</div>
+			<div class="ringMenu-elem">
+				<div class="ringMenu-button" data-method="modeSection">
+					<div class="ringMenu-button-inner"><img src="style/img/icons/flex-dir-col.png"><span class="ringMenu-text">Section</span></div>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+</div>
+-->
+
+
+<div class="boxMenu" id="vtc-smart-menu">
+	<div class="boxMenu-inner">
+		<h3 class="boxMenu-head text-center">Режимы создания</h3>
+		<div class="boxMenu-container">
+
+			<div class="boxMenu-item active" data-method="modeNormal">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/default.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>Обычный</h4>
+					<p>Создание обычного DIV элемента.</p>
+				</div>
+			</div>
+
+			<div class="boxMenu-item" data-method="modeSection">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/section.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>Секция</h4>
+					<p>SECTION элемент с контейнером и заголовком внутри.</p>
+				</div>
+			</div>
+
+			<div class="boxMenu-item" data-method="modeElement">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/element.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>Элемент</h4>
+					<p>Создает DIV элемент с эффектами.</p>
+				</div>
+			</div>
+
+			<div class="boxMenu-item" data-method="modeText">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/text.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>Текста</h4>
+					<p>Работа с текстами, создает и парсит текст.</p>
+				</div>
+			</div>
+
+			<div class="boxMenu-item" data-method="modeTextSplit">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/text-split.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>Разбить текст</h4>
+					<p>Разбивает текста на SPAN если в тексте есть разные стили.</p>
+				</div>
+			</div>
+
+			<div class="boxMenu-item" data-method="modeList">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/list.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>Список</h4>
+					<p>UL список с LI элементами.</p>
+				</div>
+			</div>
+
+			<div class="boxMenu-item" data-method="modeMenu">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/menu.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>Меню</h4>
+					<p>Вертикальное или горизонтальное меню.</p>
+				</div>
+			</div>
+
+			<div class="boxMenu-item" data-method="modeColumnsTwo">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/colum-two.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>2 Колонки</h4>
+					<p>Bootstrap колонки.</p>
+				</div>
+			</div>
+
+			<div class="boxMenu-item" data-method="modeColumnsThree">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/colum-three.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>3 Колонки</h4>
+					<p>Bootstrap колонки.</p>
+				</div>
+			</div>
+
+			<div class="boxMenu-item" data-method="modeButton">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/button.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>Кнопка</h4>
+					<p>Создает кнопку с текстом и эффектами.</p>
+				</div>
+			</div>
+
+			<div class="boxMenu-item" data-method="modeIconHorisontal">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/icon-box-h.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>IconBox Horisontal</h4>
+					<p>FLEX элемент с иконкой и текстом внутри.</p>
+				</div>
+			</div>
+
+			<div class="boxMenu-item" data-method="modeIconVertical">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/icon-box-v.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>IconBox Vertical</h4>
+					<p>FLEX элемент с иконкой и текстом внутри.</p>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+
+<div class="layer-noty">
+    Проект сохранен
+</div>
+<div class="layer-work-in-progress" id="working"></div>
+<div class="layer-warn">
+    <div class="layer-warn-inner">
+        <div class="layer-warn-ico">
+            <img src="style/img/warning.png" alt="">
+        </div>
+        <div class="layer-warn-body">
+            <h5>Внимание</h5>
+            <p>Нет соединение с сервером, пожалуйста проверьте подключение к сети интернет.</p>
+        </div>
+    </div>
+</div>
+<div id="crash">
+    <div class="layer-crash">
+        <img src="style/img/crash.png" class="layer-crash-img" alt="">
+
+        <h3 class="layer-crash-title">Crash!</h3>
+        <p class="layer-crash-text">Не удалось запустить программу, возможно открыта консоль, закройте программу и запустите заново.</p>
+    </div>
+</div>
+
+
+<script type="text/javascript" src="style/js/ready.js"></script>
+
+</body>
+</html>
+

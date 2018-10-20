@@ -1,0 +1,573 @@
+<li>
+    <div class="ico"><img src="modules/display/images/ico-v2.png" /></div>
+    
+    <div class="dropmenu">
+        <div>
+            <div class="tabs-container">
+                <ul class="tabs-menu">
+                    <li class="active" tab="display">Дисплей</li>
+                    <li tab="align"><img src="style/img/icons/a-3.png" alt=""></li>
+                    <li tab="flex">Flex</li>
+                    <li tab="grid">Grid</li>
+                </ul>
+                
+                <div class="tabs-content active" id="display">
+                    
+                    <div class="form-group m-b-0">
+                        <div class="form-name">Тип</div>
+                        <div class="form-content">
+                            <div class="form-field">
+                                <ul class="form-radio display">
+                                    <li name="block" data-toggle="tooltip" title="Block"><img src="style/img/icons/display-block.png" alt=""></li>
+                                    <li name="inline-block" data-toggle="tooltip" title="Inline-block"><img src="style/img/icons/display-inline-block.png" alt=""></li>
+                                    <li name="inline" data-toggle="tooltip" title="Inline"><img src="style/img/icons/display-inline.png" alt=""></li>
+                                    <li name="flex" data-toggle="tooltip" title="Flex"><img src="style/img/icons/display-flex.png" alt=""></li>
+                                    <li name="grid" data-toggle="tooltip" title="Grid"><img src="style/img/icons/display-grid.png" alt=""></li>
+                                    <li name="none" data-toggle="tooltip" title="None"><img src="style/img/icons/hide.png" alt=""></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="m-t-20 display-all display-flex">
+                        <div class="form-group m-b-0">
+                            <div class="form-name">Направление</div>
+                            <div class="form-content">
+                                <div class="form-field">
+                                    <ul class="form-radio flex-direction">
+                                        <li name="row" data-toggle="tooltip" title="Row"><img src="style/img/icons/flex-dir-row.png" alt=""></li>
+                                        <li name="row-reverse" data-toggle="tooltip" title="Row Reverse"><img src="style/img/icons/flex-dir-row-reverse.png" alt=""></li>
+                                        <li name="column" data-toggle="tooltip" title="Column"><img src="style/img/icons/flex-dir-col.png" alt=""></li>
+                                        <li name="column-reverse" data-toggle="tooltip" title="Column Reverse"><img src="style/img/icons/flex-dir-col-reverse.png" alt=""></li>
+                                    </ul>
+                                </div>
+                                <div class="form-divider form-divider-small"></div>
+                                <div class="form-field form-field-space form-field-icon">
+                                    <div><span class="m-r-5">Перенос на новою строку:</span></div>
+                                    <div>
+                                        <ul class="form-radio flex-wrap">
+                                            <li name="nowrap"><img src="style/img/icons/none.png" alt=""></li>
+                                            <li name="wrap"><img src="style/img/icons/ok.png" alt=""></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="m-t-20 display-all display-grid">
+                        <div class="form-group">
+                            <div class="form-name">Template</div>
+                            <div class="form-content">
+                                
+                                <div class="form-field form-field-icon">
+                                    <div>
+                                        <img src="style/img/icons/colums.png" alt="">
+                                    </div>
+                                    <div>
+                                        <div class="form-input grid-template-columns">
+                                            <input name="grid-template-columns" placeholder="1fr auto 250px repeat(2,1fr)" />
+
+                                            <ul class="drop ask" data-ask="grid-template-columns"><li>?</li></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-divider form-divider-small"></div>
+                                <div class="form-field form-field-icon">
+                                    <div>
+                                        <img src="style/img/icons/rows.png" alt="">
+                                    </div>
+                                    <div>
+                                        <div class="form-input grid-template-rows">
+                                            <input name="grid-template-rows" placeholder="1fr auto 250px repeat(2,1fr)" />
+
+                                            <ul class="drop ask" data-ask="grid-template-rows"><li>?</li></ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-name">Auto</div>
+                            <div class="form-content">
+                                
+                                <div class="form-field form-field-icon">
+                                    <div>
+                                        <img src="style/img/icons/colums.png" alt="">
+                                    </div>
+                                    <div>
+                                        <div class="form-input grid-auto-columns">
+                                            <input name="grid-auto-columns" placeholder="1fr auto 250px repeat(2,1fr)" />
+
+                                            <ul class="drop ask" data-ask="grid-columns"><li>?</li></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-divider form-divider-small"></div>
+                                <div class="form-field form-field-icon">
+                                    <div>
+                                        <img src="style/img/icons/rows.png" alt="">
+                                    </div>
+                                    <div>
+                                        <div class="form-input grid-auto-rows">
+                                            <input name="grid-auto-rows" placeholder="1fr auto 250px repeat(2,1fr)" />
+
+                                            <ul class="drop ask" data-ask="grid-rows"><li>?</li></ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        
+
+                        <div class="form-group">
+                            <div class="form-name">Отступы</div>
+                            <div class="form-content gap">
+                                
+                                <div class="form-field form-field-half">
+                                    <div>
+                                        <div class="form-field form-field-icon">
+                                            <div>
+                                                <img src="style/img/icons/g-g-x.png" alt="">
+                                            </div>
+                                            <div>
+                                                <div class="form-input grid-column-gap">
+                                                    <input name="grid-column-gap" placeholder="0px" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="form-field form-field-icon">
+                                            <div>
+                                                <img src="style/img/icons/g-g-y.png" alt="">
+                                            </div>
+                                            <div>
+                                                <div class="form-input grid-row-gap">
+                                                    <input name="grid-row-gap" placeholder="0px" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-name">Обтикание</div>
+                            <div class="form-content">
+                                
+                                
+                                <ul class="form-radio grid-auto-flow">
+                                    <li name="row" data-toggle="tooltip" title="Row"><img src="style/img/icons/flex-dir-row.png" alt=""></li>
+                                    <li name="row dense" data-toggle="tooltip" title="Row Dense"><img src="style/img/icons/flex-dir-row-2.png" alt=""></li>
+                                    <li name="column" data-toggle="tooltip" title="Column"><img src="style/img/icons/flex-dir-col.png" alt=""></li>
+                                    <li name="column dense" data-toggle="tooltip" title="Column Dense"><img src="style/img/icons/flex-dir-col-2.png" alt=""></li>
+                                    <li name="dense" data-toggle="tooltip" title="Dense"><img src="style/img/icons/dense.png" alt=""></li>
+                                </ul>
+
+                            </div>
+                        </div>
+
+                        
+                    </div>
+
+                </div>
+
+                <div class="tabs-content" id="align">
+                    <div class="form-group">
+                        <div class="form-name">Выравнивание контента</div>
+                        <div class="form-content">
+                            <div class="form-field">
+                                <ul class="form-radio justify-content">
+                                    <li name="flex-start" data-toggle="tooltip" title="Start"><img src="style/img/icons/j-1.png" alt=""></li>
+                                    <li name="center" data-toggle="tooltip" title="Center"><img src="style/img/icons/j-2.png" alt=""></li>
+                                    <li name="flex-end" data-toggle="tooltip" title="End"><img src="style/img/icons/j-3.png" alt=""></li>
+                                    <li name="stretch" data-toggle="tooltip" title="Stretch"><img src="style/img/icons/j-6.png" alt=""></li>
+                                    <li name="space-between" data-toggle="tooltip" title="Between"><img src="style/img/icons/j-4.png" alt=""></li>
+                                    <li name="space-around" data-toggle="tooltip" title="Around"><img src="style/img/icons/j-5.png" alt=""></li>
+                                    <li name="space-evenly" data-toggle="tooltip" title="Evenly"><img src="style/img/icons/j-7.png" alt=""></li>
+                                </ul>
+                            </div>
+                            <div class="form-divider form-divider-small"></div>
+                            <div class="form-field">
+                                <ul class="form-radio align-content">
+                                    <li name="flex-start" data-toggle="tooltip" title="Start"><img src="style/img/icons/a-1.png" alt=""></li>
+                                    <li name="center" data-toggle="tooltip" title="Center"><img src="style/img/icons/a-2.png" alt=""></li>
+                                    <li name="flex-end" data-toggle="tooltip" title="End"><img src="style/img/icons/a-3.png" alt=""></li>
+                                    <li name="stretch" data-toggle="tooltip" title="Stretch"><img src="style/img/icons/a-4.png" alt=""></li>
+                                    <li name="space-between" data-toggle="tooltip" title="Between"><img src="style/img/icons/a-6.png" alt=""></li>
+                                    <li name="space-around" data-toggle="tooltip" title="Around"><img src="style/img/icons/a-7.png" alt=""></li>
+                                    <li name="space-evenly" data-toggle="tooltip" title="Evenly"><img src="style/img/icons/a-8.png" alt=""></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-name">Выравнивание элементов</div>
+                        <div class="form-content">
+                            <div class="form-field">
+                                <ul class="form-radio justify-items">
+                                    <li name="flex-start" data-toggle="tooltip" title="Start"><img src="style/img/icons/j-1.png" alt=""></li>
+                                    <li name="center" data-toggle="tooltip" title="Center"><img src="style/img/icons/j-2.png" alt=""></li>
+                                    <li name="flex-end" data-toggle="tooltip" title="End"><img src="style/img/icons/j-3.png" alt=""></li>
+                                    <li name="stretch" data-toggle="tooltip" title="Stretch"><img src="style/img/icons/j-6.png" alt=""></li>
+                                </ul>
+                            </div>
+                            <div class="form-divider form-divider-small"></div>
+                            <div class="form-field">
+                                <ul class="form-radio align-items">
+                                    <li name="flex-start" data-toggle="tooltip" title="Start"><img src="style/img/icons/a-1.png" alt=""></li>
+                                    <li name="center" data-toggle="tooltip" title="Center"><img src="style/img/icons/a-2.png" alt=""></li>
+                                    <li name="flex-end" data-toggle="tooltip" title="End"><img src="style/img/icons/a-3.png" alt=""></li>
+                                    <li name="stretch" data-toggle="tooltip" title="Stretch"><img src="style/img/icons/a-4.png" alt=""></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group m-b-0">
+                        <div class="form-name">Самостоятельное выравнивание</div>
+                        <div class="form-content">
+                            <div class="form-field">
+                                <ul class="form-radio justify-self">
+                                    <li name="flex-start" data-toggle="tooltip" title="Start"><img src="style/img/icons/j-1.png" alt=""></li>
+                                    <li name="center" data-toggle="tooltip" title="Center"><img src="style/img/icons/j-2.png" alt=""></li>
+                                    <li name="flex-end" data-toggle="tooltip" title="End"><img src="style/img/icons/j-3.png" alt=""></li>
+                                    <li name="stretch" data-toggle="tooltip" title="Stretch"><img src="style/img/icons/j-6.png" alt=""></li>
+                                </ul>
+                            </div>
+                            <div class="form-divider form-divider-small"></div>
+                            <div class="form-field">
+                                <ul class="form-radio align-self">
+                                    <li name="flex-start" data-toggle="tooltip" title="Start"><img src="style/img/icons/a-1.png" alt=""></li>
+                                    <li name="center" data-toggle="tooltip" title="Center"><img src="style/img/icons/a-2.png" alt=""></li>
+                                    <li name="flex-end" data-toggle="tooltip" title="End"><img src="style/img/icons/a-3.png" alt=""></li>
+                                    <li name="stretch" data-toggle="tooltip" title="Stretch"><img src="style/img/icons/a-4.png" alt=""></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tabs-content" id="flex">
+                    <div class="form-group m-b-0">
+                        <div class="form-name">Дополнительно</div>
+                        <div class="form-content flex">
+                            <div class="form-field form-field-half">
+                                <div>
+                                    <div class="form-field form-field-space form-field-icon">
+                                        <div>
+                                            Shrink
+                                        </div>
+                                        <div>
+                                            <div class="form-input form-input-medium">
+                                                <input type="text" value="" name="flex-shrink" placeholder="auto" />
+                                                <ul class="drop"></ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="form-field form-field-space form-field-icon">
+                                        <div>
+                                            Grow
+                                        </div>
+                                        <div>
+                                            <div class="form-input form-input-medium">
+                                                <input type="text" value="" name="flex-grow" placeholder="auto" />
+                                                <ul class="drop"></ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>  
+                            </div>
+                            <div class="form-divider form-divider-small"></div>
+                            <div class="form-field form-field-half">
+                                <div>
+                                    <div class="form-field form-field-space form-field-icon">
+                                        <div>
+                                            Basis
+                                        </div>
+                                        <div>
+                                            <div class="form-input form-input-medium">
+                                                <input type="text" value="" name="flex-basis" placeholder="auto" />
+                                                <ul class="drop"></ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="form-field form-field-space form-field-icon">
+                                        <div>
+                                            Order
+                                        </div>
+                                        <div>
+                                            <div class="form-input form-input-medium">
+                                                <input type="text" value="" name="order" placeholder="auto" />
+                                                <ul class="drop"></ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>  
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tabs-content" id="grid">
+                    <div class="form-group grid">
+                        <div class="form-name">Позиция элемента</div>
+                        <div class="form-content grid-element">
+                            <div class="form-field form-field-half">
+                                <div>
+                                    <div class="form-field form-field-space form-field-icon">
+                                        <div>
+                                            <img src="style/img/icons/f-l.png" alt="">
+                                        </div>
+                                        <div>
+                                            <div class="form-input form-input-medium grid-column-start">
+                                                <input type="text" value="" name="grid-column-start" placeholder="auto" />
+                                                <ul class="drop ask" data-ask="column-vars"><li>?</li></ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="form-field form-field-space form-field-icon">
+                                        <div>
+                                            <img src="style/img/icons/f-r.png" alt="">
+                                        </div>
+                                        <div>
+                                            <div class="form-input form-input-medium grid-column-end">
+                                                <input type="text" value="" name="grid-column-end" placeholder="auto" />
+                                                <ul class="drop ask" data-ask="column-vars"><li>?</li></ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>  
+                            </div>
+                            <div class="form-divider form-divider-small"></div>
+                            <div class="form-field form-field-half">
+                                <div>
+                                    <div class="form-field form-field-space form-field-icon">
+                                        <div>
+                                            <img src="style/img/icons/f-t.png" alt="">
+                                        </div>
+                                        <div>
+                                            <div class="form-input form-input-medium grid-row-start">
+                                                <input type="text" value="" name="grid-row-start" placeholder="auto" />
+                                                <ul class="drop ask" data-ask="column-vars"><li>?</li></ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="form-field form-field-space form-field-icon">
+                                        <div>
+                                            <img src="style/img/icons/f-b.png" alt="">
+                                        </div>
+                                        <div>
+                                            <div class="form-input form-input-medium grid-row-end">
+                                                <input type="text" value="" name="grid-row-end" placeholder="auto" />
+                                                <ul class="drop ask" data-ask="column-vars"><li>?</li></ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>  
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</li>
+
+<div class="hide">
+    <div class="ask-grid-rows">
+        <p>The grid-auto-rows CSS property specifies the size of an implicitly-created grid row track.</p>
+        <pre>
+/* Keyword values */
+grid-auto-rows: min-content;
+grid-auto-rows: max-content;
+grid-auto-rows: auto;
+
+/* length values */
+grid-auto-rows: 100px;
+grid-auto-rows: 20cm;
+grid-auto-rows: 50vmax;
+
+/* percentage values */
+grid-auto-rows: 10%;
+grid-auto-rows: 33.3%;
+
+/* flex values */
+grid-auto-rows: 0.5fr;
+grid-auto-rows: 3fr;
+
+/* minmax() values */
+grid-auto-rows: minmax(100px, auto);
+grid-auto-rows: minmax(max-content, 2fr);
+grid-auto-rows: minmax(20%, 80vmax);
+
+/* multiple track-size values */
+grid-auto-rows: min-content max-content auto;
+grid-auto-rows: 100px 150px 390px;
+grid-auto-rows: 10% 33.3%;
+grid-auto-rows: 0.5fr 3fr 1fr;
+grid-auto-rows: minmax(100px, auto) minmax(max-content, 2fr) minmax(20%, 80vmax);
+grid-auto-rows: 100px minmax(100px, auto) 10% 0.5fr fit-content(400px);
+
+/* Global values */
+grid-auto-rows: inherit;
+grid-auto-rows: initial;
+grid-auto-rows: unset;
+        </pre>
+    </div>
+
+    <div class="ask-grid-columns">
+        <p>The grid-auto-columns CSS property specifies the size of an implicitly-created grid column track.</p>
+        <pre>
+/* Keyword values */
+grid-auto-columns: min-content;
+grid-auto-columns: max-content;
+grid-auto-columns: auto;
+
+/* length values */
+grid-auto-columns: 100px;
+grid-auto-columns: 20cm;
+grid-auto-columns: 50vmax;
+
+/* percentage values */
+grid-auto-columns: 10%;
+grid-auto-columns: 33.3%;
+
+/* flex values */
+grid-auto-columns: 0.5fr;
+grid-auto-columns: 3fr;
+
+/* minmax() values */
+grid-auto-columns: minmax(100px, auto);
+grid-auto-columns: minmax(max-content, 2fr);
+grid-auto-columns: minmax(20%, 80vmax);
+
+/* fit-content() values */
+grid-auto-columns: fit-content(400px);
+grid-auto-columns: fit-content(5cm);
+grid-auto-columns: fit-content(20%);
+
+/* multiple track-size values */
+grid-auto-columns: min-content max-content auto;
+grid-auto-columns: 100px 150px 390px;
+grid-auto-columns: 10% 33.3%;
+grid-auto-columns: 0.5fr 3fr 1fr;
+grid-auto-columns: minmax(100px, auto) minmax(max-content, 2fr) minmax(20%, 80vmax);
+grid-auto-columns: 100px minmax(100px, auto) 10% 0.5fr fit-content(400px);
+
+/* Global values */
+grid-auto-columns: inherit;
+grid-auto-columns: initial;
+grid-auto-columns: unset;
+        </pre>
+    </div>
+
+    <div class="ask-grid-template-columns">
+        <p>Grid-template-columns — это CSS свойство, определяющее имена линий и функции размеров треков grid columns.</p>
+        <pre>
+/* Keyword value */
+grid-template-columns: none;
+
+/* track-list values */
+grid-template-columns: 100px 1fr;
+grid-template-columns: [linename] 100px;
+grid-template-columns: [linename1] 100px [linename2 linename3];
+grid-template-columns: minmax(100px, 1fr);
+grid-template-columns: fit-content(40%);
+grid-template-columns: repeat(3, 200px);
+
+/* auto-track-list values */
+grid-template-columns: 200px repeat(auto-fill, 100px) 300px;
+grid-template-columns: minmax(100px, max-content)
+                       repeat(auto-fill, 200px) 20%;
+grid-template-columns: [linename1] 100px [linename2]
+                       repeat(auto-fit, [linename3 linename4] 300px)
+                       100px;
+grid-template-columns: [linename1 linename2] 100px
+                       repeat(auto-fit, [linename1] 300px) [linename3];
+
+/* Global values */
+grid-template-columns: inherit;
+grid-template-columns: initial;
+grid-template-columns: unset;
+        </pre>
+    </div>
+
+    <div class="ask-grid-template-rows">
+        <p>Grid-template-rows —CSS свойство, определяющее названия линий и функции определения размеров grid rows.</p>
+        <pre>
+/* Keyword value */
+grid-template-rows: none;
+
+/* track-list values */
+grid-template-rows: 100px 1fr;
+grid-template-rows: [linename] 100px;
+grid-template-rows: [linename1] 100px [linename2 linename3];
+grid-template-rows: minmax(100px, 1fr);
+grid-template-rows: fit-content(40%);
+grid-template-rows: repeat(3, 200px);
+
+/* auto-track-list values */
+grid-template-rows: 200px repeat(auto-fill, 100px) 300px;
+grid-template-rows: minmax(100px, max-content)
+                       repeat(auto-fill, 200px) 20%;
+grid-template-rows: [linename1] 100px [linename2]
+                       repeat(auto-fit, [linename3 linename4] 300px)
+                       100px;
+grid-template-rows: [linename1 linename2] 100px
+                       repeat(auto-fit, [linename1] 300px) [linename3];
+
+/* Global values */
+grid-template-rows: inherit;
+grid-template-rows: initial;
+grid-template-rows: unset;
+        </pre>
+    </div>
+
+    <div class="ask-column-vars">
+        <p>Определяет местоположение в сетке ссылаясь на конкретные линии</p>
+        <pre>
+/* Keyword value */
+auto;
+
+/* custom-ident value */
+somegridarea;
+
+/* integer + custom-ident values */
+2;
+somegridarea 4;
+
+/* span + integer + custom-ident values */
+span 3;
+span somegridarea;
+5 somegridarea span;
+
+/* Global values */
+inherit;
+initial;
+unset;
+        </pre>
+    </div>
+
+
+</div>

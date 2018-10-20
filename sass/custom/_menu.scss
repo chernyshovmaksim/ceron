@@ -1,0 +1,38 @@
+.hamburger{
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 11;
+	outline: none;
+
+	&.active{
+		position: fixed;
+	}
+}
+
+#menu-mobile{
+	position: fixed;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	bottom: 0;
+	background: #ecedf1;
+	padding: 50px;
+	z-index: 10;
+	
+	@include flex-center();
+	@include transition(all,0.3s);
+	
+	a{
+		@include text-style($font-roboto-regular,16px,$color-text-3);
+		text-transform: uppercase;
+	    display: block;
+	    text-align: center;
+	    padding: 10px 0;
+	    margin: 20px 0;
+	}
+
+	&.active{
+		left: 0;
+	}
+}

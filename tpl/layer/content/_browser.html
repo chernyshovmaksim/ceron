@@ -1,0 +1,62 @@
+<div class="tabs-content active" id="frame-result">
+
+    <div class="layer-iframe-container">
+        <div class="layer-iframe-adress">
+            <div class="form-input">
+                <input type="text" value="" id="iframe-url" placeholder="http://localhost:3000">
+            </div>
+
+            <div class="layer-iframe-history">
+                <ul></ul>
+            </div>
+        </div>
+        <div class="layer-iframe pc">
+            <div class="layer-iframe-grid">
+                <div class="layer-iframe-window" type="sourceView">
+                
+                    <iframe src="" id="raid" name="raid" class="iframe" nwdisable nwfaketop></iframe> 
+                    
+                </div>
+                <div id="iframe-watermarked" class="layer-iframe-watermarked">
+                    <canvas></canvas>
+                </div>
+                <ul class="tools-iframe" id="tools-iframe" style="display: none"> 
+                    <li onclick="Iframe.Reload();"><img src="style/img/icons-panel/reload.png" /></li>  
+                    <li onclick="Iframe.FullScreen('.layer-iframe');"><img src="style/img/icons-panel/full-screen.png" /></li>
+                </ul>
+                <div class="layer-iframe-resize"></div>
+                <div class="layer-iframe-none"></div>
+                <div class="layer-iframe-size">0px</div>
+                <div class="layer-iframe-media select-media-preview orange pulsar"><span>Больше 768px</span></div>
+                <div class="layer-iframe-media-match">
+                    <div class="title">
+                        Выбранный медиа не подходят к экрану
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <ul class="layer-iframe-parents tools-parents"></ul>
+
+        <div class="layer-empty">
+            <div class="layer-empty-inner">
+                <div class="layer-empty-items">
+                    <div class="layer-empty-item" onclick="File.New()">
+                        <div class="layer-empty-ico">
+                            <i class="flaticon-add-3"></i>
+                        </div>
+                        <span>Создать проект</span>
+                    </div>
+                    <div class="layer-empty-item m-l-30" onclick="File.Open()">
+                        <div class="layer-empty-ico">
+                            <i class="flaticon-folder-12"></i>
+                        </div>
+                        <span>Открыть проект</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div> 

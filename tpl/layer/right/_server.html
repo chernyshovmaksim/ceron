@@ -1,0 +1,52 @@
+<div class="tabs-content" id="server">
+    <p class="text-center">Локальный веб сервер Browsersync</p>
+
+    <div class="m-b-30">
+        <div class="form-btn" id="run-server">Запустить</div>
+        <div class="form-btn form-btn-red" id="stop-server">Остановить</div>
+
+        <div class="form-group m-t-30" id="urls-server">
+            <div class="form-name">Сервер запущен</div>
+            <div class="form-content">
+                <div><kbd>Folder:</kbd><span id="svu-folder" class="selected"></span></div>
+                <div class="form-divider"></div>
+                <div><kbd>Local:</kbd><span id="svu-local" class="selected"></span></div>
+                <div class="form-divider form-divider-small"></div>
+                <div><kbd>External:</kbd><span id="svu-external" class="selected"></span></div>
+                <div class="form-divider form-divider-small"></div>
+                <div><kbd>UI:</kbd><span id="svu-ui" class="selected"></span></div>
+                <div class="form-divider form-divider-small"></div>
+                <div><kbd>UI External:</kbd><span id="svu-ui-external" class="selected"></span></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <div class="form-name">Порт</div>
+        <div class="form-content">
+            <div class="form-input bs-port">
+                <input type="text" name="" value="" placeholder="3050">
+            </div>
+            <span class="help-block m-b-0">Используйте определенный порт (вместо одного, автоматически обнаруженного Browsersync)</span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="form-name">Уведомления</div>
+        <div class="form-content">
+            
+            <div class="form-field form-field-icon">
+                <div>
+                    <div class="form-checkbox bs-notify">
+                        <input type="checkbox" id="bs-notify">
+                        <label for="bs-notify"></label>
+                    </div>
+                </div>
+                <div>
+                    <span class="help-block m-b-0 m-t-0">Небольшие всплывающие уведомления в браузере</span>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>

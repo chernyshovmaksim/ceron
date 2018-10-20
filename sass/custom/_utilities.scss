@@ -1,0 +1,59 @@
+.d{
+	&-block{
+		display: block;
+	}
+	&-flex{
+		display: flex;
+	}
+	&-inline{
+		display: inline-block;
+	}
+	&-none{
+		display: none;
+	}
+}
+
+.over{
+	overflow: hidden;
+}
+
+
+.m{
+	&-0{
+		margin: 0;
+	}
+	&-a{
+		margin: auto;
+	}
+	&-ax{
+		margin: 0 auto;
+	}
+	$i: 0;
+	@while $i <= 50 {
+		&-t-#{$i} { margin-top: #{$i}px; }
+		&-r-#{$i} { margin-right: #{$i}px; }
+		&-b-#{$i} { margin-bottom: #{$i}px; }
+		&-l-#{$i} { margin-left: #{$i}px; }
+		&-x-#{$i} { margin: 0 #{$i}px; }
+		&-y-#{$i} { margin: #{$i}px 0; }
+		&-#{$i} { margin: #{$i}px; }
+		$i: $i + 5;
+	}
+}
+.p{
+	&-0{
+		padding: 0;
+	}
+	$i: 0;
+	@while $i <= 50 {
+		&-t-#{$i} { padding-top: #{$i}px; }
+		&-r-#{$i} { padding-right: #{$i}px; }
+		&-b-#{$i} { padding-bottom: #{$i}px; }
+		&-l-#{$i} { padding-left: #{$i}px; }
+		&-x-#{$i} { padding: 0 #{$i}px; }
+		&-y-#{$i} { padding: #{$i}px 0; }
+		&-#{$i} { padding: #{$i}px; }
+		$i: $i + 5;
+	}
+}
+

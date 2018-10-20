@@ -1,0 +1,122 @@
+<div class="tabs-content" id="psd" style="overflow: hidden;">
+    
+    <div class="layer-psd">
+        <div class="layer-psd-visible-select" id="psd-visible-items">
+    
+            <div class="layer-psd-mac">
+                <div class="layer-psd-items" id="psd-items">
+                    <div class="layer-psd-item" id="psd-add">
+                        <div class="layer-psd-item-image">
+                            <i class="flaticon-add-2"></i>
+                        </div>
+                        <div class="layer-psd-item-bottom">
+                            <h3>Добавить</h3>
+                            <p>Загрузить PSD файл</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    
+        <div class="layer-psd-visible-info" id="psd-visible-info" style="display: none">
+
+            <div class="layer-psd-view">
+                <div class="layer-psd-content">
+                    <div class="m-b-10 form-field form-field-align-center" style="flex-shrink: 0;">
+                        <div class="m-r-10">
+                            <div class="form-btn" id="psd-back"><img src="style/img/icons-panel/modules.png">Назад к макетам</div>
+                        </div>
+                        
+                        <div>
+                            <span id="psd-info-top-name"></span>
+                        </div>
+
+                        <div class="form-field form-field-self-grow form-field-align-justify-end">
+                            <div>
+                                <ul class="form-radio text-align layer-psd-info-visible-types" id="psd-show">
+                                    <li name="inspect" class="active"><img src="style/img/icons-panel/tag.png" alt=""></li>
+                                    <li name="images"><img src="style/img/icons-panel/img.png" alt=""></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layer-psd-viewport" id="psd-viewport">
+                        <canvas id="psd-canvas"></canvas>
+
+                        <div class="layer-psd-images" id="psd-visible-images">
+                            <div class="layer-psd-items" id="psd-images">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layer-psd-right">
+                    <div class="tabs-container">
+                         <ul class="tabs-menu">
+                            <li class="active" tab="psd-info"><img src="style/img/icons-panel/childrens.png" alt=""></li>
+                        </ul>
+
+                        <div class="tabs-content active" id="psd-info">
+                            
+                            <div class="form-btn m-b-10" id="psd-info-export-screen"><img src="style/img/icons-panel/photo.png">Экспорт скрина</div>
+
+                            <div class="vtc-psd m-b-20">
+                                <div class="vtc-psd-image">
+                                    <img class="vtc-psd-img" id="psd-info-screen">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-name">Информация</div>
+                                <div class="form-content padding">
+                                    <div class="form-field form-field-space">
+                                        <div>
+                                            Имя
+                                        </div>
+                                        <div id="psd-info-name"></div>  
+                                    </div>
+                                    
+                                    <div class="form-field form-field-space">
+                                        <div>
+                                            Размеры
+                                        </div>
+                                        <div id="psd-info-size"></div>  
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-name">Шрифты</div>
+                                <div class="form-content grid grid-gap-15" id="psd-info-fonts">
+                                    
+                                    
+                                </div>
+                            </div>
+
+
+                            <div class="form-group">
+                                <div class="form-name">Цвета</div>
+                                <div class="form-content padding">
+                                    <div class="layer-psd-info-colors" id="psd-info-colors">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+    
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>

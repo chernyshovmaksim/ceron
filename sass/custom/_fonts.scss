@@ -1,0 +1,33 @@
+@font-face {
+    font-family: 'MyriadProReg';
+    src: url('../fonts/MyriadProReg.otf');
+    font-weight: 'normal';
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MyriadProBold';
+    src: url('../fonts/MyriadProBold.otf');
+    font-weight: 'bold';
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MyriadProLight';
+    src: url('../fonts/MyriadProLight.otf');
+    font-weight: 'light';
+    font-style: normal;
+}
+
+
+@include font('RobotoReg','Roboto-Regular.ttf','normal');
+@include font('RobotoLight','Roboto-Light.ttf','light');
+@include font('RobotoMedium','Roboto-Medium.ttf','medium');
+@include font('RobotoBold','Roboto-Bold.ttf','bold');
+@include font('RobotoBlack','Roboto-Black.ttf','black');
+
+
+@include font('OswaldReg','Oswald-Regular.ttf','normal');
+@include font('OswaldLight','Oswald-Light.ttf','light');
+@include font('OswaldMedium','Oswald-Medium.ttf','medium');
+@include font('OswaldBold','Oswald-Bold.ttf','bold');

@@ -1,0 +1,128 @@
+<!DOCTYPE HTML>
+<head>
+    <title>CERON</title>
+    
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+
+    <link rel="stylesheet" href="style/css/blueprint.css" type="text/css" />
+    
+    
+    <script type="text/javascript" src="vendor/jquery/jquery.js"></script>
+    <script type="text/javascript" src="blueprint.js"></script>
+
+</head>
+<body style="color: #fff;  background: url(style/img/grid_21.png); background-color: #252525; padding: 100px; ">
+    <div class="blueprint-node" style="padding: 0; position: static; background-image: none; width: 150px;">
+        <canvas class="" id="blueprint-canvas"></canvas>
+    </div>
+
+    
+    
+    <div>
+        <label>H:</label><br>
+        <input class="range hue" type="range" min="0" max="360">
+    </div>
+    <div>
+        <label>S:</label><br>
+        <input class="range sat" type="range" min="0" max="100">
+    </div>
+    <div>
+        <label>L:</label><br>
+        <input class="range lig" type="range" min="0" max="100">
+    </div>
+    <div>
+        <label>B:</label><br>
+        <input class="range brg" type="range" step="0.01" min="0" max="1">
+    </div>
+
+    <div class="color"></div>
+
+    <script>
+        var canvas = document.getElementById("blueprint-canvas");
+        var ctx    = canvas.getContext("2d");
+        //var color  = 'hsl(234, 50%, 20%)';
+
+        var img = new Image();
+            img.src = 'style/blueprint/img/node.png';
+
+        function draw(color,brg){
+            canvas.width  = img.width;
+            canvas.height = img.height;
+
+            //ctx.drawImage(img,0,0);
+
+
+            ctx.globalAlpha = parseFloat(brg);
+
+            ctx.drawImage(img,0,0);
+
+            ctx.globalAlpha = 1.0;
+            
+            
+            
+            
+            // overlay filled rectangle using lighter composition
+            ctx.globalCompositeOperation = "lighter";
+            ctx.globalAlpha = parseFloat(brg);
+            ctx.fillStyle=color;
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+
+            ctx.globalCompositeOperation = "destination-in";
+            ctx.drawImage(img, 0, 0);
+
+            ctx.globalCompositeOperation = "source-over";
+
+    
+
+            return;
+
+
+            
+
+            ctx.globalAlpha = parseInt(brg) / 255;
+
+            ctx.drawImage(img,0,0);
+
+            ctx.globalAlpha = 1.0;
+
+
+            /*
+            var pixels = ctx.getImageData(0,0,canvas.width,canvas.height)
+            var adjustment = parseInt(brg);
+
+            var d = pixels.data;
+
+            console.log(adjustment)
+
+            for (var i=0; i<d.length; i+=4) {
+                d[i] += adjustment;
+                d[i+1] += adjustment;
+                d[i+2] += adjustment;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.putImageData(pixels,0,0, 0, 0, canvas.width, canvas.height);
+            */
+
+        }
+
+        $('.range').on('change',function(){
+            var h = $('.hue').val(),
+                s = $('.sat').val(),
+                l = $('.lig').val(),
+                b = $('.brg').val(),
+
+                color = 'hsl('+h+', '+s+'%, '+l+'%)';
+
+            $('.color').text(color + '; bright: '+b);
+
+            draw(color,b)
+        })
+    </script>
+    
+</body>
+</html>

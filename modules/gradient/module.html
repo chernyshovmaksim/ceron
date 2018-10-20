@@ -1,0 +1,184 @@
+<li>
+    <div class="ico"><img src="modules/gradient/images/ico.png" /></div>
+    
+    <div class="dropmenu">
+        <div>
+            <div class="tabs-container">
+                <ul class="tabs-menu">
+                    <li class="active" tab="gd-main"><div><div>Градиент</div></div></li>
+                    <li tab="gd-presents"><div><div>Пресеты</div></div></li>
+                </ul>
+                
+                <div class="tabs-content active" id="gd-main">
+                    
+                    <div class="form-group m-b-20">
+                        <div class="form-name">Просмотр</div>
+
+                        <div class="form-content">
+                            <div class="form-gradient">
+                                <div class="form-gradient-preview gd-preview"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group m-b-20">
+                        <div class="form-name">Маркеры</div>
+                        
+                        <div class="form-content">
+                            <!--<div class="form-gradient-markers gd-markers-opacity" data-type="opacity"></div>-->
+                            
+                            <div class="form-gradient">
+                                <div class="form-gradient-line gd-preview-line"></div>
+                            </div>
+
+                            <div class="form-gradient-markers gd-markers-color" data-type="color"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group gd-marker-settings">
+                        <div class="form-name">Цвет маркера</div>
+                        
+                        <div class="form-content">
+                            <div class="form-field form-field-space gd-marker-color">
+                                <div>
+                                    <div class="form-color-picker gd-color">
+                                        <div class="form-color-picker-select"></div>
+                                        <input type="text" class="form-color-picker-input" disabled>
+                                        <div class="form-color-picker-pick"><img src="style/img/icons-panel/pip.png"></div>
+                                    </div>
+                                </div>
+                            
+                                <div>
+                                    <div class="form-input form-input-small m-l-10 gd-position">
+                                        <input type="text" name="background-position" value="" placeholder="0%" disabled="" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-field form-field-space form-field-align-center gd-marker-opacity">
+                                <div class="form-field form-field-icon">
+                                    <div>
+                                        Прозрачность: 
+                                    </div>
+                                    <div>
+                                        <div class="form-input form-input-medium m-l-10 gd-opacity">
+                                            <input type="text" value="" name="z-index" placeholder="auto">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="form-input form-input-small m-l-10 gd-position">
+                                        <input type="text" name="background-position" value="" placeholder="0%" disabled="" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-name">Настройка градиента</div>
+                        
+                        <div class="form-content">
+                            <div class="form-field form-field-icon">
+                                <div>
+                                    <img src="style/img/icons/fill.png" alt="">
+                                </div>
+                                <div>
+                                    <select class="form-select gd-type" name="type">
+                                        <option value="linear">Linear</option>
+                                        <option value="radial">Radial</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-divider"></div>
+                            
+                            <div class="gd-type-linear">
+                                <div class="form-field form-field-space form-field-align-center">
+                                    <div>
+                                        Повернуть
+                                    </div>
+                                    <div>
+                                        <div class="form-input form-input-medium gd-rotate">
+                                            <input type="" name="" value="90deg" placeholder="0">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="gd-type-radial">
+                                <div class="form-field form-field-half form-field-align-center">
+                                    <div>
+                                        Тип радиуса
+                                    </div>
+                                    <div>
+                                        <ul class="form-radio gp-radius-type">
+                                            <li name="circle" class="active">circle</li>
+                                            <li name="ellipse">ellipse</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="form-divider form-divider-small"></div>
+
+                                <div class="form-field form-field-half">
+                                    <div>
+                                        <ul class="grid grid-position gp-radius-position">
+                                            <li name="0 0"><img src="style/img/icons/d-lt.png" alt=""></li>
+                                            <li name="50% 0"><img src="style/img/icons/d-t.png" alt=""></li>
+                                            <li name="100% 0"><img src="style/img/icons/d-tr.png" alt=""></li>
+                                            <li name="0 50%"><img src="style/img/icons/d-l.png" alt=""></li>
+                                            <li name="50% 50%" class="active"></li>
+                                            <li name="100% 50%"><img src="style/img/icons/d-r.png" alt=""></li>
+                                            <li name="0 100%"><img src="style/img/icons/d-lb.png" alt=""></li>
+                                            <li name="50% 100%"><img src="style/img/icons/d-b.png" alt=""></li>
+                                            <li name="100% 100%"><img src="style/img/icons/d-rb.png" alt=""></li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <div class="form-field form-field-space form-field-icon">
+                                            <div>
+                                                Ось X:
+                                            </div>
+                                            <div>
+                                                <div class="form-input form-input-small gp-radius-position-x">
+                                                    <input type="text" name="background-position" value="50%" placeholder="auto" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-divider"></div>
+                                        <div class="form-field form-field-space form-field-icon">
+                                            <div>
+                                                Ось Y:
+                                            </div>
+                                            <div>
+                                                <div class="form-input form-input-small gp-radius-position-y">
+                                                    <input type="text" name="background-position" value="50%" placeholder="auto" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+
+
+                            </div>
+
+                        </div>
+                    </div>
+                    
+                </div>
+
+                <div class="tabs-content" id="gd-presents">
+                    <div class="form-btn m-b-15 add-preset">Добавить градиент</div>
+                    
+                    <ul class="form-colors form-colors-gradient gb-presets">
+                        
+                    </ul>
+            
+                </div>
+            </div>
+        </div>
+    </div>
+</li>

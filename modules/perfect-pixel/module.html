@@ -1,0 +1,233 @@
+<li>
+    <div class="ico"><img src="modules/perfect-pixel/images/ico.png" /></div>
+    
+    <div class="dropmenu">
+        <div>
+            <div class="tabs-container">
+                <ul class="tabs-menu">
+                    <li class="active" tab="perfect-image">Изображение</li>
+                    <li tab="perfect-grid">Сетка</li>
+                    <li tab="perfect-last">PSD</li>
+                </ul>
+                
+                <div class="tabs-content active" id="perfect-image">
+                    
+                    <div class="form-group">
+                        <div class="form-name">Изображение</div>
+                        <div class="form-content">
+                            <div class="form-field">
+                                <div class="form-btn img-choise"><img src="style/img/icons/img-select.png">выбрать</div>
+                            </div>                            
+                        </div>
+                    </div>
+                    
+                    <div class="form-group ">
+                        <div class="form-name">Позиция</div>
+                        <div class="form-content">
+                            <div class="form-field form-field-half">
+                                <div>
+                                    <div class="form-field form-field-space form-field-icon">
+                                        <div>
+                                            Поз. X:
+                                        </div>
+                                        <div>
+                                            <div class="form-input px form-input-small">
+                                                <input type="text" name="x" value="" placeholder="auto" />
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="form-field px form-field-space form-field-icon">
+                                        <div>
+                                            Поз. Y:
+                                        </div>
+                                        <div>
+                                            <div class="form-input px form-input-small">
+                                                <input type="text" name="y" value="" placeholder="auto" />
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+
+                    <div class="form-group ">
+                        <div class="form-name">Дополнительно</div>
+                        <div class="form-content">
+                            
+                            <div class="form-field form-field-half">
+                                <div>
+                                    <div class="form-field form-field-space form-field-icon">
+                                        <div>
+                                            Проз-ть:
+                                        </div>
+                                        <div>
+                                            <div class="form-input num opacity form-input-small">
+                                                <input type="text" name="opacity" value="" placeholder="auto" />
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-field-align-center">
+                                    <div class="form-range opacity">
+                                        <input type="range" name="opacity" min="0" max="1" step="0.01" value="" placeholder="auto" />
+                                    </div>
+                                </div>
+                            </div>   
+                            
+                            <!--
+                            <div class="form-divider"></div>
+
+                            <div class="form-field form-field-half">
+                                <div>
+                                    <div class="form-field form-field-space form-field-icon">
+                                        <div>
+                                            Масштаб:
+                                        </div>
+                                        <div>
+                                            <div class="form-input num scale form-input-small">
+                                                <input type="text" name="scale" value="" placeholder="auto" />
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-field-align-center">
+                                    <div class="form-range scale">
+                                        <input type="range" name="scale" min="0" max="1" step="0.01" value="" placeholder="auto" />
+                                    </div>
+                                </div>
+                            </div>     
+
+                            -->                      
+                            
+                        </div>
+                    </div>
+
+                    <div class="form-group m-b-0">
+                        <div class="form-name">Изображение</div>
+                        <div class="form-content">
+                            <div class="form-field">
+                                <ul class="form-radio">
+                                    <li class="show-hide">Показать/Скрыть</li>
+                                    <li class="invert">Инверт</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                   
+                </div>
+
+                <div class="tabs-content" id="perfect-grid">
+
+                    <div class="form-group">
+                        <div class="form-name">Показать</div>
+                        <div class="form-content">
+                            <div class="form-field">
+                                <ul class="form-radio">
+                                    <li class="grid-layout">Layout</li>
+                                    <li class="grid-baseline">Baseline</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <div class="form-name">Layout</div>
+                        <div class="form-content padding">
+                            <div class="form-field form-field-half">
+                                <div>
+                                    <div class="form-field form-field-space form-field-icon">
+                                        <div>
+                                            Ширина:
+                                        </div>
+                                        <div>
+                                            <div class="form-input px form-input-small">
+                                                <input type="text" value="" name="gridWidth" placeholder="auto" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="form-field form-field-space form-field-icon">
+                                        <div>
+                                            Колонок:
+                                        </div>
+                                        <div>
+                                            <div class="form-input num cols form-input-small">
+                                                <input type="text" value="" name="gridCols" placeholder="auto" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>  
+                            </div>
+                            <div class="form-divider form-divider-small"></div>
+                            <div class="form-field form-field-half">
+                                <div>
+                                    <div class="form-field form-field-space form-field-icon">
+                                        <div>
+                                            Отступ:
+                                        </div>
+                                        <div>
+                                            <div class="form-input px form-input-small">
+                                                <input type="text" value="" name="gridOffset" placeholder="auto" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-field-align-center">
+                                    <div class="form-range">
+                                        <input type="range" name="gridOpacity" min="0" max="1" step="0.01" value="" placeholder="auto" />
+                                    </div>
+                                </div> 
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="form-group m-b-0">
+                        <div class="form-name">Baseline</div>
+                        <div class="form-content padding">
+                            <div class="form-field form-field-half">
+                                <div>
+                                    <div class="form-field form-field-space form-field-icon">
+                                        <div>
+                                            Высота:
+                                        </div>
+                                        <div>
+                                            <div class="form-input px form-input-small">
+                                                <input type="text" value="" name="baselineHeight" placeholder="auto" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-field-align-center">
+                                    <div class="form-range">
+                                        <input type="range" name="baselineOpacity" min="0" max="1" step="0.01" value="" placeholder="auto" />
+                                    </div>
+                                </div> 
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="tabs-content" id="perfect-last" style="max-height: 300px;">
+                    <p class="text-center">Вставить из PSD макетов</p>
+
+                    <div id="perfect-last-content"></div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</li>

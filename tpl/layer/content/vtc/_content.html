@@ -1,0 +1,114 @@
+<div class="vtc-content">
+    <ul class="vtc-content-tabs" id="vtc-viewport-tabs">
+        
+    </ul>
+    <div class="vtc-content-editor" id="vtc-viewport">
+        
+    </div>
+
+    <div class="vtc-content-live" id="vtc-live-container">
+        <iframe src="live.html" id="vtc-live"></iframe>
+    </div>
+
+    <ul class="tools-iframe tools-vtc"> 
+        <li id="vtc-viewport-enable-edit"><img src="style/img/icons-panel/pointer.png"></li>
+        <li id="vtc-viewport-auto-join" data-toggle="tooltip" title="Автоматически создавать классы" ><img src="style/img/icons-panel/auto-join.png"></li> 
+        <li id="vtc-viewport-draw-line" data-toggle="tooltip" title="Показать-Скрыть линии" ><img src="style/img/icons-panel/line.png"></li> 
+        <li id="vtc-viewport-showhide-psd" data-toggle="tooltip" title="Сделать макет прозрачным" ><img src="style/img/icons-panel/show.png"></li>  
+        <li class="sep"></li>
+        <li id="vtc-viewport-join-add" data-toggle="tooltip" title="Создать классы для выделенных элементов" >
+            <img src="style/img/icons-panel/auto-join-add.png">
+        </li>
+        <li class="sep"></li>
+        <li>
+            <img src="style/img/icons/j-1.png" class="vtc-align" name="leftEdges">
+            <ul>
+                <li class="vtc-align" name="horisontalCenter"><img src="style/img/icons/j-2.png"></li> 
+                <li class="vtc-align" name="rightEdges"><img src="style/img/icons/j-3.png"></li> 
+            </ul>
+        </li> 
+        <li>
+            <img src="style/img/icons/a-1.png" class="vtc-align" name="topEdges">
+            <ul>
+                <li class="vtc-align" name="verticalCenter"><img src="style/img/icons/a-2.png"></li> 
+                <li class="vtc-align" name="bottomEdges"><img src="style/img/icons/a-3.png"></li> 
+            </ul>
+        </li> 
+        <li class="vtc-align" name="spaceHorisontal"><img src="style/img/icons-panel/a-1.png"></li> 
+        <li class="vtc-align" name="spaceVertical"><img src="style/img/icons-panel/a-4.png"></li> 
+        <li>
+            <img src="style/img/icons-panel/fully.png" class="vtc-align" name="fully">
+            <ul>
+                <li class="vtc-align" name="fullyWidth"><img src="style/img/icons-panel/fully-width.png"></li> 
+                <li class="vtc-align" name="fullyHeight"><img src="style/img/icons-panel/fully-height.png"></li> 
+                <li class="vtc-align" name="fullyColumn"><img src="style/img/icons-panel/fully-colum.png"></li> 
+                <li class="vtc-align" name="fullyRows"><img src="style/img/icons-panel/fully-rows.png"></li>
+            </ul>
+
+        </li>
+        <li>
+            <img src="style/img/icons-panel/align-to-width.png" class="vtc-align" name="flatWidth">
+            <ul>
+                <li class="vtc-align" name="flatHeight"><img src="style/img/icons-panel/align-to-height.png"></li> 
+            </ul>
+        </li>
+
+        <li class="sep"></li>
+        <li id="vtc-viewport-enable-live" data-toggle="tooltip" title="Живой просмотр" ><img src="style/img/icons-panel/vtc-live.png"></li> 
+    </ul>
+    
+    <div class="vtc-cascade-container" id="vtc-cascade">
+        <div class="vtc-cascade hide">
+            <div class="vtc-cascade-top">
+                <p class="m-b-0 p-l-10">Если вам надо выделить элементы определенного типа из множества дочерних элементов, используете этот инструмент.</p>
+
+                <div class="d-flex">
+                    <div class="form-btn form-btn-icon form-btn-icon-min m-r-5" id="vtc-create-cascade"><img src="style/img/icons-panel/plus.png"></div>
+                    <div class="form-btn form-btn-icon form-btn-icon-min m-r-5" id="vtc-cascade-toggle"><img src="style/img/icons-panel/show.png"></div>
+                    <div class="form-btn form-btn-icon form-btn-icon-min" id="vtc-create-cascade-helper"><img src="style/img/icons-panel/info.png"></div>
+                </div>
+            </div>
+            <ul class="vtc-cascade-list" id="vtc-cascade-list">
+                
+            </ul>
+        </div>
+    </div>
+
+    <div class="vtc-scss-display main" id="vtc-scss-display-main">
+        <div class="vtc-scss-display items" id="vtc-scss-display-items">
+            <div class="vtc-scss-container items">
+                <div class="vtc-scss-items layer-psd-items" id="vtc-scss-items">
+
+                    <div class="layer-psd-item" id="vtc-scss-add">
+                        <div class="layer-psd-item-image">
+                            <i class="flaticon-add-2"></i>
+                        </div>
+                        <div class="layer-psd-item-bottom">
+                            <h3>Создать новый</h3>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="vtc-scss-display edit" id="vtc-scss-display-edit">
+            <div class="vtc-scss-container edit">
+
+                <div class="vtc-scss-edit-top p-5 form-field form-field-align-center">
+                    <div class="m-r-10">
+                        <div class="form-btn" id="vtc-scss-edit-back"><img src="style/img/icons-panel/modules.png">Назад</div>
+                    </div>
+                    
+                    <div>
+                        <span id="vtc-scss-edit-name"></span>
+                    </div>
+                </div>
+
+                
+                <div class="vtc-scss-edit-iframe">
+                    <iframe src="" id="vtc-scss-edit-iframe"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

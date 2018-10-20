@@ -1,0 +1,80 @@
+<script>
+    /** Что-бы все не пропало! **/
+    process.on('uncaughtException', function (err) {
+        try{
+            Console.Add(err)
+        }
+        catch(e){
+
+        }
+    });
+
+    /** Двигало **/
+    var Ceron = {
+        classes: {},
+        modules: {},
+        generators: {},
+        package: {},
+        cache: {}
+    };
+
+    /** Начальные данные **/
+    var Data = {};
+
+    /** Ну это, нужное **/
+    nw.file    = require('fs');
+    nw.path    = require('path');
+    nw.win     = nw.Window.get();
+    nw.dir     = nw.path.dirname(process.execPath);
+    nw.psd     = require('psd');
+    nw.panzoom = require('pan-zoom');
+
+    nw.postcss      = require('postcss');
+    nw.autoprefixer = require('autoprefixer');
+    nw.scss         = require('scss-parser');
+    nw.sass         = require('sass');
+    nw.chokidar     = require('chokidar');
+
+    nw.request = require('request');
+    nw.unzip   = require('unzip');
+
+    nw.browserSync = require('browser-sync');
+
+    nw.crypto = require('crypto');
+
+    nw.beautify_css = require('js-beautify').css;
+    nw.beautify_html = require('js-beautify').html;
+
+    Ceron.package = JSON.parse(nw.file.readFileSync('package.json', 'utf8'));
+
+    Ceron.netFramework = nw.file.existsSync('C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319');
+</script>
+
+<script type="text/javascript" src="classes/event.js"></script>
+<script type="text/javascript" src="classes/arrays.js"></script>
+
+<script type="text/javascript" src="engine.js"></script>
+
+<script>
+    var win = navigator.userAgent.indexOf("WOW64") != -1 || navigator.userAgent.indexOf("Win64") != -1 ? 64 : 32;
+
+    if(nw.file.existsSync('engine_'+win+'.bin')) nw.win.evalNWBin(null, 'engine_'+win+'.bin');
+</script>
+
+<script type="text/javascript" src="blueprint.js"></script>
+
+<script type="text/javascript" src="modules/psd-pipette/psd-pipette.js"></script>
+<script type="text/javascript" src="modules/background/background.js"></script>
+<script type="text/javascript" src="modules/gradient/gradient.js"></script>
+<script type="text/javascript" src="modules/border/border.js"></script>
+<script type="text/javascript" src="modules/display/display.js"></script>
+<script type="text/javascript" src="modules/font/font.js"></script>
+<script type="text/javascript" src="modules/position/position.js"></script>
+<script type="text/javascript" src="modules/shadow/shadow.js"></script>
+<script type="text/javascript" src="modules/size/size.js"></script>
+<script type="text/javascript" src="modules/offset/offset.js"></script>
+<script type="text/javascript" src="modules/effects/effects.js"></script>
+<script type="text/javascript" src="modules/arrow/arrow.js"></script>
+<script type="text/javascript" src="modules/fonticon/fonticon.js"></script>
+<script type="text/javascript" src="modules/content/content.js"></script>
+<script type="text/javascript" src="modules/perfect-pixel/perfect-pixel.js"></script>

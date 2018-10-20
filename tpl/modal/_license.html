@@ -1,0 +1,83 @@
+<div id="window-license" class="modal modal-license fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content intro">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">покупка и активация</h4>
+
+                <p>Привет! Хотите быстро верстать свои проекты?</p>
+                <p>Используйте Ceron чтобы верстать быстрее и легче, чем когда-либо прежде.</p>
+            </div>
+            <div class="reguest-code">
+                Код запроса: <b class="intro-reguest-code"></b>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="step-count">Шаг 1</div>
+                            
+                            <section class="intro-section-buy-done" style="display: none;">
+                                <h3>Лицензия на Ceron куплена <img src="style/img/ok.png" style="margin-top: -2px;" alt=""></h3>
+                                <p class="intro-thanks">Спасибо!</p>
+                            </section>
+                            <section class="intro-section-trial-active">
+                                <h3>Пробная версия!</h3>
+                                <p>Посетите портал <a href="http://docs.pinegrow.com" target="_blank" class="external">документации и поддержки</a>, чтобы узнать больше о том, как Ceron может облегчить вашу работу.</p>
+                                <div class="trial-days-left">осталось дней: <span class="intro-days">7</span></div>
+                            </section>               
+                        </div>
+                        <div class="col-md-4">
+                            <div class="step-count">Шаг 2</div>
+                            <section class="intro-section-buy-new">
+                                <h3 class="trial-activated">Купить Ceron</h3>
+                                <div> 
+                                    <p class="buy-text">Купите копию Ceron для себя, <b>затем введите серийный код на шаге 3.</b></p> 
+                                    <p><a class="btn btn-success" target="_blank" href="http://pinegrow.com/#buy">&nbsp;&nbsp;Купить сейчас&nbsp;&nbsp;</a></p> 
+                                </div>
+                            </section>              
+                        </div>
+                        <div class="col-md-4">
+                            <div class="step-count">Шаг 3</div>
+                            <section class="intro-section-buy">
+                                <h3 class="trial-activated">Введите свой серийный код после покупки Ceron</h3>
+                            
+                                <p>Введите свой адрес электронной почты (тот же, который использовался для совершения платежа), и серийный код, который вы получили в конце процесса оплаты:</p>
+                                
+                                <div class="form-group-simple">
+                                    <div>
+                                        <input type="text" class="form-control" id="buyEmail" placeholder="Введите email">
+                                    </div>
+                                </div>
+                                <div class="form-group-simple">
+                                    <div>
+                                        <input type="text" class="form-control" id="buySerial" placeholder="Серийный код">
+                                    </div>
+                                </div>
+                                <div class="form-group-simple">
+                                    <div>
+                                        <button type="submit" class="btn btn-success btn-block intro-activated">
+                                            Активировать
+                                        </button>
+                                        <a class="btn btn-link btn-block forgot-serial external" target="_blank" href="http://shop.pinegrow.com/mylicences"><small>Как получить серийный код?</small></a>
+                                    </div>
+                                </div>
+                                
+                                <p class="text-danger text-center intro-activated-error" style="display: none;"></p>
+                                        
+                            </section>                         
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn cancel btn-link" data-dismiss="modal">Использовать Ceron</button>
+            </div>
+
+        </div>
+    
+    </div>
+</div>

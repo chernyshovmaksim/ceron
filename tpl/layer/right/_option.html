@@ -1,0 +1,100 @@
+<div class="tabs-content active" id="options">
+    
+    <ul class="tools-gamepad m-b-20">
+        <li class="back" onclick="Raid.Back()"></li>
+        <li class="start" onclick="Raid.Start()"></li>
+        <li class="next" onclick="Raid.Next()"></li>
+        <li class="up" onclick="Raid.Up()"></li>
+        <li class="down" onclick="Raid.Down()"></li>
+    </ul>
+    
+    
+    <div class="form-group">
+        <div class="form-name">Медиа</div>
+        <div class="form-content">
+            <div class="form-field form-field-icon">
+                <div>
+                    <img src="style/img/icons-panel/pc.png" id="media-pulse" class="pulsar" alt="">
+                </div>
+                <div>
+                    <select class="select-media" data-actions-box="true" data-width="100%" onchange="Media.ChangeMedia(this.value)">
+                        
+                    </select>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="form-group" style="display: none">
+        <div class="form-name">Родительский класс</div>
+        <div class="form-content">
+            <div class="form-field form-field-icon">
+                <div>
+                    <img src="style/img/icons-panel/cascade.png" alt="">
+                </div>
+                <div>
+                    <div class="form-input">
+                        <input type="text" value="" name="" placeholder="" class="select-class-parent">
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <div class="form-name">Рабочий класс <span class="vtc-css-list-output" id="class-name-doth"></span></div>
+        <div class="form-content">
+            <div class="form-field">
+                <div class="form-class-info select-name-info">---</div>
+            </div>
+
+            
+            <div class="form-divider"></div>
+            
+            <div class="form-class select-class-custom" style="display: none;">
+                <div class="form-class-select blueprint select-class-custom-selector"></div>
+            </div>
+
+            <div class="form-class select-class-none">
+                Совпадений не найдено
+            </div>
+
+            <div class="form-class select-class" style="display: none;">
+                <div class="form-class-select"></div>
+                <div class="form-class-drop">
+                   
+                </div>
+            </div>
+
+            <div class="form-divider form-divider-small" style="display: none"></div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="form-name">История</div>
+        <div class="form-content">
+            <div class="form-field form-field-grow-three">
+                <div class="m-r-5">
+                    <div class="form-btn form-btn-icon" id="css-select-prev"><img src="style/img/icons/d-l.png" alt=""></div>
+                </div>
+                <div>
+                    <select id="css-select-history" data-actions-box="true" data-width="100%">
+                        <option>Нет истории</option>
+                    </select>
+                </div>
+                <div class="m-l-5">
+                    <div class="form-btn form-btn-icon" id="css-select-next"><img src="style/img/icons/d-r.png" alt=""></div>
+                </div>
+                
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="tools-bar">
+        
+    </div>
+</div>

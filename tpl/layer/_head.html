@@ -1,0 +1,50 @@
+<div class="layer-color p-5 clearfix layer-size-top">
+    <img src="style/img/logo-small.png" class="pull-left m-r-10" style="margin-top: 1px;" />
+    <ul class="layer-menu pull-left">
+        <li class="layer-project-name" onclick="$('#project-settings').modal('show')">Без названия</li>
+        <li>Проект
+            <div>
+                <span onclick="File.New()">Новый (Ctrl+N)</span>
+                <span onclick="File.Open()">Открыть (Ctrl+O)</span>
+
+                <span class="line"></span>
+
+                <span onclick="File.Save()">Сохранить (Ctrl+S)</span>
+                <span onclick="File.SaveAs()">Сохранить Как</span>
+                
+                <span class="line"></span>
+                
+                <span onclick="$('#project-settings').modal('show')">Настройки</span>
+                <span onclick="$('#popup-hotkeys').modal('show')">Горячие клавиши</span>
+                
+            </div>
+        </li>
+
+        <li>Последние
+            <div class="menu-open-last-projects">
+                
+            </div>
+        </li>
+        
+        <li onclick="Console.Open()">Консоль <span class="label label-danger layer-console-label">0</span></li>
+
+        <li>Программа <span class="label label-danger update-status-label">1</span>
+            <div>
+                <!--<span onclick="abount()">Помощь</span>-->
+                <span class="open-update">О программе</span>
+                <!--<span class="buy-and-activated">Покупка и активация</span>-->
+
+                <span class="line"></span>
+
+                <span onclick="Functions.Reload()">Перезагрузить (Ctrl+R)</span>
+            </div>
+        </li>
+        
+    </ul>
+
+    <div class="pull-left ceron-conection m-l-10" style="margin-top: 2px" data-toggle="tooltip" title="Подключение к сети" data-placement="bottom"><img src="style/img/load.svg"></div>
+    
+    <ul class="layer-menu pull-right">
+        <li class="project-opened">Проект: <span></span></li>
+    </ul>
+</div>

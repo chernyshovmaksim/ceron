@@ -1,0 +1,135 @@
+<div id="project-settings" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Настройки проекта</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-container">
+                    
+                    <div class="tabs-container">
+                        <ul class="tabs-menu">
+                            <li tab="settings-common" class="active">Общие</li>
+                            <li tab="settings-css">Стили</li>
+                            <li tab="settings-css-default">CSS по дефолту</li>
+                        </ul>
+                        
+                        <div class="tabs-content active p-5 p-t-20 project-settings" id="settings-common">
+                            <div class="form-group">
+                                <div class="form-name">Название проекта</div>
+                                <div class="form-content">
+                                    <div class="form-input projectName">
+                                        <input type="text" name="projectName" value="" placeholder="">
+                                    </div>
+                                    <span class="help-block m-b-0">Укажите как называется ваш проект</span>
+                                </div>
+                            </div>
+
+                            
+                            <div class="form-group">
+                                <div class="form-name">Единицы измерения</div>
+                                <div class="form-content">
+                                    <select class="form-select units" name="units">
+                                        <option value="px">PX</option>
+                                        <option value="em">EM</option>
+                                        <option value="rem">REM</option>
+                                        <option value="vw">VW</option>
+                                    </select>
+
+                                    <span class="help-block m-b-0">Укажите тип единиц измерения по дефолту</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-name">Объединить</div>
+                                <div class="form-content">
+                                    <div class="form-input join">
+                                        <input type="text" name="join" value="" placeholder="-">
+                                    </div>
+                                    <span class="help-block m-b-0">Укажите каким знаком объединить названия и префикс.</span>
+                                </div>
+                            </div>
+
+
+                            <div class="form-group">
+                                <div class="form-name">Относительный путь к файлам</div>
+                                <div class="form-content">
+                                    
+                                    <div class="form-field form-field-half">
+                                        <div>
+                                            <div class="form-input img">
+                                                <input type="text" name="img" value="" placeholder="style/css">
+                                            </div>
+                                            <span class="help-block m-b-0">Относительный путь к файлу .css</span>
+                                        </div>
+                                        <div>
+                                            <div class="form-input style">
+                                                <input type="text" name="style" value="" placeholder="/">
+                                            </div>
+                                            <span class="help-block m-b-0">Относительный путь к главной директории</span>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            
+                            <div class="form-group">
+                                <div class="form-name">Autoprefixer</div>
+                                <div class="form-content">
+                                    <div class="form-input autoprefixer">
+                                        <input type="text" name="autoprefixer" value="" placeholder="">
+                                    </div>
+                                    <span class="help-block m-b-0">Autoprefixer будет использовать данные на основе текущей популярности браузера и поддержки свойств, чтобы применять префиксы. <a url="https://github.com/postcss/autoprefixer" target="_blank">Подробно про autoprefixer</a></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-name">Игнорировать классы</div>
+                                <div class="form-content">
+                                    <div class="form-input ignoreClasses">
+                                        <input type="text" name="ignoreClasses" value="" placeholder="col-*,row,wow">
+                                    </div>
+                                    <span class="help-block m-b-0">Классы которые будут игнорироваться при выделение</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="tabs-content p-5 p-t-20 project-settings" id="settings-css">
+                            <div class="form-group">
+                                <div class="form-name">SASS переменные</div>
+                                <div class="form-content">
+                                    <div class="form-input vars">
+                                        <input type="text" name="vars" value="" readonly placeholder="_vars.sass">
+                                    </div>
+                                    <span class="help-block m-b-0">Sass файл в котором заданы параметры цветов, отступов, шрифтов и тд.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tabs-content p-5 p-t-20 project-settings" id="settings-css-default">
+                            <div class="form-group">
+                                <div class="form-name">CSS Переменный по дефолту</div>
+                                <div class="form-content">
+                                    <div class="form-input">
+                                        <textarea name="base" rows="6" class="base"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    
+                </form>
+            </div>
+        </div>
+    
+    </div>
+</div>

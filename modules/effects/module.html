@@ -1,0 +1,278 @@
+<li>
+    <div class="ico"><img src="modules/effects/images/ico.png" /></div>
+    
+    <div class="dropmenu">
+        <div>
+            <div class="tabs-container">
+                <ul class="tabs-menu">
+                    <li class="active" tab="effects">Эффекты</li>
+                    <li tab="filter">Фильтр</li>
+                    <li tab="transform">Трансформ</li>
+                </ul>
+                
+                <div class="tabs-content active" id="effects">
+                    
+                    <div class="form-group">
+                        <div class="form-name">Прозрачность</div>
+                        <div class="form-content">
+                            <div class="form-field form-field-half">
+                                <div>
+                                    <div class="form-field form-field-space form-field-icon">
+                                        <div>
+                                            Сила:
+                                        </div>
+                                        <div>
+                                            <div class="form-input form-input-small opacity">
+                                                <input type="text" value="" name="opacity" placeholder="1" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-field-align-center">
+                                    <div class="form-range opacity">
+                                        <input type="range" name="opacity" min="0" max="1" step="0.01" value="" placeholder="1" />
+                                    </div>
+                                </div> 
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-name">Transition</div>
+                        <div class="form-content">
+                            <div class="form-field form-field-half">
+                                <div>
+                                    <div class="form-field form-field-space form-field-icon">
+                                        <div>
+                                            Время:
+                                        </div>
+                                        <div>
+                                            <div class="form-input form-input-small transition">
+                                                <input type="text" value="" name="transition" placeholder="200ms" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-field-align-center">
+                                    <div class="form-range transition">
+                                        <input type="range" name="transition" min="0" max="2000" value="" />
+                                    </div>
+                                </div> 
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="form-group m-b-0">
+                        <div class="form-name">Курсор</div>
+                        <div class="form-content">
+                            <div class="form-field form-field-icon">
+                                <div>
+                                    <img src="style/img/icons/cursor.png">
+                                </div>
+                                <div>
+                                    <div class="form-input cursor">
+                                        <input type="text" value="" name="cursor" placeholder="default" />
+                                        <ul class="drop"></ul>
+                                    </div>
+                                </div> 
+                            </div>
+
+                        </div>
+                    </div>
+                    
+                </div>
+
+                <div class="tabs-content" id="filter">
+                    
+                    <div class="form-btn m-b-10 add-filter"><img src="style/img/icons/pluse.png">Добавить фильтр</div>
+
+                    <ul class="list-sort all-filter">
+                        
+                    </ul>
+                    
+                    <p class="text-center m-b-0 no-filter">Нет не одного фильтра</p>
+                    
+                </div>
+
+                <div class="tabs-content" id="transform">
+
+                    <div class="form-group">
+                        <div class="form-name">Позиция</div>
+                        <div class="form-content">
+                            <div class="form-field form-field-half">
+                                <div>
+                                    <ul class="grid grid-position transform-origin">
+                                        <li name="0 0"><img src="style/img/icons/d-lt.png" alt=""></li>
+                                        <li name="50% 0"><img src="style/img/icons/d-t.png" alt=""></li>
+                                        <li name="100% 0"><img src="style/img/icons/d-tr.png" alt=""></li>
+                                        <li name="0 50%"><img src="style/img/icons/d-l.png" alt=""></li>
+                                        <li name="50% 50%"></li>
+                                        <li name="100% 50%"><img src="style/img/icons/d-r.png" alt=""></li>
+                                        <li name="0 100%"><img src="style/img/icons/d-lb.png" alt=""></li>
+                                        <li name="50% 100%"><img src="style/img/icons/d-b.png" alt=""></li>
+                                        <li name="100% 100%"><img src="style/img/icons/d-rb.png" alt=""></li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <div class="form-field form-field-space form-field-icon">
+                                        <div>
+                                            Ось X:
+                                        </div>
+                                        <div>
+                                            <div class="form-input form-input-small transform-origin-x">
+                                                <input type="text" name="transform-origin" value="" placeholder="auto" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-divider"></div>
+                                    <div class="form-field form-field-space form-field-icon">
+                                        <div>
+                                            Ось Y:
+                                        </div>
+                                        <div>
+                                            <div class="form-input form-input-small transform-origin-y">
+                                                <input type="text" name="transform-origin" value="" placeholder="auto" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+
+                    <ul class="form-radio select-transform m-b-10">
+                        <li name="translate">Move</li>
+                        <li name="scale">Scale</li>
+                        <li name="rotate">Rotate</li>
+                        <li name="skew">Skew</li>
+                    </ul>
+
+                    <div class="grid grid-colums-three grid-gap-10 transform translate">
+                        <div class="form-field form-field form-field-align-center">
+                            <div class="p-r-10">
+                                X
+                            </div>
+                            <div>
+                                <div class="form-input">
+                                    <input type="text" value="" name="translateX" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-field form-field form-field-align-center">
+                            <div class="p-r-10">
+                                Y
+                            </div>
+                            <div>
+                                <div class="form-input">
+                                    <input type="text" value="" name="translateY" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-field form-field form-field-align-center">
+                            <div class="p-r-10">
+                                Z
+                            </div>
+                            <div>
+                                <div class="form-input">
+                                    <input type="text" value="" name="translateZ" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-colums-three grid-gap-10 transform scale">
+                        <div class="form-field form-field form-field-align-center">
+                            <div class="p-r-10">
+                                X
+                            </div>
+                            <div>
+                                <div class="form-input">
+                                    <input type="text" value="" name="scaleX" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-field form-field form-field-align-center">
+                            <div class="p-r-10">
+                                Y
+                            </div>
+                            <div>
+                                <div class="form-input">
+                                    <input type="text" value="" name="scaleY" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-field form-field form-field-align-center">
+                            <div class="p-r-10">
+                                Z
+                            </div>
+                            <div>
+                                <div class="form-input">
+                                    <input type="text" value="" name="scaleZ" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-colums-three grid-gap-10 transform rotate">
+                        <div class="form-field form-field form-field-align-center">
+                            <div class="p-r-10">
+                                X
+                            </div>
+                            <div>
+                                <div class="form-input">
+                                    <input type="text" value="" name="rotateX" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-field form-field form-field-align-center">
+                            <div class="p-r-10">
+                                Y
+                            </div>
+                            <div>
+                                <div class="form-input">
+                                    <input type="text" value="" name="rotateY" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-field form-field form-field-align-center">
+                            <div class="p-r-10">
+                                Z
+                            </div>
+                            <div>
+                                <div class="form-input">
+                                    <input type="text" value="" name="rotateZ" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-colums-two grid-gap-10 transform skew">
+                        <div class="form-field form-field form-field-align-center">
+                            <div class="p-r-10">
+                                X
+                            </div>
+                            <div>
+                                <div class="form-input">
+                                    <input type="text" value="" name="skewX" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-field form-field form-field-align-center">
+                            <div class="p-r-10">
+                                Y
+                            </div>
+                            <div>
+                                <div class="form-input">
+                                    <input type="text" value="" name="skewY" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</li>
