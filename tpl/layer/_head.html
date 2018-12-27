@@ -27,6 +27,8 @@
         </li>
         
         <li onclick="Console.Open()">Консоль <span class="label label-danger layer-console-label">0</span></li>
+        
+        <li onclick="$('#popup-precess').modal('show')">Процесс <span class="label label-danger" id="process-label">1</span></li>
 
         <li>Программа <span class="label label-danger update-status-label">1</span>
             <div>
@@ -39,7 +41,6 @@
                 <span onclick="Functions.Reload()">Перезагрузить (Ctrl+R)</span>
             </div>
         </li>
-        
     </ul>
 
     <div class="pull-left ceron-conection m-l-10" style="margin-top: 2px" data-toggle="tooltip" title="Подключение к сети" data-placement="bottom"><img src="style/img/load.svg"></div>

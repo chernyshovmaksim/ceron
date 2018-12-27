@@ -8,7 +8,9 @@ Blueprint.Worker.add('file_save',{
 		//type: 'round',
 		vars: {
 			input: {
-				input: {},
+				input: {
+					name: 'data'
+				},
 				path: {
 					name: 'path',
 					color: '#ddd',

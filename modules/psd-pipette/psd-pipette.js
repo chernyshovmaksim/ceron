@@ -78,15 +78,11 @@ Ceron.modules.PsdPipette =  function(){
                 json = JSON.parse(result);
 
                 parse = true;
-
-                console.log(json)
             }
             catch(e){
                 Console.Add({message: 'Ошибка, не удалось извлечь данные',stack: (result == 'undefined' ? 'Слой не выбран': result || 'Нет данных') });
             }
 
-            
-            
             if(callback && parse) callback(json);
         }
 
@@ -353,14 +349,17 @@ Ceron.modules.PsdPipette =  function(){
                     } 
                 }
 
-                result['min-width']  = result['width'] + 'px';
-                result['min-height'] = result['height'] + 'px';
+                //result['min-width']  = result['width'] + 'px';
+                //result['min-height'] = result['height'] + 'px';
 
-                result['max-width']  = result['width'] + 'px';
-                result['max-height'] = result['height'] + 'px';
+                //result['max-width']  = result['width'] + 'px';
+                //result['max-height'] = result['height'] + 'px';
 
                 result['width']  = Functions.ConvertUnits( result['width'] );
                 result['height'] = Functions.ConvertUnits( result['height'] );
+
+                result['max-width'] = result['min-width'] = result['width'];
+                result['max-height'] = result['min-height'] = result['height'];
             })
         
             callback(result)
@@ -423,105 +422,99 @@ Ceron.modules.PsdPipette =  function(){
     }
 
     this.Font = function(text, callback){
-        //this.Get(function(data){
-            var result = {};
+        
+        var result   = {};
+        var textItem = text.textStyleRange.textStyle;
+        var base     = text.textStyleRange.textStyle.baseParentStyle || {};
+
+        try{
+            result['color'] = Color.RgbToHex('rgb('+Math.round(textItem.color.red)+','+Math.round(textItem.color.grain)+','+Math.round(textItem.color.blue)+')')
+        }
+        catch(e){}
+
+        if(!result['color']){
+            try{
+                result['color'] = Color.RgbToHex('rgb('+Math.round(textItem.baseParentStyle.color.red)+','+Math.round(textItem.baseParentStyle.color.grain)+','+Math.round(textItem.baseParentStyle.color.blue)+')')
+            }
+            catch(e){}
+        }
+
+        //все еше нет? афигеть!
+        if(!result['color']) result['color'] = '#000000';
+
+        //капут чуваки, просто капут!
+        
+        var fontSize = 16;
+
+        try{
+            fontSize = Math.round(textItem.impliedFontSize || textItem.size);
+        }
+        catch(e){}
+
+        result['font-size'] = Functions.ConvertUnits(fontSize);
+
+        //просто жесть!
+        try{
+            result['font-family'] = Functions.FontName(textItem.fontName || base.fontName);
+        }
+        catch(e){
+
+        }
+
+        var leading = textItem.impliedLeading || textItem.leading;
+        
+        if(leading){
+            result['line-height'] = (Math.round(leading) / fontSize).toFixed(1);
+        }
+        else result['line-height'] = 1.2;
+
+
+
+        if(textItem.tracking){
+            if(Data.units == 'px'){
+                result['letter-spacing'] = ((textItem.tracking || 0) * Math.round(textItem.impliedFontSize || textItem.size) / 1000).toFixed(2) + Data.units;
+            }
+            else if(['em','rem'].indexOf(Data.units) >= 0){
+                result['letter-spacing'] = ((textItem.tracking || 0) / 1000).toFixed(2) + Data.units;
+            }
             
-            //$.each(data,function(i,layer){
-                //if(layer.textKey){
-                    //var textItem = layer.textKey.textStyleRange[0].textStyleRange.textStyle;
-                    var textItem = text.textStyleRange.textStyle;
-                    var base = text.textStyleRange.textStyle.baseParentStyle || {};
-
-                    try{
-                        result['color'] = Color.RgbToHex('rgb('+Math.round(textItem.color.red)+','+Math.round(textItem.color.grain)+','+Math.round(textItem.color.blue)+')')
-                    }
-                    catch(e){}
-
-                    if(!result['color']){
-                        try{
-                            result['color'] = Color.RgbToHex('rgb('+Math.round(textItem.baseParentStyle.color.red)+','+Math.round(textItem.baseParentStyle.color.grain)+','+Math.round(textItem.baseParentStyle.color.blue)+')')
-                        }
-                        catch(e){}
-                    }
-
-                    //все еше нет? афигеть!
-                    if(!result['color']) result['color'] = '#000000';
-
-                    //капут чуваки, просто капут!
-                    
-                    var fontSize = 16;
-
-                    try{
-                        fontSize = Math.round(textItem.impliedFontSize || textItem.size);
-                    }
-                    catch(e){}
-
-                    result['font-size'] = Functions.ConvertUnits(fontSize);
-
-                    //просто жесть!
-                    try{
-                        result['font-family'] = Functions.FontName(textItem.fontName || base.fontName);
-                    }
-                    catch(e){
-
-                    }
-
-                    var leading = textItem.impliedLeading || textItem.leading;
-                    
-                    if(leading){
-                        result['line-height'] = (Math.round(leading) / fontSize).toFixed(1);
-                    }
-                    else result['line-height'] = 1.2;
+        } 
 
 
+        try{
+            result['font-weight'] = Functions.FontWeight(textItem.fontPostScriptName || base.fontPostScriptName);
+        }
+        catch(e){
 
-                    if(textItem.tracking){
-                        if(Data.units == 'px'){
-                            result['letter-spacing'] = ((textItem.tracking || 0) * Math.round(textItem.impliedFontSize || textItem.size) / 1000).toFixed(2) + Data.units;
-                        }
-                        else if(['em','rem'].indexOf(Data.units) >= 0){
-                            result['letter-spacing'] = ((textItem.tracking || 0) / 1000).toFixed(2) + Data.units;
-                        }
-                        
-                    } 
+        }
 
-
-                    try{
-                        result['font-weight'] = Functions.FontWeight(textItem.fontPostScriptName || base.fontPostScriptName);
-                    }
-                    catch(e){
-
-                    }
-
-                    if(textItem.syntheticBold){
-                        result['font-weight'] += 100;
-                    }
+        if(textItem.syntheticBold){
+            result['font-weight'] += 100;
+        }
 
 
-                    if(textItem.syntheticItalic || /Italic/.test(textItem.fontPostScriptName || base.fontPostScriptName)){
-                        result['font-style'] = 'italic';
-                    }
+        if(textItem.syntheticItalic || /Italic/.test(textItem.fontPostScriptName || base.fontPostScriptName)){
+            result['font-style'] = 'italic';
+        }
 
-                    if(textItem.fontCaps){
-                        if(textItem.fontCaps == 'allCaps'){
-                            result['text-transform'] = 'uppercase';
-                        }
-                        if(textItem.fontCaps == 'smallCaps'){
-                            result['text-transform'] = 'capitalize';
-                        }
-                    } 
+        if(textItem.fontCaps){
+            if(textItem.fontCaps == 'allCaps'){
+                result['text-transform'] = 'uppercase';
+            }
+            if(textItem.fontCaps == 'smallCaps'){
+                result['text-transform'] = 'capitalize';
+            }
+        } 
 
-                    if(textItem.underline && textItem.underline !== 'underlineOff'){
-                        result['text-decoration'] = 'underline';
-                    }
-                    if(textItem.strikethrough && textItem.strikethrough !== 'strikethroughOff'){
-                        result['text-decoration'] = 'line-through';
-                    }
-                //}
-            //})
+        if(textItem.underline && textItem.underline !== 'underlineOff'){
+            result['text-decoration'] = 'underline';
+        }
+        if(textItem.strikethrough && textItem.strikethrough !== 'strikethroughOff'){
+            result['text-decoration'] = 'line-through';
+        }
+    
 
-            callback(result)
-        //})
+        callback(result);
     }
 
     this.Effects = function(callback){
@@ -706,15 +699,26 @@ Ceron.modules.PsdPipette =  function(){
 
         var selectAll = $([
             '<div class="psd-pipette-preview m-b-20"><a class="element">Element</a></div>',
-            '<div class="form-field form-field-align-center m-b-20">',
+            '<div class="form-field form-field-space m-b-20">',
                 '<div>',
-                    '<div class="form-checkbox m-l-10 m-r-10">',
-                        '<input type="checkbox" id="selectAll" checked />',
-                        '<label for="selectAll"></label>',
+                    '<div class="form-field form-field-align-center">',
+                        '<div>',
+                            '<div class="form-checkbox m-l-10 m-r-10">',
+                                '<input type="checkbox" id="selectAll" checked />',
+                                '<label for="selectAll"></label>',
+                            '</div>',
+                        '</div>',
+                        '<div>',
+                            '<h5><label for="selectAll" class="m-b-0">Выбрать все</label></h5>',
+                        '</div>',
                     '</div>',
                 '</div>',
                 '<div>',
-                    '<h5><label for="selectAll" class="m-b-0">Выбрать все</label></h5>',
+                    '<select class="form-select units" name="units">',
+                        '<option value="px">PX</option>',
+                        '<option value="em">EM</option>',
+                        '<option value="rem">REM</option>',
+                    '</select>',
                 '</div>',
             '</div>',
         ].join(''));
@@ -729,6 +733,52 @@ Ceron.modules.PsdPipette =  function(){
             }
         })
         
+        $('select',selectAll).val(Data.units).on('change',function(){
+            var unit = $(this).val();
+
+            $('.list-css > li').each(function(){
+
+                var input = $('input',this),
+                    code  = $('code',this),
+                    value = input.val(),
+                    orign = input.data('origin');
+
+                if(!orign){
+                    orign = value;
+                    input.data('origin',value);
+                }
+
+                if(unit == Data.units){
+                    input.val(orign);
+                    code.text(orign);
+                }
+                else{
+                    var nums = value.match(new RegExp('([0-9.]+(px|em|rem))', 'gi'));
+
+                    if(nums){
+                        for (var i = 0; i < nums.length; i++) {
+                            var num_unit = nums[i].replace(/[0-9.]+/gi,'');
+                            var num_flot = parseFloat(nums[i]);
+
+                            if(unit !== num_unit){
+                                if(num_unit == 'px' && unit !== 'px'){
+                                    value = value.replace(new RegExp(nums[i],'gi'), (num_flot / 16).toFixed(2) +  unit);
+                                }
+                                else if(unit == 'px' && num_unit !== 'px'){
+                                    value = value.replace(new RegExp(nums[i],'gi'), Math.round((num_flot * 16)) +  unit);
+                                }
+                                else{
+                                    value = value.replace(new RegExp(nums[i],'gi'), num_flot +  unit);
+                                }
+                            }
+                        }
+                    }
+
+                    input.val(value);
+                    code.text(value);
+                }
+            })
+        })
     }
 
     this._add_box = function(name, data, id_name, params = {}){

@@ -61,6 +61,8 @@ Blueprint.classes.Drag = function(){
 	            	self.callbacks[i](drag.dif, drag.start, drag.move)
 	            }
 	        }
+
+	        self.dispatchEvent({type: 'drag-after', drag: drag})
         }
     });
 }

@@ -3,6 +3,7 @@ Blueprint.Worker.add('blueprint',{
 		name: 'Blueprint',
 		description: '',
 		saturation: 'hsl(169, 95%, 19%)',
+		alpha: 0.82,
 		category: 'blueprint',
 		type: 'round',
 		vars: {

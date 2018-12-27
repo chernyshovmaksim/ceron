@@ -37,12 +37,12 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 		].join('');
 
 		this.node = $([
-			'<div class="blueprint-node '+(this.params.type || '')+'" id="'+this.data.uid+'">',
+			'<div class="blueprint-node '+(this.params.type || '')+' '+(this.params.add_class || '')+' '+(this.params.reverse ? 'reverse' : '')+'" id="'+this.data.uid+'">',
                 (this.params.type == 'round' ? '' : title),
 
                 '<div class="blueprint-node-vars">',
                     '<div class="vars input"></div>',
-                    (this.params.type == 'round' ? '<div class="display"><span class="display-title"></span><span class="display-subtitle"></span></div>' : ''),
+                    (this.params.type == 'round' ? '<div class="display" style="'+(this.params.titleColor ? 'color:' + this.params.titleColor : '')+'"><span class="display-title"></span><span class="display-subtitle"></span></div>' : ''),
                     '<div class="vars output"></div>',
                 '</div>',
             '</div>',
@@ -91,6 +91,8 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 			
 			variable = $('<div><span>'+(params.name || '')+'<span class="display-var display-'+entrance+'-'+name+'">'+(params.display ? '('+self.getValue(entrance, name)+')' : '')+'</span></span></div>');
 			select   = $('<i class="'+className+'"></i>');
+
+			if(params.colorText) variable.css('color',params.colorText);
 
 			if(entrance == 'input') select.prependTo(variable);
 			else                    select.appendTo(variable);
@@ -206,7 +208,7 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 					self.dispatchEvent({type: 'drag'});
 				}
 			}
-		})
+		});
 
 		this.node.on('click',function(event){
 			if(!$(event.target).closest($('.var',self.node)).length) {
@@ -214,7 +216,18 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 
 				self.fire('select');
 			}
-		})
+		});
+
+		this.node.mouseenter(function(e){
+        	self.dispatchEvent({
+        		type: 'mouseenter',
+        		offset: self.node.offset(),
+        		width:  self.node.outerWidth(),
+        		height: self.node.outerHeight()
+        	});
+        }).mouseleave(function(){
+        	self.dispatchEvent({type: 'mouseleave'});
+        })
 	},
 	showOptionAgain: function(){
 		this.dispatchEvent({type: 'showOptionAgain',worker: this.data.worker, uid: this.uid, data: this.data});

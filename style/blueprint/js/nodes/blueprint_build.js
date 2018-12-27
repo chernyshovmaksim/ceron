@@ -1,10 +1,10 @@
 Blueprint.Worker.add('blueprint_build',{
 	params: {
-		name: 'Blueprint Build',
+		name: 'Build',
 		description: 'Событие на компиляцию кода Blueprint',
 		saturation: 'hsl(188, 97%, 76%)',
 		alpha: 0.43,
-		category: 'function',
+		category: 'blueprint',
 		vars: {
 			input: {
 				

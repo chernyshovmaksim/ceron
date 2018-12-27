@@ -25,7 +25,7 @@ Blueprint.Initialization = {
 
 			//если зажата одна из клавиш
 			//то показывме мыделение
-			if(presed.shiftKey || presed.altKey){
+			if(presed.shiftKey || presed.altKey || presed.ctrlKey){
 				this.enable = false;
 
 				Blueprint.Selection.enable = true;
@@ -36,9 +36,21 @@ Blueprint.Initialization = {
 			drag = false;
 		});
 
+		//в самом конце нужно отрисовать линии
+		Blueprint.Drag.addEventListener('drag-after',function(event){
+
+			//selectNode хз, уже не помню, 
+			//но если он есть то линия не рисуется
+			//так как Blueprint.Render.draw стирает ее
+			if(!selectNode) Blueprint.Render.draw()
+		})
+
 		//таскают
 		Blueprint.Drag.addEventListener('drag',function(event){
-			Blueprint.Render.draw()
+			
+			//как выше описал, стирает линию
+			//поэтому если не тянут то рисуем тута
+			if(selectNode) Blueprint.Render.draw()
 
 			//отмеряем дистанцию, если было движение
 			//то помечаем это и не показываем меню
@@ -155,6 +167,21 @@ Blueprint.Initialization = {
 			} 
 			else{
 				Blueprint.Render.draw();
+			}
+
+			if(Blueprint.Selection.enable && presed.ctrlKey){
+				if(Blueprint.Selection.box.width > 200 && Blueprint.Selection.box.height > 100){
+					Blueprint.Render.newHelper({
+						position: {
+							x: Blueprint.Selection.box.left,
+							y: Blueprint.Selection.box.top,
+						},
+						size: {
+							width: Blueprint.Selection.viewport.width,
+							height: Blueprint.Selection.viewport.height
+						}
+					});
+				}
 			}
 
 			this.enable = true;
@@ -328,6 +355,14 @@ Blueprint.Initialization = {
 				Blueprint.Callback.Program.fireChangeEvent();
 			})
 
+			node.addEventListener('mouseenter',function(event){
+				Blueprint.Callback.Program.dispatchEvent({type: 'nodeMouseenter', node: node, nodeEvent: event});
+			})
+
+			node.addEventListener('mouseleave',function(event){
+				Blueprint.Callback.Program.dispatchEvent({type: 'nodeMouseleave', node: node, nodeEvent: event});
+			})
+
 			//протянули линию на input переменную
 			node.addEventListener('input',function(event){
 				if(selectNode !== this && selectNode && event.entrance !== selectNode.selectEntrance){
@@ -460,6 +495,42 @@ Blueprint.Initialization = {
 		Blueprint.Render.addEventListener('removeNode',function(e){
 			Blueprint.Callback.Program.fireChangeEvent();
 		})
+
+		//эвент на добовление нового хелпера
+		Blueprint.Render.addEventListener('addHelper',function(e){
+			var helper = e.helper;
+
+			//вешаем эвенты на сам нод
+
+			//эвент удаления
+			helper.addEventListener('remove',function(){
+				Blueprint.Render.removeHelper(helper);
+
+				Blueprint.Callback.Program.dispatchEvent({type: 'helperRemove', helper: helper});
+			})
+
+			//если нод двигают
+			helper.addEventListener('drag',function(event){
+				var h_size = helper.data.size;
+				var h_posi = helper.data.position;
+
+				for (var i = 0; i < Blueprint.Render.nodes.length; i++) {
+					var n_node = Blueprint.Render.nodes[i],
+						n_posi = n_node.data.position;
+
+					if(n_posi.x > h_posi.x && n_posi.x < h_posi.x + h_size.width  &&  n_posi.y > h_posi.y && n_posi.y < h_posi.y + h_size.height){
+						n_node.dragStart();
+					}
+				}
+			})
+
+		})
+
+		//событие новый хелпер
+		Blueprint.Render.addEventListener('newHelper',function(e){
+			//если новый то запускаем эвент создать
+			e.helper.create();
+		})
 		
 		//если в меню был выбран нод то создаем его
 		Blueprint.Callback.Menu.addEventListener('select',function(event){
@@ -574,6 +645,17 @@ Blueprint.Initialization = {
 		Blueprint.Render.update();
 	},
 
+	//после установки данных и классов, создаем ноды
+	helpers: function(){
+		var helpers = Blueprint.Data.get().helpers;
+
+		$.each(helpers,function(uid,params){
+			Blueprint.Render.addHelper(uid)
+		})
+
+		Blueprint.Render.update();
+	},
+
 	//наша программа
 	program: function(){
 		Blueprint.Menu    = new Blueprint.classes.Menu();
@@ -663,6 +745,7 @@ Object.assign( Blueprint.classes.Blueprint.prototype, EventDispatcher.prototype,
 		this.contentBlueprint.Initialization.viewport();
 		this.contentBlueprint.Data.set(Blueprint.Program.nodeData(this.uid))
 		this.contentBlueprint.Initialization.nodes();
+		this.contentBlueprint.Initialization.helpers();
 	},
 
 	initWindow: function(){
@@ -720,7 +803,8 @@ Blueprint.Build = function(){
 Blueprint.classes.Data = function(){
 	this.data  = {};
 	this.empty = {
-		nodes: {}
+		nodes: {},
+		helpers: {}
 	}
 }
 
@@ -801,6 +885,8 @@ Blueprint.classes.Drag = function(){
 	            	self.callbacks[i](drag.dif, drag.start, drag.move)
 	            }
 	        }
+
+	        self.dispatchEvent({type: 'drag-after', drag: drag})
         }
     });
 }
@@ -819,6 +905,165 @@ Object.assign( Blueprint.classes.Drag.prototype, EventDispatcher.prototype, {
 		this.callbacks = [];
 	}
 })
+Blueprint.classes.Helper = function(uid){
+	this.uid    = uid;
+	this.data   = Blueprint.Data.get().helpers[uid];
+	
+	this.position = {
+		x: 0,
+		y: 0
+	}
+
+	this.size = {
+		width: 0,
+		height: 0
+	}
+
+	this.init();
+}
+Object.assign( Blueprint.classes.Helper.prototype, EventDispatcher.prototype, {
+	create: function(){
+		this.data.position = Blueprint.Utility.snapPosition(this.data.position);
+
+		this.setPosition();
+	},
+	init: function(){
+		this.node = $([
+			'<div class="blueprint-helper" id="'+this.data.uid+'">',
+				'<div class="blueprint-helper-inner">',
+	                '<div class="blueprint-helper-top">',
+	                    '<div class="blueprint-helper-title">'+this.data.title+'</div>',
+	                    '<div class="blueprint-helper-close"></div>',
+	                '</div>',
+	                '<div class="blueprint-helper-resize"></div>',
+                '</div>',
+            '</div>',
+		].join(''));
+
+		this.addEvents();
+
+		this.setPosition();
+		this.setSize();
+
+		$('.blueprint-container').append(this.node)
+	},
+	addEvents: function(){
+		var self = this;
+		
+		this.node.on('mousedown',function(event){
+			if($(event.target).closest($('.blueprint-helper-resize',self.node)).length) {
+				self.resizeStart();
+
+				self.dispatchEvent({type: 'resize'});
+			}
+			else{
+				self.dragStart();
+
+				self.dispatchEvent({type: 'drag'});
+			}
+		});
+
+		this.node.on('click',function(event){
+			self.dispatchEvent({type: 'select',worker: self.data.worker, uid: self.uid, data: self.data});
+		});
+
+		$('.blueprint-helper-title',this.node).dblclick(function(){
+			var new_title = prompt('Описание хелпера', self.data.title);
+
+			if(new_title){
+				self.data.title = new_title;
+
+				$(this).text(new_title);
+			}
+		})
+
+		$('.blueprint-helper-close',this.node).on('click',function(){
+			self.dispatchEvent({type: 'remove'});
+
+			self.remove();
+		})
+
+		this.node.mouseenter(function(e){
+        	self.dispatchEvent({
+        		type: 'mouseenter',
+        		offset: self.node.offset(),
+        		width:  self.node.outerWidth(),
+        		height: self.node.outerHeight()
+        	});
+        }).mouseleave(function(){
+        	self.dispatchEvent({type: 'mouseleave'});
+        })
+	},
+	remove: function(){
+		this.node.remove();
+	},
+	dragStart: function(){
+		this.position.x = this.data.position.x;
+		this.position.y = this.data.position.y;
+
+		this.dragCall = this.drag.bind(this);
+
+		Blueprint.Drag.add(this.dragCall);
+	},
+	dragRemove: function(){
+		Blueprint.Drag.remove(this.dragCall);
+	},
+	drag: function(dif){
+		this.position.x -= dif.x / Blueprint.Viewport.scale;
+		this.position.y -= dif.y / Blueprint.Viewport.scale;
+
+		var snap = {
+			x: this.position.x,
+			y: this.position.y
+		}
+
+		this.data.position = Blueprint.Utility.snapPosition(snap)
+
+		this.setPosition();
+	},
+	resizeStart: function(){
+		this.size.width = this.data.size.width;
+		this.size.height = this.data.size.height;
+
+		this.resizeCall = this.resize.bind(this);
+
+		Blueprint.Drag.add(this.resizeCall);
+	},
+	resize: function(dif){
+		this.size.width -= dif.x / Blueprint.Viewport.scale;
+		this.size.height -= dif.y / Blueprint.Viewport.scale;
+
+		var snap = {
+			x: this.size.width,
+			y: this.size.height
+		}
+
+		snap = Blueprint.Utility.snapPosition(snap);
+
+		this.data.size.width  = snap.x;
+		this.data.size.height = snap.y;
+
+		this.setSize();
+	},
+	resizeRemove: function(){
+		Blueprint.Drag.remove(this.resizeCall);
+	},
+	setPosition: function(){
+		this.node.css({
+			left: this.data.position.x + 'px',
+			top: this.data.position.y + 'px'
+		})
+
+		this.dispatchEvent({type: 'position'})
+	},
+	setSize: function(){
+		this.node.css({
+			width: this.data.size.width + 'px',
+			height: this.data.size.height + 'px'
+		})
+	}
+})
+
 Blueprint.classes.Image = function(){
 	this.canvas = document.createElement('canvas');
 	this.ctx    = this.canvas.getContext('2d');
@@ -920,21 +1165,29 @@ Object.assign( Blueprint.classes.Image.prototype, EventDispatcher.prototype, {
 	},
 })
 Blueprint.classes.Line = function(params){
-	this.params = params;
-	this.line   = {};
+	try{
+		this.params = params;
+		this.line   = {};
 
-	this.parent = $('#'+this.params.parent.uid),
-	this.self   = $('#'+this.params.node.data.uid);
+		this.parent = $('#'+this.params.parent.uid),
+		this.self   = $('#'+this.params.node.data.uid);
 
-	this.output = $('.var-output-'+this.params.parent.output,this.parent);
-	this.input  = $('.var-input-'+this.params.parent.input,this.self);
+		this.output = $('.var-output-'+this.params.parent.output,this.parent);
+		this.input  = $('.var-input-'+this.params.parent.input,this.self);
 
-	this.output.addClass('active')
-	this.input.addClass('active')
+		this.output.addClass('active')
+		this.input.addClass('active')
 
-	this.parentData   = Blueprint.Data.get().nodes[this.params.parent.uid];
-	this.parentWorker = Blueprint.Worker.get(this.parentData.worker)
-	this.parentVar    = this.parentWorker.params.vars.output[this.params.parent.output];
+		this.parentData   = Blueprint.Data.get().nodes[this.params.parent.uid];
+		this.parentWorker = Blueprint.Worker.get(this.parentData.worker)
+		this.parentVar    = this.parentWorker.params.vars.output[this.params.parent.output];
+
+		this.reverse = this.params.node.params.reverse;
+		this.reverse_parent = this.parent.hasClass('reverse');
+	}
+	catch(e){
+		this.error = true;
+	}
 }
 
 Object.assign( Blueprint.classes.Line.prototype, EventDispatcher.prototype, {
@@ -946,12 +1199,12 @@ Object.assign( Blueprint.classes.Line.prototype, EventDispatcher.prototype, {
 		var distance = Math.max(min,(this.line.end.x - this.line.start.x) / 2) * Blueprint.Viewport.scale;
 		
 		this.line.output = {
-			x: this.line.start.x + distance,
+			x: this.reverse_parent ? this.line.start.x - distance : this.line.start.x + distance,
 			y: this.line.start.y
 		}
 
 		this.line.input = {
-			x: this.line.end.x - distance,
+			x: this.reverse ? this.line.end.x + distance : this.line.end.x - distance,
 			y: this.line.end.y
 		}
 	},
@@ -964,6 +1217,8 @@ Object.assign( Blueprint.classes.Line.prototype, EventDispatcher.prototype, {
 		}
 	},
 	draw: function(ctx){
+		if(this.error) return;
+		
 		this.calculate();
 
 		ctx.beginPath();
@@ -983,11 +1238,11 @@ Blueprint.classes.Menu = function(){
 	this.highlightAdd = '<b class="highlight">$1</b>';
 
 	this.categorys = {
-		blueprint: 'Blueprint',
 		blueprints: 'Blueprints',
+		blueprint: 'Blueprint',
 		function: 'Function',
+		vtc: 'Vtc',
 		css: 'Css',
-		//text: 'Text',
 		file: 'File',
 		all: 'All'
 	}
@@ -1173,12 +1428,12 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 		].join('');
 
 		this.node = $([
-			'<div class="blueprint-node '+(this.params.type || '')+'" id="'+this.data.uid+'">',
+			'<div class="blueprint-node '+(this.params.type || '')+' '+(this.params.add_class || '')+' '+(this.params.reverse ? 'reverse' : '')+'" id="'+this.data.uid+'">',
                 (this.params.type == 'round' ? '' : title),
 
                 '<div class="blueprint-node-vars">',
                     '<div class="vars input"></div>',
-                    (this.params.type == 'round' ? '<div class="display"><span class="display-title"></span><span class="display-subtitle"></span></div>' : ''),
+                    (this.params.type == 'round' ? '<div class="display" style="'+(this.params.titleColor ? 'color:' + this.params.titleColor : '')+'"><span class="display-title"></span><span class="display-subtitle"></span></div>' : ''),
                     '<div class="vars output"></div>',
                 '</div>',
             '</div>',
@@ -1227,6 +1482,8 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 			
 			variable = $('<div><span>'+(params.name || '')+'<span class="display-var display-'+entrance+'-'+name+'">'+(params.display ? '('+self.getValue(entrance, name)+')' : '')+'</span></span></div>');
 			select   = $('<i class="'+className+'"></i>');
+
+			if(params.colorText) variable.css('color',params.colorText);
 
 			if(entrance == 'input') select.prependTo(variable);
 			else                    select.appendTo(variable);
@@ -1342,7 +1599,7 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 					self.dispatchEvent({type: 'drag'});
 				}
 			}
-		})
+		});
 
 		this.node.on('click',function(event){
 			if(!$(event.target).closest($('.var',self.node)).length) {
@@ -1350,7 +1607,18 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 
 				self.fire('select');
 			}
-		})
+		});
+
+		this.node.mouseenter(function(e){
+        	self.dispatchEvent({
+        		type: 'mouseenter',
+        		offset: self.node.offset(),
+        		width:  self.node.outerWidth(),
+        		height: self.node.outerHeight()
+        	});
+        }).mouseleave(function(){
+        	self.dispatchEvent({type: 'mouseleave'});
+        })
 	},
 	showOptionAgain: function(){
 		this.dispatchEvent({type: 'showOptionAgain',worker: this.data.worker, uid: this.uid, data: this.data});
@@ -1445,7 +1713,7 @@ Blueprint.classes.Operator = function(data,workers,blueprintUid){
 }
 Blueprint.classes.Operator.prototype = {
 	/** Для начала, нам нуно найти родителей, 
-		что-бы подсчитать callCounter **/
+		чтобы подсчитать callCounter **/
 	init: function(){
 		for(var i = 0 ; i < this.data.parents.length; i++){
 			var parent = this.searchParent(this.data.parents[i].uid);
@@ -1495,7 +1763,43 @@ Blueprint.classes.Operator.prototype = {
 			values.push(defaultValue)
 		}
 
-		return values;
+		return this.concat(values);
+	},
+	/** Вытаскиваем значения в единый массив **/
+	concat: function(values){
+		var concat = [];
+
+		function get(arr){
+            for (var i = 0; i < arr.length; i++) {
+                var a = arr[i];
+
+                if(Arrays.isArray(a)) get(a);
+                else concat.push(a);
+            }
+        }
+
+        get(values);
+
+        return concat;
+	},
+	isAnyTrue: function(input){
+		var change = false;
+
+        function check(arr){
+            for (var i = 0; i < arr.length; i++) {
+                var a = arr[i];
+
+                if(Arrays.isArray(a)) check(a);
+                else if(a) change = true;
+            }
+        }
+
+        check(input);
+
+        return change;
+	},
+	removeEmpty: function(arr){
+		return arr.filter(function (e) { return e != '' });
 	},
 	/** Устанавливаем значение **/
 	setValue: function(name,value){
@@ -1792,8 +2096,6 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 	_processStart: function(){
 		this._building = true;
 
-		console.log('build')
-
 		$('.blueprint-process').addClass('active');
 
 		var uids = [];
@@ -1839,8 +2141,6 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 		},10)
 
 		setTimeout(function(){
-			console.log('end')
-
 			Blueprint.Program._building = false;
 		},500);
 	},
@@ -2070,14 +2370,15 @@ Blueprint.classes.Render = function(){
 	this.nodes = [];
 	this.lines = [];
 
+	this.helpers = [];
+
 	this.can = document.getElementById("blueprint-canvas");
 	this.ctx = this.can.getContext("2d");
 
 	this.can.width = window.innerWidth;
 	this.can.height = window.innerHeight;
 
-	$(window).resize(this.resize.bind(this))
-	
+	$(window).resize(this.resize.bind(this));
 }
 
 Object.assign( Blueprint.classes.Render.prototype, EventDispatcher.prototype, {
@@ -2125,7 +2426,6 @@ Object.assign( Blueprint.classes.Render.prototype, EventDispatcher.prototype, {
 	},
 	clearCanvas: function(){
 		this.ctx.clearRect(0, 0, this.can.width, this.can.height);
-		//this.can.width = this.can.width; //на пожарный
 	},
 	resize: function(){
 		this.can.width  = window.innerWidth;
@@ -2177,6 +2477,29 @@ Object.assign( Blueprint.classes.Render.prototype, EventDispatcher.prototype, {
 
         this.update();
 	},
+	newHelper: function(option){
+		var uid = Blueprint.Utility.uid();
+
+		var defaults = {
+			position: {x: 0, y: 0},
+			title: 'Helper'
+		}
+
+		option.position.x = option.position.x / Blueprint.Viewport.scale - Blueprint.Viewport.position.x;
+		option.position.y = option.position.y / Blueprint.Viewport.scale - Blueprint.Viewport.position.y;
+        
+        var data = $.extend(defaults,option,{
+            uid: uid,
+        });
+
+        Blueprint.Data.get().helpers[uid] = data;
+
+        var helper = this.addHelper(uid);
+
+        this.dispatchEvent({type: 'newHelper', helper: helper})
+
+        this.update();
+	},
 	addNode: function(uid){
 		var node = new Blueprint.classes.Node(uid);
 
@@ -2186,6 +2509,15 @@ Object.assign( Blueprint.classes.Render.prototype, EventDispatcher.prototype, {
 
         return node;
 	},
+	addHelper: function(uid){
+		var helper = new Blueprint.classes.Helper(uid);
+
+        this.helpers.push(helper)
+
+        this.dispatchEvent({type: 'addHelper', helper: helper})
+
+        return helper;
+	},
 	removeNode: function(node){
 		delete Blueprint.Data.get().nodes[node.uid];
 
@@ -2194,12 +2526,22 @@ Object.assign( Blueprint.classes.Render.prototype, EventDispatcher.prototype, {
 		this.update()
 
 		this.dispatchEvent({type: 'removeNode', node: node})
+	},
+	removeHelper: function(helper){
+		delete Blueprint.Data.get().helpers[helper.uid];
+
+		Arrays.remove(this.helpers,helper);
+
+		this.update()
+
+		this.dispatchEvent({type: 'removeHelper', helper: helper})
 	}
 })
 Blueprint.classes.Selection = function(){
 	this.selection = [];
-
-	this.area = $('.blueprint-selection');
+	this.area      = $('.blueprint-selection');
+	this.viewport  = {};
+	this.box       = {};
 }
 
 Object.assign( Blueprint.classes.Selection.prototype, EventDispatcher.prototype, {
@@ -2254,6 +2596,9 @@ Object.assign( Blueprint.classes.Selection.prototype, EventDispatcher.prototype,
 			width: box.width  + 'px',
 			height: box.height + 'px'
 		})
+
+		this.viewport = viewport;
+		this.box      = box;
 
 		this.dispatchEvent({type: 'drag', box: box, viewport: viewport})
 	},
@@ -2347,7 +2692,7 @@ Blueprint.Utility = {
     },
 
     snapValue: function(value,size){
-    	var snap = size || 15;
+    	var snap = size || 4;
         
         value = (value/snap).toFixed() * snap;
         
@@ -2361,6 +2706,22 @@ Blueprint.Utility = {
     	}
 
     	return position;
+    },
+    onChange: function(input){
+        var change = false;
+
+        function check(arr){
+            for (var i = 0; i < arr.length; i++) {
+                var a = arr[i];
+
+                if(Arrays.isArray(a)) check(a);
+                else if(a) change = true;
+            }
+        }
+
+        check(input);
+
+        return change;
     }
 }
 
@@ -2404,8 +2765,8 @@ Blueprint.classes.Viewport = function(){
     $(document).mouseup(function(e) {
 		
     }).mousedown(function(e) {
-    	if(!$(e.target).closest($('.blueprint-node')).length) {
-    		Blueprint.Drag.add(self.drag.bind(self))
+    	if(!$(e.target).closest($('.blueprint-node,.blueprint-helper')).length) {
+    		Blueprint.Drag.add(self.drag.bind(self));
 		}
     }).mousemove(function(e) {
         self.cursor.x = e.pageX;
@@ -2434,12 +2795,12 @@ Object.assign( Blueprint.classes.Viewport.prototype, EventDispatcher.prototype, 
         
         this.scale = newscale;
         
-        this.drag({x: 0, y: 0})
-
         this.zoom.css({
             transform: 'scale('+this.scale+')',
             transformOrigin: '0 0'
         })
+
+        this.drag({x: 0, y: 0})
 
         this.dispatchEvent({type: 'zoom'})
     },
@@ -2540,6 +2901,7 @@ Blueprint.Worker.add('blueprint',{
 		name: 'Blueprint',
 		description: '',
 		saturation: 'hsl(169, 95%, 19%)',
+		alpha: 0.82,
 		category: 'blueprint',
 		type: 'round',
 		vars: {
@@ -2586,11 +2948,11 @@ Blueprint.Worker.add('blueprint',{
 });
 Blueprint.Worker.add('blueprint_build',{
 	params: {
-		name: 'Blueprint Build',
+		name: 'Build',
 		description: 'Событие на компиляцию кода Blueprint',
 		saturation: 'hsl(188, 97%, 76%)',
 		alpha: 0.43,
-		category: 'function',
+		category: 'blueprint',
 		vars: {
 			input: {
 				
@@ -2619,6 +2981,47 @@ Blueprint.Worker.add('blueprint_build',{
 		},
 		build: function(){
 			this.setValue('build',true);
+		}
+	}
+});
+Blueprint.Worker.add('build_version',{
+	params: {
+		name: 'Build version',
+		description: 'Генерирует хеш, если сработал тригер изменения',
+		saturation: 'hsl(197, 98%, 83%)',
+		alpha: 0.42,
+		category: 'all',
+		vars: {
+			input: {
+				change: {
+					name: 'onChange',
+					color: '#7bda15',
+					disableChange: true,
+				},
+			},
+			output: {
+				
+			}
+		},
+	},
+	on: {
+		create: function(){
+			
+		},
+		remove: function(){
+
+		}
+	},
+	working: {
+		start: function(){
+			
+		},
+		build: function(){
+			var change = Blueprint.Utility.onChange(this.getValue('change',true));
+
+			if(change){
+				Ceron.cache.build_version = Math.round(Math.random() * 1e10);
+			}
 		}
 	}
 });
@@ -2890,19 +3293,37 @@ Blueprint.Worker.add('css_custom_font',{
 
 		    var fonts = [];
 
+		    var checkFileExist = function(path){
+		    	nw.file.existsSync(path)
+		    }
+
 		    for(var name in weights){
 		    	var weight = weights[name];
 		    	var path   = this.getValue(name,true).join('');
 
 		    	if(!path) continue;
 
-		    	var exe    = path ? nw.path.extname(path).substr(1) : '';
+		    	var folder = path.split('.');
+		    		folder.pop();
+		    		folder = folder.join('.');
+
 		    	var style  = /Italic/.test(name) ? 'italic' : 'normal';
+		    	var urls   = [];
+
+		    	for(var fr in formats){
+		    		var newPath = folder + '.' + fr;
+
+		    		if(nw.file.existsSync(Functions.LocalPath(newPath))){
+		    			urls.push('url("' + Functions.NormalPath(Functions.AssetPath(Data.path.img, newPath)) + '") format("'+formats[fr]+'")');
+		    		}
+		    	}
 
 				var font = [
 					'@font-face {',
 					    '	font-family: "' + font_name + '";',
-					    '	src: local("' + font_name + '"), local("'+font_name+'-'+name+'"), url("' + Functions.NormalPath(Functions.AssetPath(Data.path.img, path)) + '") format("'+formats[exe]+'");',
+					    '	src: ',
+					    //'	src: local("' + font_name + '"), local("'+font_name+'-'+name+'"),',
+					    '	'+urls.join(",\n    ")+';',
 					    '	font-weight: '+weight+';',
 					    '	font-style: '+style+';',
 					'}',
@@ -2911,158 +3332,7 @@ Blueprint.Worker.add('css_custom_font',{
 				fonts.push(font);
 		    }
 
-		    console.log(fonts)
-
-
 			this.setValue('output',fonts.join("\n"));
-		}
-	}
-});
-Blueprint.Worker.add('css_font',{
-	params: {
-		name: 'Font',
-		description: 'Подключение шрифта через @font-face',
-		saturation: 'hsl(212, 100%, 65%)',
-		titleColor: '#ffffff',
-		alpha: 0.58,
-		category: 'css',
-		vars: {
-			input: {
-				name: {
-					name: 'name',
-					color: '#ddd',
-					display: true
-				},
-				weight: {
-					name: 'weight',
-					color: '#ddd',
-					value: 400,
-					display: true
-				},
-				style: {
-					name: 'style',
-					color: '#ddd',
-					value: 'normal',
-					display: true
-				},
-				path: {
-					name: 'path',
-					color: '#ddd',
-					type: 'fileOpen',
-					disableVisible: true,
-				},
-			},
-			output: {
-				output: {},
-			}
-		},
-	},
-	on: {
-		init: function(event){
-			event.target.addEventListener('setValue',function(e){
-				if(e.name == 'path'){
-					if(!this.getValue('input', 'name')){
-						this.setValue('input', 'name', parent.Blueprint.Worker.get('css_font').working.name(e.value));
-
-						this.showOptionAgain();
-					}
-				}
-			});
-		},
-		create: function(){
-			
-		},
-		remove: function(){
-
-		}
-	},
-	working: {
-		name: function(path){
-			return nw.path.basename(path, nw.path.extname(path));
-		},
-		start: function(){
-			
-		},
-		build: function(){
-			var name   = this.getValue('name',true).join(''),
-				path   = this.getValue('path',true).join(''),
-				weight = this.getValue('weight',true).join(''),
-				style  = this.getValue('style',true).join('');
-
-			var formats = {
-				eot: 'embedded-opentype',
-				woff2: 'woff2',
-				woff: 'woff',
-				ttf: 'truetype',
-				svg: 'svg',
-				otf: 'opentype'
-			};
-
-			var exe = path ? nw.path.extname(path).substr(1) : '';
-
-			var font = [
-				'@font-face {',
-				    '	font-family: "' + (name || nw.path.basename(path, nw.path.extname(path))) + '";',
-				    '	src: url("' + Functions.NormalPath(Functions.AssetPath(Data.path.img, path)) + '") format("'+formats[exe]+'");',
-				    '	font-weight: '+(weight || 'normal')+';',
-				    '	font-style: '+(style || 'normal')+';',
-				'}',
-			].join("\n");
-
-			this.setValue('output',font);
-		}
-	}
-});
-Blueprint.Worker.add('css_font_name',{
-	params: {
-		name: 'Font Name',
-		description: 'Название шрифта',
-		saturation: 'hsl(212, 100%, 65%)',
-		alpha: 0.58,
-		titleColor: '#3e3729',
-		category: 'css',
-		type: 'round',
-		vars: {
-			input: {
-				input: {
-					displayInTitle: true,
-					enableChange: true,
-					disableVisible: true
-				}
-			},
-			output: {
-				output: {},
-			}
-		},
-	},
-	on: {
-		create: function(){
-			
-		},
-		remove: function(){
-
-		}
-	},
-	working: {
-		start: function(){
-			
-		},
-		build: function(){
-			var name         = this.getValue('input'),
-				name_default = this.getDefault('input','input');
-
-			var value = '';
-
-			if(name.length){
-				if(name_default) name.push(name_default);
-
-				value = name.join('-');
-			}
-			else if(name_default){
-				value = name_default;
-			}
-			
-			this.setValue('output',value);
 		}
 	}
 });
@@ -3184,8 +3454,6 @@ Blueprint.Worker.add('css_google_font',{
 
 			var url = "@import url('https://fonts.googleapis.com/css?family="+name+":"+types+"');";
 
-			console.log(url)
-
 			this.setValue('output',url);
 		}
 	}
@@ -3196,7 +3464,6 @@ Blueprint.Worker.add('css_result',{
 		description: 'Вывод результата в формате css',
 		saturation: 'hsl(212, 100%, 65%)',
 		alpha: 0.58,
-		titleColor: '#3e3729',
 		category: 'css',
 		type: 'round',
 		vars: {
@@ -3231,54 +3498,13 @@ Blueprint.Worker.add('css_result',{
 		},
 	}
 });
-Blueprint.Worker.add('sass_result',{
-	params: {
-		name: 'Sass Result',
-		description: 'Вывод результата в формате sass',
-		saturation: 'hsl(212, 100%, 65%)',
-		alpha: 0.58,
-		titleColor: '#3e3729',
-		category: 'css',
-		type: 'round',
-		vars: {
-			input: {
-				
-			},
-			output: {
-				output: {
-					disableChange: true
-				},
-			}
-		},
-		userData: {
-			
-		}
-	},
-	on: {
-		create: function(){
-			
-		},
-		remove: function(){
-
-		}
-	},
-	working: {
-		start: function(){
-			
-		},
-		
-		build: function(){
-			this.setValue('output', Generators.Build.Sass());
-		},
-	}
-});
 Blueprint.Worker.add('css_unminify',{
 	params: {
 		name: 'Css Unminify',
 		description: 'Перевод css в читабельный вид',
 		saturation: 'hsl(93, 93%, 54%)',
 		alpha: 0.62,
-		category: 'function',
+		category: 'css',
 		type: 'round',
 		vars: {
 			input: {
@@ -3546,7 +3772,9 @@ Blueprint.Worker.add('file_save',{
 		//type: 'round',
 		vars: {
 			input: {
-				input: {},
+				input: {
+					name: 'data'
+				},
 				path: {
 					name: 'path',
 					color: '#ddd',
@@ -3691,13 +3919,190 @@ Blueprint.Worker.add('file_watch',{
 		}
 	}
 });
+Blueprint.Worker.add('ftpsync',{
+	params: {
+		name: 'FTP Sync',
+		description: 'Заливает файлы на FTP если они были изменены',
+		saturation: 'hsl(0, 89%, 72%)',
+		alpha: 0.98,
+		category: 'file',
+		titleColor: '#883232',
+		vars: {
+			input: {
+				change: {
+					name: 'onChange',
+					color: '#7bda15',
+					disableChange: true,
+				},
+				ip: {
+					name: 'server',
+					color: '#ddd',
+				},
+				login: {
+					name: 'user login',
+					color: '#ddd',
+				},
+				password: {
+					name: 'user password',
+					color: '#ddd',
+				},
+				ftp_folder: {
+					name: 'folder ftp',
+					color: '#ddd',
+				},
+				local_folder: {
+					name: 'folder local',
+					color: '#ddd',
+					type: 'fileDir'
+				},
+				full: {
+					disableVisible: true,
+					type: function(entrance, group, name, params, event){
+						var field = $([
+							'<div class="form-btn form-btn-red">Очистить дату изменений</div>',
+						].join(''))
+
+						field.on('click', function(){
+							event.data.userData.lastTime = '01.01.0001 0:00:00';
+
+							Functions.Notify('Дата очишина');
+						})
+
+						return field;
+					}
+				}
+			},
+			output: {
+
+			}
+		},
+		userData: {
+			css_name: '',
+			css_value: []
+		}
+	},
+	on: {
+		create: function(){
+			
+		},
+		remove: function(){
+
+		}
+	},
+	working: {
+		start: function(){
+			
+		},
+		build: function(){
+			var change = Blueprint.Utility.onChange(this.getValue('change',true));
+
+			if(Ceron.cache.ftpsync !== undefined && !Ceron.cache.ftpsync && change){
+				Ceron.cache.ftpsync = true;
+
+				var name     = this.getValue('name').join('');
+				var execFile = require('child_process').execFile;
+
+				var config = {
+					IP:           this.getValue('ip',true).join(''),
+					Login:        this.getValue('login',true).join(''),
+					Passwd:       this.getValue('password',true).join(''),
+					FtpFolder:    this.getValue('ftp_folder',true).join(''),
+					LocalFolder:  Functions.LocalPath(this.getValue('local_folder',true).join('')),
+					LastSyncGood: this.data.userData.lastTime
+				}
+
+				var json = JSON.stringify(config);
+				var base = btoa(json);
+
+				var proces = Process.Add();
+					proces.name('ftpsync');
+					proces.work('Начало загрузки');
+
+		        var spawn = require('child_process').spawn;
+
+		        var total = upload = 0, errors = [];
+
+		        var parse = (data) => {
+		        	data = data.trim();
+
+		        	if(!data) return;
+
+		        	var json = {}, method;
+
+		        	try{
+			        	json   = JSON.parse(data.trim()),
+						method = json.method;
+					}
+					catch(e){
+
+					}
+
+					if(method == 'lastSyncGood'){
+						this.data.userData.lastTime = json.data;
+					}
+					else if(method == 'uploadFile'){
+						upload++;
+
+						proces.work(upload + ' из '+total+': '+json.data.localFile);
+
+						proces.percent(Math.round(upload / total * 100));
+
+						if(json.data.errorMsg){
+							errors.push(json.data.errorMsg);
+						}
+					}
+					else if(method == 'uploadStat'){
+						total = json.data;
+					}
+					else if(method == 'syncGood'){
+						proces.work('Результат загрузки: '+(json.data ? 'успешно' : 'с ошибкой'));
+
+						if(errors.length) proces.logs(errors.join("\n"));
+
+						proces.complite();
+					}
+					else if(method == 'errorMsg'){
+						proces.work(json.data);
+
+						if(errors.length) proces.logs(errors.join("\n"));
+
+						proces.error();
+					}
+		        }
+				
+				var ls = spawn('worker/ftpsync/FtpSync.exe',['base64',base]);
+
+					ls.stdout.on('data', (data) => {
+						(data + '').split("\n").map(parse);
+					});
+
+					ls.stderr.on('data', (data) => {
+						console.log(`stderr: ${data}`);
+
+						proces.error();
+					});
+
+					ls.on('close', (code) => {
+						Ceron.cache.ftpsync = false;
+					});
+			}
+
+			if(Ceron.cache.ftpsync == undefined){
+				//а то несколько раз срабатывает
+				//поэтому таймер поможет!
+				setTimeout(()=>{
+					Ceron.cache.ftpsync = false;
+				},1000);
+			}
+		}
+	}
+});
 Blueprint.Worker.add('generate',{
 	params: {
 		name: 'File Generate',
 		description: 'Выводит сообщение о том, кем был сгенерирован этот файл',
 		saturation: 'hsl(212, 100%, 65%)',
 		alpha: 0.58,
-		titleColor: '#3e3729',
 		category: 'all',
 		type: 'round',
 		vars: {
@@ -3744,6 +4149,99 @@ Blueprint.Worker.add('generate',{
 		    ].join("\n")
 
 			this.setValue('output', massage);
+		}
+	}
+});
+Blueprint.Worker.add('get_version',{
+	params: {
+		name: 'Get version',
+		description: 'Получить версию изменений',
+		saturation: 'hsl(197, 98%, 83%)',
+		alpha: 0.42,
+		category: 'all',
+		type: 'round',
+		vars: {
+			input: {
+				
+			},
+			output: {
+				output: {
+					name: '',
+					varType: 'round',
+					color: '#ddd'
+				},
+			}
+		},
+	},
+	on: {
+		create: function(){
+			
+		},
+		remove: function(){
+
+		},
+	},
+	working: {
+		start: function(){
+			
+		},
+		build: function(event){
+			if(Ceron.cache.build_version == undefined){
+				Ceron.cache.build_version = Math.round(Math.random() * 1e10);
+			}
+
+			this.setValue('output', Ceron.cache.build_version || 1);
+		}
+	}
+});
+Blueprint.Worker.add('html_diff',{
+	params: {
+		name: 'Html Diff',
+		description: 'Заменят HTML в браузере если он был изменен',
+		saturation: 'hsl(84, 0%, 100%)',
+		alpha: 0.78,
+		category: 'function',
+		titleColor: '#444',
+		vars: {
+			input: {
+				input: {
+					name: 'html',
+					disableChange: true
+				},
+				change: {
+					name: 'onChange',
+					color: '#7bda15',
+					disableChange: true,
+				}
+			},
+			output: {
+				
+			}
+		},
+		userData: {
+			css_name: '',
+			css_value: []
+		}
+	},
+	on: {
+		create: function(){
+			
+		},
+		remove: function(){
+
+		}
+	},
+	working: {
+		start: function(){
+			
+		},
+		build: function(){
+			var input  = this.getValue('input').join('');
+			var change = this.isAnyTrue(this.getValue('change'));
+
+			if(change) Raid.ReplaceBody(input);
+
+			this.setValue('change',change);
 		}
 	}
 });
@@ -3797,9 +4295,11 @@ Blueprint.Worker.add('input',{
 	params: {
 		name: 'Input',
 		description: 'Входные данные',
-		saturation: 'hsl(294, 29%, 17%)',
+		saturation: 'hsl(221, 97%, 76%)',
+		alpha: 0.22,
 		category: 'blueprint',
 		type: 'round',
+		add_class: 'icon',
 		vars: {
 			input: {
 				
@@ -3815,6 +4315,15 @@ Blueprint.Worker.add('input',{
 		},
 		remove: function(){
 
+		},
+		init: function(event){
+			var join = $('<i class="flaticon-exit"></i>');
+				join.css({
+					fontSize: '15px',
+					color: '#ddd',
+				});
+				
+			event.target.setDisplayTitle(join);
 		}
 	},
 	working: {
@@ -3822,9 +4331,102 @@ Blueprint.Worker.add('input',{
 			
 		},
 		build: function(){
-			//console.log(this)
-			//console.log('input',this.blueprintUid,Blueprint.Vars.get(this.blueprintUid, 'input'))
 			this.setValue('output', Blueprint.Vars.get(this.blueprintUid, 'input'));
+		}
+	}
+});
+Blueprint.Worker.add('join',{
+	params: {
+		name: 'Join',
+		description: 'Объединить входные данные в один выход',
+		saturation: 'hsl(197, 98%, 83%)',
+		alpha: 0.42,
+		category: 'blueprint',
+		type: 'round',
+		add_class: 'join',
+		vars: {
+			input: {
+				input: {
+					disableChange: true,
+					varType: 'round',
+					color: '#ddd'
+				},
+			},
+			output: {
+				output: {
+					disableChange: true,
+					varType: 'round',
+					color: '#ddd'
+				},
+			}
+		},
+		userData: {}
+	},
+	on: {
+		create: function(){
+			
+		},
+		remove: function(){
+
+		},
+		init: function(event){
+			event.target.setDisplayTitle('');
+		}
+	},
+	working: {
+		start: function(){
+			
+		},
+		build: function(){
+			this.setValue('output',this.getValue('input'));
+		}
+	}
+});
+Blueprint.Worker.add('join_reverse',{
+	params: {
+		name: 'Join Reverse',
+		description: 'Объединить входные данные в один выход',
+		saturation: 'hsl(197, 98%, 83%)',
+		alpha: 0.42,
+		category: 'blueprint',
+		type: 'round',
+		add_class: 'join',
+		reverse: true,
+		vars: {
+			input: {
+				input: {
+					disableChange: true,
+					varType: 'round',
+					color: '#ddd'
+				},
+			},
+			output: {
+				output: {
+					disableChange: true,
+					varType: 'round',
+					color: '#ddd'
+				},
+			}
+		},
+		userData: {}
+	},
+	on: {
+		create: function(){
+			
+		},
+		remove: function(){
+
+		},
+		init: function(event){
+			event.target.setDisplayTitle('');
+		}
+	},
+	working: {
+		start: function(){
+			
+		},
+		build: function(){
+			this.setValue('output',this.getValue('input'));
 		}
 	}
 });
@@ -3916,21 +4518,19 @@ Blueprint.Worker.add('merge',{
 		build: function(){
 			var j = this.getValue('join',true).join('');
 
-			if(!j) j = '\n';
-
 			var c = {
 				'\\n': "\n\r",
 			};
 
 			j = c[j] || j;
-
-
-			var	a = this.getValue('a',true).join(j),
-				b = this.getValue('b',true).join(j);
 			
-			var r = [a,b].join(j);
+			var	a = this.removeEmpty(this.getValue('a',true)).join(j),
+				b = this.removeEmpty(this.getValue('b',true)).join(j);
+			
+			var r = [a,b];
+				r = this.removeEmpty(r);
 
-			this.setValue('output',r);
+			this.setValue('output',r.join(j));
 		}
 	}
 });
@@ -4040,24 +4640,22 @@ Blueprint.Worker.add('merge_bigger',{
 		build: function(){
 			var j = this.getValue('join',true).join('');
 
-			if(!j) j = '\n';
-
 			var c = {
 				'\\n': "\n\r",
 			};
 
 			j = c[j] || j;
 
-
-			var	a = this.getValue('a',true).join(j),
-				b = this.getValue('b',true).join(j),
-				c = this.getValue('c',true).join(j),
-				d = this.getValue('d',true).join(j),
-				e = this.getValue('e',true).join(j);
+			var	a = this.removeEmpty(this.getValue('a',true)).join(j),
+				b = this.removeEmpty(this.getValue('b',true)).join(j),
+				c = this.removeEmpty(this.getValue('c',true)).join(j),
+				d = this.removeEmpty(this.getValue('d',true)).join(j),
+				e = this.removeEmpty(this.getValue('e',true)).join(j);
 			
-			var r = [a,b,c,d,e].join(j);
+			var r = [a,b,c,d,e];
+				r = this.removeEmpty(r);
 
-			this.setValue('output',r);
+			this.setValue('output',r.join(j));
 		}
 	}
 });
@@ -4065,9 +4663,11 @@ Blueprint.Worker.add('output',{
 	params: {
 		name: 'Output',
 		description: 'Исходящие данные',
-		saturation: 'hsl(294, 29%, 17%)',
+		saturation: 'hsl(221, 97%, 76%)',
+		alpha: 0.22,
 		category: 'blueprint',
 		type: 'round',
+		add_class: 'icon',
 		vars: {
 			input: {
 				input: {},
@@ -4083,6 +4683,16 @@ Blueprint.Worker.add('output',{
 		},
 		remove: function(){
 
+		},
+		init: function(event){
+			var join = $('<i class="flaticon-login"></i>');
+				join.css({
+					fontSize: '15px',
+					color: '#ddd',
+					marginLeft: '2px'
+				});
+				
+			event.target.setDisplayTitle(join);
 		}
 	},
 	working: {
@@ -4156,8 +4766,8 @@ Blueprint.Worker.add('replace',{
 });
 Blueprint.Worker.add('replace_var',{
 	params: {
-		name: 'Replace Var',
-		description: 'Создает переменную для замены в функции Replace',
+		name: 'Set variable',
+		description: 'Создает переменную для замены в функции Replace, Blueprint',
 		saturation: 'hsl(29, 100%, 58%)',
 		alpha: 0.33,
 		category: 'function',
@@ -4198,12 +4808,70 @@ Blueprint.Worker.add('replace_var',{
 		},
 		build: function(){
 			var name  = this.getValue('name',true).join('');
-			var value = this.getValue('value',true).join('')
+			var value = this.getValue('value',true);
 
 			this.setValue('var', {
 				name: name,
 				value: value
 			});
+		}
+	}
+});
+Blueprint.Worker.add('replace_var_get',{
+	params: {
+		name: 'Get variable',
+		description: 'Получить значение из переменной',
+		saturation: 'hsl(29, 100%, 58%)',
+		alpha: 0.33,
+		category: 'function',
+		vars: {
+			input: {
+				var: {
+					name: 'variable',
+					color: '#fdbe00',
+					disableChange: true
+				},
+				name: {
+					name: 'name',
+					color: '#ddd',
+					display: true
+				}
+			},
+			output: {
+				value: {
+					color: '#ddd',
+					disableChange: true
+				}
+			}
+		},
+	},
+	on: {
+		create: function(){
+			
+		},
+		remove: function(){
+
+		},
+		init: function(event){
+
+		}
+	},
+	working: {
+		start: function(){
+			
+		},
+		build: function(){
+			var name  = this.getValue('name',true).join('');
+			var input = this.getValue('var');
+			var value = [];
+
+			input.map(function(a){
+				if(Arrays.isObject(a)){
+					if(a.name == name) value = a.value;
+				}
+			});
+
+			this.setValue('value', value);
 		}
 	}
 });
@@ -4261,9 +4929,9 @@ Blueprint.Worker.add('scss_class',{
 		description: 'Строка',
 		saturation: 'hsl(197, 98%, 83%)',
 		alpha: 0.42,
-		titleColor: '#3e3729',
 		category: 'none',
 		type: 'round',
+		add_class: 'css',
 		vars: {
 			input: {
 				input: {
@@ -4294,7 +4962,7 @@ Blueprint.Worker.add('scss_class',{
 			var data    = event.target.data.userData;
 			var working = parent.Blueprint.Worker.get('scss_class').working;
 
-			var join = $((data.uid ? '<i class="flaticon-tabs"></i> ' : '') + '<span style="cursor: pointer">&</span>');
+			var join = $((data.uid ? '<i class="flaticon-tabs" style="margin-right: 5px"></i> ' : '') + '<span style="cursor: pointer">&</span>');
 				join.on('click',function(){
 					$(this).toggleClass('active');
 
@@ -4360,13 +5028,18 @@ Blueprint.Worker.add('scss_class',{
 			var input  = this.getValue('input',true);
 			var output = name;
 
+			var output = [];
+
 			if(input.length){
 				output = input.map(function(a){
 					return a + join + (data.uid && search ? '.' : '') + name;
-				}).join(', .');
+				})
+			}
+			else{
+				output.push(name);
 			}
 			
-			data.lastBuild = output;
+			data.lastBuild = output.join(', .');
 
 			this.setValue('output', output);
 		}
@@ -4378,18 +5051,22 @@ Blueprint.Worker.add('scss_merge',{
 		description: 'Объединить входные данные',
 		saturation: 'hsl(221, 97%, 76%)',
 		alpha: 0.62,
+		titleColor: '#fdbe00',
 		category: 'none',
+		add_class: 'css',
 		vars: {
 			input: {
 				a: {
 					name: 'from class',
 					color: '#ddd',
+					colorText: '#ddd',
 					varType: 'round',
 					disableChange: true
 				},
 				b: {
 					name: 'to class',
 					color: '#ddd',
+					colorText: '#ddd',
 					varType: 'round',
 					disableChange: true
 				},
@@ -4412,8 +5089,22 @@ Blueprint.Worker.add('scss_merge',{
 			
 		},
 		build: function(){
-			this.data.userData.input_a = this.getValue('a',true).join(', .');
-			this.data.userData.input_b = this.getValue('b',true).join(', .');
+			var a_i = this.getValue('a',true);
+			var a_o = [];
+
+			var b_i = this.getValue('b',true);
+			var b_o = [];
+
+			for (var i = 0; i < a_i.length; i++) {
+				a_o = a_o.concat(a_i[i]);
+			}
+
+			for (var i = 0; i < b_i.length; i++) {
+				b_o = b_o.concat(b_i[i]);
+			}
+
+			this.data.userData.input_a = a_o.join(', .');
+			this.data.userData.input_b = b_o.join(', .');
 		}
 	}
 });
@@ -4423,14 +5114,15 @@ Blueprint.Worker.add('scss_sheet',{
 		description: '',
 		saturation: 'hsl(93, 93%, 54%)',
 		alpha: 0.62,
-		titleColor: '#3e3729',
+		titleColor: '#a8da47',
 		category: 'none',
 		type: 'round',
+		add_class: 'css',
 		vars: {
 			input: {
 				input: {
 					name: '',
-					color: '#fff',
+					color: '#ddd',
 					varType: 'round',
 				}
 			},
@@ -4451,7 +5143,7 @@ Blueprint.Worker.add('scss_sheet',{
 			parent.Blueprint.Worker.get('scss_sheet').working.remove(event.target.data.userData.uid);
 		},
 		init: function(event){
-			event.target.setDisplayTitle('<i class="flaticon-app" style="font-size: 15px"></i> Style Sheet');
+			event.target.setDisplayTitle('<i class="flaticon-app" style="font-size: 15px; margin-right: 5px"></i>Style Sheet');
 		}
 	},
 	working: {
@@ -4469,13 +5161,16 @@ Blueprint.Worker.add('scss_sheet',{
 		},
 		build: function(){
 			var uid    = this.data.userData.uid;
-			var output = this.getValue('input',true).join(', .');
+			var input  = this.getValue('input',true);
+			var output = [];
 
-			this.data.userData.lastBuild = output;
-
-			Data.css[uid].fullname = output;
-
-			this.setValue('output', output);
+			if(input.length){
+				for (var i = 0; i < input.length; i++) {
+					output = output.concat(input[i]);
+				}
+			}
+			
+			Data.css[uid].fullname = this.data.userData.lastBuild = output.join(', .');
 		}
 	}
 });
@@ -4522,12 +5217,12 @@ Blueprint.Worker.add('server_update',{
 			},
 			output: {
 				simple: {
-					name: 'event',
+					name: 'onChange',
 					color: '#7bda15',
 					disableChange: true,
 				},
 				stream: {
-					name: 'event',
+					name: 'onChange',
 					color: '#7bda15',
 					disableChange: true,
 				},
@@ -4591,12 +5286,15 @@ Blueprint.Worker.add('string',{
 		description: 'Строка',
 		saturation: 'hsl(197, 98%, 83%)',
 		alpha: 0.42,
-		titleColor: '#3e3729',
 		category: 'all',
 		type: 'round',
 		vars: {
 			input: {
-				
+				input: {
+					enableChange: true,
+					varType: 'round',
+					color: '#ddd'
+				},
 			},
 			output: {
 				output: {
@@ -4622,7 +5320,200 @@ Blueprint.Worker.add('string',{
 			
 		},
 		build: function(){
-			this.setValue('output', this.getDefault('output', 'output'));
+			var input  = this.getValue('input',true);
+			var output = this.getDefault('output', 'output')
+
+				output = input ? input + output : output;
+
+			this.setValue('output', output);
+		}
+	}
+});
+Blueprint.Worker.add('string_change',{
+	params: {
+		name: 'String change',
+		description: 'Проверяет изменилась ли строки',
+		saturation: 'hsl(197, 98%, 83%)',
+		alpha: 0.42,
+		category: 'function',
+		vars: {
+			input: {
+				data: {
+					name: 'data',
+					color: '#ddd',
+					disableChange: true,
+				},
+			},
+			output: {
+				change: {
+					name: 'onChange',
+					color: '#7bda15',
+					disableChange: true,
+				},
+			}
+		},
+	},
+	on: {
+		create: function(){
+			
+		},
+		remove: function(){
+
+		}
+	},
+	working: {
+		start: function(){
+			
+		},
+		build: function(){
+			var data = this.getValue('data',true).join('');
+
+			if(this.data.userData.cache_uid == undefined) this.data.userData.cache_uid = Functions.Uid();
+
+			var cache_name = 'string_' + this.data.userData.cache_uid,
+				cache_data = Ceron.cache[cache_name];
+
+			var change = false, data_hash = Functions.StringHash(data);
+
+			if(cache_data !== data_hash){
+				change = true;
+
+				Ceron.cache[cache_name] = data_hash;
+			}
+
+			this.setValue('change', change);
+		}
+	}
+});
+Blueprint.Worker.add('switch',{
+	params: {
+		name: 'Switch',
+		description: 'Переключатель',
+		saturation: 'hsl(197, 98%, 83%)',
+		alpha: 0.42,
+		category: 'blueprint',
+		type: 'round',
+		add_class: 'icon',
+		vars: {
+			input: {
+				input: {
+					disableChange: true,
+					varType: 'round',
+					color: '#ddd'
+				},
+			},
+			output: {
+				output: {
+					disableChange: true,
+					varType: 'round',
+					color: '#ddd'
+				},
+			}
+		},
+		userData: {}
+	},
+	on: {
+		create: function(){
+			
+		},
+		remove: function(){
+
+		},
+		init: function(event){
+			var data = event.target.data.userData;
+
+			if(data.enable == undefined) data.enable = true;
+
+			var join = $('<i class="flaticon-app"></i>');
+				join.css({
+					fontSize: '15px',
+					cursor: 'pointer',
+					color: '#ddd',
+					marginLeft: '2px'
+				});
+
+				join.on('click',function(){
+					$(this).toggleClass('active');
+
+					data.enable = $(this).hasClass('active');
+
+					status(data.enable);
+				})
+
+			var status = function(enable){
+				join.removeClass('flaticon-multiply flaticon-app')
+
+				if(enable){
+					join.css({
+						opacity: 1
+					}).addClass('flaticon-app')
+				}
+				else{
+					join.css({
+						opacity: 0.5
+					}).addClass('flaticon-multiply')
+				}
+			}
+
+			status(false);
+
+			if(data.enable) join.addClass('active'), status(true);
+
+			event.target.setDisplayTitle(join);
+		}
+	},
+	working: {
+		start: function(){
+			
+		},
+		build: function(){
+			if(this.data.userData.enable) this.setValue('output',this.getValue('input'));
+		}
+	}
+});
+Blueprint.Worker.add('vtc_clear',{
+	params: {
+		name: 'VTC Clear',
+		description: 'Чистит код от атрибутов data-vcid',
+		saturation: 'hsl(93, 93%, 54%)',
+		alpha: 0.62,
+		category: 'vtc',
+		type: 'round',
+		vars: {
+			input: {
+				input: {
+					disableChange: true
+				},
+			},
+			output: {
+				output: {
+					disableChange: true
+				},
+			}
+		},
+		userData: {
+			css_name: '',
+			css_value: []
+		}
+	},
+	on: {
+		create: function(){
+			
+		},
+		remove: function(){
+
+		}
+	},
+	working: {
+		start: function(){
+			
+		},
+		build: function(){
+			var value = this.getValue('input').join("");
+
+				value = value.replace(new RegExp(' data-vcid=\"[^\"]+\"', 'gi'), '');
+			
+			this.setValue('output',value);
 		}
 	}
 });
@@ -4632,7 +5523,7 @@ Blueprint.Worker.add('vtc_live',{
 		description: 'Вставить свой HTML код в живой просмотр VTC',
 		saturation: 'hsl(191, 100%, 40%)',
 		alpha: 0.77,
-		category: 'all',
+		category: 'vtc',
 		vars: {
 			input: {
 				html: {
@@ -4688,7 +5579,7 @@ Blueprint.Worker.add('vtc_render',{
 		description: 'Возвращает скомпилированный html код шаблона',
 		saturation: 'hsl(139, 45%, 44%)',
 		alpha: 0.67,
-		category: 'all',
+		category: 'vtc',
 		vars: {
 			input: {
 				template: {
@@ -4744,7 +5635,7 @@ Blueprint.Worker.add('vtc_render',{
 			}
 
 			if(template){
-				data = VTC.BuildTemplate(template);
+				data = VTC.Build.template(template, match.data.key);
 			}
 			else{
 				Console.Add({message: 'Не найден шаблон', stack: name});

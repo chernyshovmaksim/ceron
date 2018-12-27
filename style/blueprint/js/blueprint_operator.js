@@ -17,7 +17,7 @@ Blueprint.classes.Operator = function(data,workers,blueprintUid){
 }
 Blueprint.classes.Operator.prototype = {
 	/** Для начала, нам нуно найти родителей, 
-		что-бы подсчитать callCounter **/
+		чтобы подсчитать callCounter **/
 	init: function(){
 		for(var i = 0 ; i < this.data.parents.length; i++){
 			var parent = this.searchParent(this.data.parents[i].uid);
@@ -67,7 +67,43 @@ Blueprint.classes.Operator.prototype = {
 			values.push(defaultValue)
 		}
 
-		return values;
+		return this.concat(values);
+	},
+	/** Вытаскиваем значения в единый массив **/
+	concat: function(values){
+		var concat = [];
+
+		function get(arr){
+            for (var i = 0; i < arr.length; i++) {
+                var a = arr[i];
+
+                if(Arrays.isArray(a)) get(a);
+                else concat.push(a);
+            }
+        }
+
+        get(values);
+
+        return concat;
+	},
+	isAnyTrue: function(input){
+		var change = false;
+
+        function check(arr){
+            for (var i = 0; i < arr.length; i++) {
+                var a = arr[i];
+
+                if(Arrays.isArray(a)) check(a);
+                else if(a) change = true;
+            }
+        }
+
+        check(input);
+
+        return change;
+	},
+	removeEmpty: function(arr){
+		return arr.filter(function (e) { return e != '' });
 	},
 	/** Устанавливаем значение **/
 	setValue: function(name,value){

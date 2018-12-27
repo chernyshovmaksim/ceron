@@ -104,24 +104,22 @@ Blueprint.Worker.add('merge_bigger',{
 		build: function(){
 			var j = this.getValue('join',true).join('');
 
-			if(!j) j = '\n';
-
 			var c = {
 				'\\n': "\n\r",
 			};
 
 			j = c[j] || j;
 
-
-			var	a = this.getValue('a',true).join(j),
-				b = this.getValue('b',true).join(j),
-				c = this.getValue('c',true).join(j),
-				d = this.getValue('d',true).join(j),
-				e = this.getValue('e',true).join(j);
+			var	a = this.removeEmpty(this.getValue('a',true)).join(j),
+				b = this.removeEmpty(this.getValue('b',true)).join(j),
+				c = this.removeEmpty(this.getValue('c',true)).join(j),
+				d = this.removeEmpty(this.getValue('d',true)).join(j),
+				e = this.removeEmpty(this.getValue('e',true)).join(j);
 			
-			var r = [a,b,c,d,e].join(j);
+			var r = [a,b,c,d,e];
+				r = this.removeEmpty(r);
 
-			this.setValue('output',r);
+			this.setValue('output',r.join(j));
 		}
 	}
 });

@@ -4,7 +4,6 @@ Blueprint.Worker.add('generate',{
 		description: 'Выводит сообщение о том, кем был сгенерирован этот файл',
 		saturation: 'hsl(212, 100%, 65%)',
 		alpha: 0.58,
-		titleColor: '#3e3729',
 		category: 'all',
 		type: 'round',
 		vars: {

@@ -36,7 +36,7 @@ Blueprint.Utility = {
     },
 
     snapValue: function(value,size){
-    	var snap = size || 15;
+    	var snap = size || 4;
         
         value = (value/snap).toFixed() * snap;
         
@@ -50,5 +50,21 @@ Blueprint.Utility = {
     	}
 
     	return position;
+    },
+    onChange: function(input){
+        var change = false;
+
+        function check(arr){
+            for (var i = 0; i < arr.length; i++) {
+                var a = arr[i];
+
+                if(Arrays.isArray(a)) check(a);
+                else if(a) change = true;
+            }
+        }
+
+        check(input);
+
+        return change;
     }
 }

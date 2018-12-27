@@ -4,14 +4,15 @@ Blueprint.Worker.add('scss_sheet',{
 		description: '',
 		saturation: 'hsl(93, 93%, 54%)',
 		alpha: 0.62,
-		titleColor: '#3e3729',
+		titleColor: '#a8da47',
 		category: 'none',
 		type: 'round',
+		add_class: 'css',
 		vars: {
 			input: {
 				input: {
 					name: '',
-					color: '#fff',
+					color: '#ddd',
 					varType: 'round',
 				}
 			},
@@ -32,7 +33,7 @@ Blueprint.Worker.add('scss_sheet',{
 			parent.Blueprint.Worker.get('scss_sheet').working.remove(event.target.data.userData.uid);
 		},
 		init: function(event){
-			event.target.setDisplayTitle('<i class="flaticon-app" style="font-size: 15px"></i> Style Sheet');
+			event.target.setDisplayTitle('<i class="flaticon-app" style="font-size: 15px; margin-right: 5px"></i>Style Sheet');
 		}
 	},
 	working: {
@@ -50,13 +51,16 @@ Blueprint.Worker.add('scss_sheet',{
 		},
 		build: function(){
 			var uid    = this.data.userData.uid;
-			var output = this.getValue('input',true).join(', .');
+			var input  = this.getValue('input',true);
+			var output = [];
 
-			this.data.userData.lastBuild = output;
-
-			Data.css[uid].fullname = output;
-
-			this.setValue('output', output);
+			if(input.length){
+				for (var i = 0; i < input.length; i++) {
+					output = output.concat(input[i]);
+				}
+			}
+			
+			Data.css[uid].fullname = this.data.userData.lastBuild = output.join(', .');
 		}
 	}
 });

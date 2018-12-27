@@ -2,14 +2,15 @@ Blueprint.classes.Render = function(){
 	this.nodes = [];
 	this.lines = [];
 
+	this.helpers = [];
+
 	this.can = document.getElementById("blueprint-canvas");
 	this.ctx = this.can.getContext("2d");
 
 	this.can.width = window.innerWidth;
 	this.can.height = window.innerHeight;
 
-	$(window).resize(this.resize.bind(this))
-	
+	$(window).resize(this.resize.bind(this));
 }
 
 Object.assign( Blueprint.classes.Render.prototype, EventDispatcher.prototype, {
@@ -57,7 +58,6 @@ Object.assign( Blueprint.classes.Render.prototype, EventDispatcher.prototype, {
 	},
 	clearCanvas: function(){
 		this.ctx.clearRect(0, 0, this.can.width, this.can.height);
-		//this.can.width = this.can.width; //на пожарный
 	},
 	resize: function(){
 		this.can.width  = window.innerWidth;
@@ -109,6 +109,29 @@ Object.assign( Blueprint.classes.Render.prototype, EventDispatcher.prototype, {
 
         this.update();
 	},
+	newHelper: function(option){
+		var uid = Blueprint.Utility.uid();
+
+		var defaults = {
+			position: {x: 0, y: 0},
+			title: 'Helper'
+		}
+
+		option.position.x = option.position.x / Blueprint.Viewport.scale - Blueprint.Viewport.position.x;
+		option.position.y = option.position.y / Blueprint.Viewport.scale - Blueprint.Viewport.position.y;
+        
+        var data = $.extend(defaults,option,{
+            uid: uid,
+        });
+
+        Blueprint.Data.get().helpers[uid] = data;
+
+        var helper = this.addHelper(uid);
+
+        this.dispatchEvent({type: 'newHelper', helper: helper})
+
+        this.update();
+	},
 	addNode: function(uid){
 		var node = new Blueprint.classes.Node(uid);
 
@@ -118,6 +141,15 @@ Object.assign( Blueprint.classes.Render.prototype, EventDispatcher.prototype, {
 
         return node;
 	},
+	addHelper: function(uid){
+		var helper = new Blueprint.classes.Helper(uid);
+
+        this.helpers.push(helper)
+
+        this.dispatchEvent({type: 'addHelper', helper: helper})
+
+        return helper;
+	},
 	removeNode: function(node){
 		delete Blueprint.Data.get().nodes[node.uid];
 
@@ -126,5 +158,14 @@ Object.assign( Blueprint.classes.Render.prototype, EventDispatcher.prototype, {
 		this.update()
 
 		this.dispatchEvent({type: 'removeNode', node: node})
+	},
+	removeHelper: function(helper){
+		delete Blueprint.Data.get().helpers[helper.uid];
+
+		Arrays.remove(this.helpers,helper);
+
+		this.update()
+
+		this.dispatchEvent({type: 'removeHelper', helper: helper})
 	}
 })

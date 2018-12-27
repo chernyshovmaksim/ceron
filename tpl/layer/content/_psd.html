@@ -61,55 +61,138 @@
 
                         <div class="tabs-content active" id="psd-info">
                             
-                            <div class="form-btn m-b-10" id="psd-info-export-screen"><img src="style/img/icons-panel/photo.png">Экспорт скрина</div>
-
-                            <div class="vtc-psd m-b-20">
-                                <div class="vtc-psd-image">
-                                    <img class="vtc-psd-img" id="psd-info-screen">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <div class="form-name">Информация</div>
-                                <div class="form-content padding">
-                                    <div class="form-field form-field-space">
-                                        <div>
-                                            Имя
+                            <div id="psd-visible-layer" style="display: none">
+                                
+                                <div class="form-group">
+                                    <div class="form-name">Слой</div>
+                                    <div class="form-content padding">
+                                        <div class="form-field form-field-space">
+                                            <div>
+                                                Имя
+                                            </div>
+                                            <div id="psd-layer-name"></div>  
                                         </div>
-                                        <div id="psd-info-name"></div>  
-                                    </div>
-                                    
-                                    <div class="form-field form-field-space">
-                                        <div>
-                                            Размеры
+                                        
+                                        <div class="form-field form-field-space">
+                                            <div>
+                                                Размеры
+                                            </div>
+                                            <div id="psd-layer-size"></div>  
                                         </div>
-                                        <div id="psd-info-size"></div>  
                                     </div>
                                 </div>
-                            </div>
+                                
+                                <div id="psd-layer-font" class="m-b-20">
+                                    <div class="form-group">
+                                        <div class="form-name">Шрифт</div>
+                                        <div class="form-content grid grid-gap-15">
+                                            
+                                            <div class="form-field form-field-icon form-field-align-start">
+                                                <div>
+                                                    <img src="style/img/icons/font.png">
+                                                </div>
+                                                <div>
+                                                    <h5 class="cursor-pointer" id="psd-layer-font-name">Open Sans</h5>
+                                                    <div class="weights">
+                                                        <div class="form-field m-t-5">
+                                                            <div class="layer-psd-info-font" id="psd-layer-font-weight">Regular</div>
+                                                            <div class="layer-psd-info-fonts size">
+                                                                <kbd class="cursor-pointer" id="psd-layer-font-size">16px</kbd>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                            <div class="form-group">
-                                <div class="form-name">Шрифты</div>
-                                <div class="form-content grid grid-gap-15" id="psd-info-fonts">
-                                    
-                                    
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div class="form-name">Оригинальный шрифт</div>
+                                        <div class="form-content grid grid-gap-15">
+                                            
+                                            <div class="form-field form-field-icon form-field-align-start">
+                                                <div>
+                                                    <img src="style/img/icons/font.png">
+                                                </div>
+                                                <div>
+                                                    <h5 class="cursor-pointer" id="psd-layer-font-name-original">Open Sans</h5>
+                                                    
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
                                 </div>
+
+                                <div class="form-group" id="psd-layer-text">
+                                    <div class="form-name">Текст</div>
+                                    <div class="form-content">
+                                        <div class="form-input">
+                                            <textarea rows="6" id="psd-layer-text-value"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" id="psd-layer-css">
+                                    <div class="form-name">CSS</div>
+                                    <div class="form-content">
+                                        <div class="form-input">
+                                            <textarea rows="6" id="psd-layer-css-value"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+
                             </div>
+                            <div id="psd-visible-psd">
+                            
+                                <div class="form-btn m-b-10" id="psd-info-export-screen"><img src="style/img/icons-panel/photo.png">Экспорт скрина</div>
 
+                                <div class="vtc-psd m-b-20">
+                                    <div class="vtc-psd-image">
+                                        <img class="vtc-psd-img" id="psd-info-screen">
+                                    </div>
+                                </div>
 
-                            <div class="form-group">
-                                <div class="form-name">Цвета</div>
-                                <div class="form-content padding">
-                                    <div class="layer-psd-info-colors" id="psd-info-colors">
+                                <div class="form-group">
+                                    <div class="form-name">Информация</div>
+                                    <div class="form-content padding">
+                                        <div class="form-field form-field-space">
+                                            <div>
+                                                Имя
+                                            </div>
+                                            <div id="psd-info-name"></div>  
+                                        </div>
+                                        
+                                        <div class="form-field form-field-space">
+                                            <div>
+                                                Размеры
+                                            </div>
+                                            <div id="psd-info-size"></div>  
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="form-name">Шрифты</div>
+                                    <div class="form-content grid grid-gap-15" id="psd-info-fonts">
+                                        
                                         
                                     </div>
                                 </div>
+
+
+                                <div class="form-group">
+                                    <div class="form-name">Цвета</div>
+                                    <div class="form-content padding">
+                                        <div class="layer-psd-info-colors" id="psd-info-colors">
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
-
-
-
-    
-
 
                         </div>
                     </div>

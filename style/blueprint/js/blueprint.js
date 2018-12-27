@@ -25,7 +25,7 @@ Blueprint.Initialization = {
 
 			//если зажата одна из клавиш
 			//то показывме мыделение
-			if(presed.shiftKey || presed.altKey){
+			if(presed.shiftKey || presed.altKey || presed.ctrlKey){
 				this.enable = false;
 
 				Blueprint.Selection.enable = true;
@@ -36,9 +36,21 @@ Blueprint.Initialization = {
 			drag = false;
 		});
 
+		//в самом конце нужно отрисовать линии
+		Blueprint.Drag.addEventListener('drag-after',function(event){
+
+			//selectNode хз, уже не помню, 
+			//но если он есть то линия не рисуется
+			//так как Blueprint.Render.draw стирает ее
+			if(!selectNode) Blueprint.Render.draw()
+		})
+
 		//таскают
 		Blueprint.Drag.addEventListener('drag',function(event){
-			Blueprint.Render.draw()
+			
+			//как выше описал, стирает линию
+			//поэтому если не тянут то рисуем тута
+			if(selectNode) Blueprint.Render.draw()
 
 			//отмеряем дистанцию, если было движение
 			//то помечаем это и не показываем меню
@@ -155,6 +167,21 @@ Blueprint.Initialization = {
 			} 
 			else{
 				Blueprint.Render.draw();
+			}
+
+			if(Blueprint.Selection.enable && presed.ctrlKey){
+				if(Blueprint.Selection.box.width > 200 && Blueprint.Selection.box.height > 100){
+					Blueprint.Render.newHelper({
+						position: {
+							x: Blueprint.Selection.box.left,
+							y: Blueprint.Selection.box.top,
+						},
+						size: {
+							width: Blueprint.Selection.viewport.width,
+							height: Blueprint.Selection.viewport.height
+						}
+					});
+				}
 			}
 
 			this.enable = true;
@@ -328,6 +355,14 @@ Blueprint.Initialization = {
 				Blueprint.Callback.Program.fireChangeEvent();
 			})
 
+			node.addEventListener('mouseenter',function(event){
+				Blueprint.Callback.Program.dispatchEvent({type: 'nodeMouseenter', node: node, nodeEvent: event});
+			})
+
+			node.addEventListener('mouseleave',function(event){
+				Blueprint.Callback.Program.dispatchEvent({type: 'nodeMouseleave', node: node, nodeEvent: event});
+			})
+
 			//протянули линию на input переменную
 			node.addEventListener('input',function(event){
 				if(selectNode !== this && selectNode && event.entrance !== selectNode.selectEntrance){
@@ -460,6 +495,42 @@ Blueprint.Initialization = {
 		Blueprint.Render.addEventListener('removeNode',function(e){
 			Blueprint.Callback.Program.fireChangeEvent();
 		})
+
+		//эвент на добовление нового хелпера
+		Blueprint.Render.addEventListener('addHelper',function(e){
+			var helper = e.helper;
+
+			//вешаем эвенты на сам нод
+
+			//эвент удаления
+			helper.addEventListener('remove',function(){
+				Blueprint.Render.removeHelper(helper);
+
+				Blueprint.Callback.Program.dispatchEvent({type: 'helperRemove', helper: helper});
+			})
+
+			//если нод двигают
+			helper.addEventListener('drag',function(event){
+				var h_size = helper.data.size;
+				var h_posi = helper.data.position;
+
+				for (var i = 0; i < Blueprint.Render.nodes.length; i++) {
+					var n_node = Blueprint.Render.nodes[i],
+						n_posi = n_node.data.position;
+
+					if(n_posi.x > h_posi.x && n_posi.x < h_posi.x + h_size.width  &&  n_posi.y > h_posi.y && n_posi.y < h_posi.y + h_size.height){
+						n_node.dragStart();
+					}
+				}
+			})
+
+		})
+
+		//событие новый хелпер
+		Blueprint.Render.addEventListener('newHelper',function(e){
+			//если новый то запускаем эвент создать
+			e.helper.create();
+		})
 		
 		//если в меню был выбран нод то создаем его
 		Blueprint.Callback.Menu.addEventListener('select',function(event){
@@ -569,6 +640,17 @@ Blueprint.Initialization = {
 
 		$.each(nodes,function(uid,params){
 			if(Blueprint.Worker.get(params.worker)) Blueprint.Render.addNode(uid)
+		})
+
+		Blueprint.Render.update();
+	},
+
+	//после установки данных и классов, создаем ноды
+	helpers: function(){
+		var helpers = Blueprint.Data.get().helpers;
+
+		$.each(helpers,function(uid,params){
+			Blueprint.Render.addHelper(uid)
 		})
 
 		Blueprint.Render.update();

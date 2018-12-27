@@ -33,6 +33,7 @@ Object.assign( Blueprint.classes.Blueprint.prototype, EventDispatcher.prototype,
 		this.contentBlueprint.Initialization.viewport();
 		this.contentBlueprint.Data.set(Blueprint.Program.nodeData(this.uid))
 		this.contentBlueprint.Initialization.nodes();
+		this.contentBlueprint.Initialization.helpers();
 	},
 
 	initWindow: function(){

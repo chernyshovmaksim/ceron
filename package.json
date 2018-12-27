@@ -2,7 +2,7 @@
   "main": "index.html",
   "name": "CERON",
   "description": "",
-  "version": "2.29",
+  "version": "2.41",
   "version_min": 2,
   "node-remote": "*://*/*",
   "window": {
@@ -25,6 +25,7 @@
     "browser-sync": "^2.24.1",
     "chokidar": "^1.7.0",
     "gulp-google-webfonts": "^2.0.0",
+    "gulp-uglify-es": "^1.0.4",
     "js-beautify": "^1.7.5",
     "pan-zoom": "^2.0.0",
     "postcss": "^6.0.14",

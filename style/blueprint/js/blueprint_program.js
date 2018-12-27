@@ -281,8 +281,6 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 	_processStart: function(){
 		this._building = true;
 
-		console.log('build')
-
 		$('.blueprint-process').addClass('active');
 
 		var uids = [];
@@ -328,8 +326,6 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 		},10)
 
 		setTimeout(function(){
-			console.log('end')
-
 			Blueprint.Program._building = false;
 		},500);
 	},

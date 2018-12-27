@@ -10,8 +10,7 @@
         <iframe src="live.html" id="vtc-live"></iframe>
     </div>
 
-    <ul class="tools-iframe tools-vtc"> 
-        <li id="vtc-viewport-enable-edit"><img src="style/img/icons-panel/pointer.png"></li>
+    <ul class="tools-iframe tools-vtc">
         <li id="vtc-viewport-auto-join" data-toggle="tooltip" title="Автоматически создавать классы" ><img src="style/img/icons-panel/auto-join.png"></li> 
         <li id="vtc-viewport-draw-line" data-toggle="tooltip" title="Показать-Скрыть линии" ><img src="style/img/icons-panel/line.png"></li> 
         <li id="vtc-viewport-showhide-psd" data-toggle="tooltip" title="Сделать макет прозрачным" ><img src="style/img/icons-panel/show.png"></li>  
@@ -19,6 +18,25 @@
         <li id="vtc-viewport-join-add" data-toggle="tooltip" title="Создать классы для выделенных элементов" >
             <img src="style/img/icons-panel/auto-join-add.png">
         </li>
+        <li id="vtc-viewport-join-nodes" data-toggle="tooltip" title="Объединить выделенные ноды в один" >
+            <img src="style/img/icons-panel/join-nodes.png">
+        </li>
+        <li id="vtc-viewport-group-nodes" data-toggle="tooltip" title="Создать наружный нод" >
+            <img src="style/img/icons-panel/group-nodes.png">
+        </li>
+        <li id="vtc-viewport-select-childrens" data-toggle="tooltip" title="Выделить детей" >
+            <img src="style/img/icons-panel/vtc-get-childrens.png">
+        </li>
+        <li id="vtc-viewport-create-vars" data-toggle="tooltip" title="Создать переменные" >
+            <img src="style/img/icons-panel/var.png">
+        </li>
+
+        <li id="vtc-viewport-draw-rule" data-toggle="tooltip" title="Расчитать отступы между двумя элементами" >
+            <img src="style/img/icons-panel/rule.png">
+        </li>
+
+        
+       
         <li class="sep"></li>
         <li>
             <img src="style/img/icons/j-1.png" class="vtc-align" name="leftEdges">
@@ -57,23 +75,6 @@
         <li id="vtc-viewport-enable-live" data-toggle="tooltip" title="Живой просмотр" ><img src="style/img/icons-panel/vtc-live.png"></li> 
     </ul>
     
-    <div class="vtc-cascade-container" id="vtc-cascade">
-        <div class="vtc-cascade hide">
-            <div class="vtc-cascade-top">
-                <p class="m-b-0 p-l-10">Если вам надо выделить элементы определенного типа из множества дочерних элементов, используете этот инструмент.</p>
-
-                <div class="d-flex">
-                    <div class="form-btn form-btn-icon form-btn-icon-min m-r-5" id="vtc-create-cascade"><img src="style/img/icons-panel/plus.png"></div>
-                    <div class="form-btn form-btn-icon form-btn-icon-min m-r-5" id="vtc-cascade-toggle"><img src="style/img/icons-panel/show.png"></div>
-                    <div class="form-btn form-btn-icon form-btn-icon-min" id="vtc-create-cascade-helper"><img src="style/img/icons-panel/info.png"></div>
-                </div>
-            </div>
-            <ul class="vtc-cascade-list" id="vtc-cascade-list">
-                
-            </ul>
-        </div>
-    </div>
-
     <div class="vtc-scss-display main" id="vtc-scss-display-main">
         <div class="vtc-scss-display items" id="vtc-scss-display-items">
             <div class="vtc-scss-container items">

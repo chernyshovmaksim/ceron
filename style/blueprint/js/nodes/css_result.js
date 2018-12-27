@@ -4,7 +4,6 @@ Blueprint.Worker.add('css_result',{
 		description: 'Вывод результата в формате css',
 		saturation: 'hsl(212, 100%, 65%)',
 		alpha: 0.58,
-		titleColor: '#3e3729',
 		category: 'css',
 		type: 'round',
 		vars: {

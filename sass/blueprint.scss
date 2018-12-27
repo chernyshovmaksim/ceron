@@ -58,11 +58,70 @@ body{
 			}
 		}
 	}
+
+	&-helper{
+		position: absolute;
+		user-select: none;
+		cursor: default;
+		white-space: nowrap;
+		z-index: 0;
+		display: flex;
+		pointer-events: none;
+
+
+		background: rgba(#000, 0.25);
+		border: 2px solid #fff;
+		border-radius: 3px;
+
+		&-inner{
+			position: relative;
+			flex-grow: 1;
+			overflow: hidden;
+		}
+		&-top{
+			background: rgba(#ddd, 0.15);
+			color: #ddd;
+			display: flex;
+			justify-content: space-between;
+			overflow: hidden;
+			pointer-events: all;
+		}
+		&-title{
+			padding: 5px 10px;
+			color: #fff;
+			flex-grow: 1;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		&-resize{
+			position: absolute;
+			right: 0;
+			bottom: 0;
+			width: 20px;
+			height: 20px;
+			background: url("../blueprint/img/resize.png") no-repeat 80% 80%;
+			pointer-events: all;
+		}
+		&-close{
+			width: 20px;
+			height: 23px;
+			background: url("../blueprint/img/close.png") no-repeat 50% 50%;
+			margin-right: 5px;
+			cursor: pointer;
+			flex-shrink: 0;
+		}
+
+		&:hover{
+			border-color: #86b131;
+		}
+	}
+
 	&-node{
 		position: absolute;
 		user-select: none;
 		cursor: default;
 		white-space: nowrap;
+		z-index: 2;
 		
 		background-color: rgba(#282828,0.45);
 		background-image: url("../blueprint/img/node.png");
@@ -93,9 +152,11 @@ body{
 		.display{
 			line-height: 9px;
 			margin: 0 -10px;
+			display: flex;
 
 			&-title{
 				padding-right: 5px;
+				display: flex;
 			}
 
 			&-subtitle,
@@ -202,6 +263,28 @@ body{
 			.blueprint-node-vars{
 				margin-top: 0
 			}
+		}
+
+		&.icon{
+			min-width: 50px;
+			padding: 8px;
+			background-size: 200% auto;
+		}
+
+		&.join{
+			background: transparent !important;
+			min-width: 10px;
+			padding: 4px;
+		}
+
+		&.css{
+			background: transparent !important;
+			padding: 8px;
+			min-width: 80px;
+		}
+
+		&.reverse{
+			transform: scaleX(-1);
 		}
 	}
 }

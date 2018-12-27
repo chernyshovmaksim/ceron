@@ -1,7 +1,8 @@
 Blueprint.classes.Selection = function(){
 	this.selection = [];
-
-	this.area = $('.blueprint-selection');
+	this.area      = $('.blueprint-selection');
+	this.viewport  = {};
+	this.box       = {};
 }
 
 Object.assign( Blueprint.classes.Selection.prototype, EventDispatcher.prototype, {
@@ -56,6 +57,9 @@ Object.assign( Blueprint.classes.Selection.prototype, EventDispatcher.prototype,
 			width: box.width  + 'px',
 			height: box.height + 'px'
 		})
+
+		this.viewport = viewport;
+		this.box      = box;
 
 		this.dispatchEvent({type: 'drag', box: box, viewport: viewport})
 	},

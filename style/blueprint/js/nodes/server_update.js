@@ -41,12 +41,12 @@ Blueprint.Worker.add('server_update',{
 			},
 			output: {
 				simple: {
-					name: 'event',
+					name: 'onChange',
 					color: '#7bda15',
 					disableChange: true,
 				},
 				stream: {
-					name: 'event',
+					name: 'onChange',
 					color: '#7bda15',
 					disableChange: true,
 				},

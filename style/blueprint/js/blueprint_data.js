@@ -1,7 +1,8 @@
 Blueprint.classes.Data = function(){
 	this.data  = {};
 	this.empty = {
-		nodes: {}
+		nodes: {},
+		helpers: {}
 	}
 }
 

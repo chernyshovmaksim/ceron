@@ -20,8 +20,8 @@ Blueprint.classes.Viewport = function(){
     $(document).mouseup(function(e) {
 		
     }).mousedown(function(e) {
-    	if(!$(e.target).closest($('.blueprint-node')).length) {
-    		Blueprint.Drag.add(self.drag.bind(self))
+    	if(!$(e.target).closest($('.blueprint-node,.blueprint-helper')).length) {
+    		Blueprint.Drag.add(self.drag.bind(self));
 		}
     }).mousemove(function(e) {
         self.cursor.x = e.pageX;
@@ -50,12 +50,12 @@ Object.assign( Blueprint.classes.Viewport.prototype, EventDispatcher.prototype, 
         
         this.scale = newscale;
         
-        this.drag({x: 0, y: 0})
-
         this.zoom.css({
             transform: 'scale('+this.scale+')',
             transformOrigin: '0 0'
         })
+
+        this.drag({x: 0, y: 0})
 
         this.dispatchEvent({type: 'zoom'})
     },

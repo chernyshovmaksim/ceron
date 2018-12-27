@@ -4,9 +4,9 @@ Blueprint.Worker.add('scss_class',{
 		description: 'Строка',
 		saturation: 'hsl(197, 98%, 83%)',
 		alpha: 0.42,
-		titleColor: '#3e3729',
 		category: 'none',
 		type: 'round',
+		add_class: 'css',
 		vars: {
 			input: {
 				input: {
@@ -37,7 +37,7 @@ Blueprint.Worker.add('scss_class',{
 			var data    = event.target.data.userData;
 			var working = parent.Blueprint.Worker.get('scss_class').working;
 
-			var join = $((data.uid ? '<i class="flaticon-tabs"></i> ' : '') + '<span style="cursor: pointer">&</span>');
+			var join = $((data.uid ? '<i class="flaticon-tabs" style="margin-right: 5px"></i> ' : '') + '<span style="cursor: pointer">&</span>');
 				join.on('click',function(){
 					$(this).toggleClass('active');
 
@@ -103,13 +103,18 @@ Blueprint.Worker.add('scss_class',{
 			var input  = this.getValue('input',true);
 			var output = name;
 
+			var output = [];
+
 			if(input.length){
 				output = input.map(function(a){
 					return a + join + (data.uid && search ? '.' : '') + name;
-				}).join(', .');
+				})
+			}
+			else{
+				output.push(name);
 			}
 			
-			data.lastBuild = output;
+			data.lastBuild = output.join(', .');
 
 			this.setValue('output', output);
 		}

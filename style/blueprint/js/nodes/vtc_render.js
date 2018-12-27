@@ -4,7 +4,7 @@ Blueprint.Worker.add('vtc_render',{
 		description: 'Возвращает скомпилированный html код шаблона',
 		saturation: 'hsl(139, 45%, 44%)',
 		alpha: 0.67,
-		category: 'all',
+		category: 'vtc',
 		vars: {
 			input: {
 				template: {
@@ -60,7 +60,7 @@ Blueprint.Worker.add('vtc_render',{
 			}
 
 			if(template){
-				data = VTC.BuildTemplate(template);
+				data = VTC.Build.template(template, match.data.key);
 			}
 			else{
 				Console.Add({message: 'Не найден шаблон', stack: name});

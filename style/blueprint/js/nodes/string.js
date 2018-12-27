@@ -4,12 +4,15 @@ Blueprint.Worker.add('string',{
 		description: 'Строка',
 		saturation: 'hsl(197, 98%, 83%)',
 		alpha: 0.42,
-		titleColor: '#3e3729',
 		category: 'all',
 		type: 'round',
 		vars: {
 			input: {
-				
+				input: {
+					enableChange: true,
+					varType: 'round',
+					color: '#ddd'
+				},
 			},
 			output: {
 				output: {
@@ -35,7 +38,12 @@ Blueprint.Worker.add('string',{
 			
 		},
 		build: function(){
-			this.setValue('output', this.getDefault('output', 'output'));
+			var input  = this.getValue('input',true);
+			var output = this.getDefault('output', 'output')
+
+				output = input ? input + output : output;
+
+			this.setValue('output', output);
 		}
 	}
 });

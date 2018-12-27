@@ -116,8 +116,6 @@ Blueprint.Worker.add('css_google_font',{
 
 			var url = "@import url('https://fonts.googleapis.com/css?family="+name+":"+types+"');";
 
-			console.log(url)
-
 			this.setValue('output',url);
 		}
 	}

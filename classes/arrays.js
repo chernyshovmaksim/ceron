@@ -193,7 +193,7 @@ var Arrays = new function(){
             return a[1] - b[1];
         });
         
-        sor.reverse();
+        //sor.reverse();
         
         for(var i = 0; i < sor.length; i++) res[sor[i][0]] = arr[sor[i][0]];
         

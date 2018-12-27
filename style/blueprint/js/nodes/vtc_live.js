@@ -4,7 +4,7 @@ Blueprint.Worker.add('vtc_live',{
 		description: 'Вставить свой HTML код в живой просмотр VTC',
 		saturation: 'hsl(191, 100%, 40%)',
 		alpha: 0.77,
-		category: 'all',
+		category: 'vtc',
 		vars: {
 			input: {
 				html: {

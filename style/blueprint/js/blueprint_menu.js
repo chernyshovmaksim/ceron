@@ -3,11 +3,11 @@ Blueprint.classes.Menu = function(){
 	this.highlightAdd = '<b class="highlight">$1</b>';
 
 	this.categorys = {
-		blueprint: 'Blueprint',
 		blueprints: 'Blueprints',
+		blueprint: 'Blueprint',
 		function: 'Function',
+		vtc: 'Vtc',
 		css: 'Css',
-		//text: 'Text',
 		file: 'File',
 		all: 'All'
 	}

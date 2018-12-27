@@ -211,19 +211,37 @@ Blueprint.Worker.add('css_custom_font',{
 
 		    var fonts = [];
 
+		    var checkFileExist = function(path){
+		    	nw.file.existsSync(path)
+		    }
+
 		    for(var name in weights){
 		    	var weight = weights[name];
 		    	var path   = this.getValue(name,true).join('');
 
 		    	if(!path) continue;
 
-		    	var exe    = path ? nw.path.extname(path).substr(1) : '';
+		    	var folder = path.split('.');
+		    		folder.pop();
+		    		folder = folder.join('.');
+
 		    	var style  = /Italic/.test(name) ? 'italic' : 'normal';
+		    	var urls   = [];
+
+		    	for(var fr in formats){
+		    		var newPath = folder + '.' + fr;
+
+		    		if(nw.file.existsSync(Functions.LocalPath(newPath))){
+		    			urls.push('url("' + Functions.NormalPath(Functions.AssetPath(Data.path.img, newPath)) + '") format("'+formats[fr]+'")');
+		    		}
+		    	}
 
 				var font = [
 					'@font-face {',
 					    '	font-family: "' + font_name + '";',
-					    '	src: local("' + font_name + '"), local("'+font_name+'-'+name+'"), url("' + Functions.NormalPath(Functions.AssetPath(Data.path.img, path)) + '") format("'+formats[exe]+'");',
+					    '	src: ',
+					    //'	src: local("' + font_name + '"), local("'+font_name+'-'+name+'"),',
+					    '	'+urls.join(",\n    ")+';',
 					    '	font-weight: '+weight+';',
 					    '	font-style: '+style+';',
 					'}',
@@ -231,9 +249,6 @@ Blueprint.Worker.add('css_custom_font',{
 
 				fonts.push(font);
 		    }
-
-		    console.log(fonts)
-
 
 			this.setValue('output',fonts.join("\n"));
 		}

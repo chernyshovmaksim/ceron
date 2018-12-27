@@ -4,7 +4,7 @@ Blueprint.Worker.add('css_unminify',{
 		description: 'Перевод css в читабельный вид',
 		saturation: 'hsl(93, 93%, 54%)',
 		alpha: 0.62,
-		category: 'function',
+		category: 'css',
 		type: 'round',
 		vars: {
 			input: {

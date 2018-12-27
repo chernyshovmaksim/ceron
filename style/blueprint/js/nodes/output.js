@@ -2,9 +2,11 @@ Blueprint.Worker.add('output',{
 	params: {
 		name: 'Output',
 		description: 'Исходящие данные',
-		saturation: 'hsl(294, 29%, 17%)',
+		saturation: 'hsl(221, 97%, 76%)',
+		alpha: 0.22,
 		category: 'blueprint',
 		type: 'round',
+		add_class: 'icon',
 		vars: {
 			input: {
 				input: {},
@@ -20,6 +22,16 @@ Blueprint.Worker.add('output',{
 		},
 		remove: function(){
 
+		},
+		init: function(event){
+			var join = $('<i class="flaticon-login"></i>');
+				join.css({
+					fontSize: '15px',
+					color: '#ddd',
+					marginLeft: '2px'
+				});
+				
+			event.target.setDisplayTitle(join);
 		}
 	},
 	working: {

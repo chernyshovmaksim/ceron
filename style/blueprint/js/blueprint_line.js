@@ -1,19 +1,27 @@
 Blueprint.classes.Line = function(params){
-	this.params = params;
-	this.line   = {};
+	try{
+		this.params = params;
+		this.line   = {};
 
-	this.parent = $('#'+this.params.parent.uid),
-	this.self   = $('#'+this.params.node.data.uid);
+		this.parent = $('#'+this.params.parent.uid),
+		this.self   = $('#'+this.params.node.data.uid);
 
-	this.output = $('.var-output-'+this.params.parent.output,this.parent);
-	this.input  = $('.var-input-'+this.params.parent.input,this.self);
+		this.output = $('.var-output-'+this.params.parent.output,this.parent);
+		this.input  = $('.var-input-'+this.params.parent.input,this.self);
 
-	this.output.addClass('active')
-	this.input.addClass('active')
+		this.output.addClass('active')
+		this.input.addClass('active')
 
-	this.parentData   = Blueprint.Data.get().nodes[this.params.parent.uid];
-	this.parentWorker = Blueprint.Worker.get(this.parentData.worker)
-	this.parentVar    = this.parentWorker.params.vars.output[this.params.parent.output];
+		this.parentData   = Blueprint.Data.get().nodes[this.params.parent.uid];
+		this.parentWorker = Blueprint.Worker.get(this.parentData.worker)
+		this.parentVar    = this.parentWorker.params.vars.output[this.params.parent.output];
+
+		this.reverse = this.params.node.params.reverse;
+		this.reverse_parent = this.parent.hasClass('reverse');
+	}
+	catch(e){
+		this.error = true;
+	}
 }
 
 Object.assign( Blueprint.classes.Line.prototype, EventDispatcher.prototype, {
@@ -25,12 +33,12 @@ Object.assign( Blueprint.classes.Line.prototype, EventDispatcher.prototype, {
 		var distance = Math.max(min,(this.line.end.x - this.line.start.x) / 2) * Blueprint.Viewport.scale;
 		
 		this.line.output = {
-			x: this.line.start.x + distance,
+			x: this.reverse_parent ? this.line.start.x - distance : this.line.start.x + distance,
 			y: this.line.start.y
 		}
 
 		this.line.input = {
-			x: this.line.end.x - distance,
+			x: this.reverse ? this.line.end.x + distance : this.line.end.x - distance,
 			y: this.line.end.y
 		}
 	},
@@ -43,6 +51,8 @@ Object.assign( Blueprint.classes.Line.prototype, EventDispatcher.prototype, {
 		}
 	},
 	draw: function(ctx){
+		if(this.error) return;
+		
 		this.calculate();
 
 		ctx.beginPath();

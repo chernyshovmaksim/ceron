@@ -1,7 +1,7 @@
 Blueprint.Worker.add('replace_var',{
 	params: {
-		name: 'Replace Var',
-		description: 'Создает переменную для замены в функции Replace',
+		name: 'Set variable',
+		description: 'Создает переменную для замены в функции Replace, Blueprint',
 		saturation: 'hsl(29, 100%, 58%)',
 		alpha: 0.33,
 		category: 'function',
@@ -42,7 +42,7 @@ Blueprint.Worker.add('replace_var',{
 		},
 		build: function(){
 			var name  = this.getValue('name',true).join('');
-			var value = this.getValue('value',true).join('')
+			var value = this.getValue('value',true);
 
 			this.setValue('var', {
 				name: name,

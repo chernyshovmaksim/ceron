@@ -159,6 +159,8 @@ Ceron.modules.PerfectPixel = function(){
             PsdViewer.addEventListener('addItem',self.AddPsd.bind(self));
 
             Generators.Module.AddToTool(self.module);
+
+            Layer.InitTooltipe();
         })
     }
 
@@ -192,7 +194,7 @@ Ceron.modules.PerfectPixel = function(){
     }
 
     this.AddBtn = function(img,title,callback){
-        var btn = $('<li data-toggle="tooltip" title="'+title+'"><img src="'+img+'" /></li>').tooltip();
+        var btn = $('<li data-toggle="tooltip" title="'+title+'"><img src="'+img+'" /></li>');
             btn.on('click',callback)
 
             btn.appendTo('.tools-left');

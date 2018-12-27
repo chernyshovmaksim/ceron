@@ -86,21 +86,19 @@ Blueprint.Worker.add('merge',{
 		build: function(){
 			var j = this.getValue('join',true).join('');
 
-			if(!j) j = '\n';
-
 			var c = {
 				'\\n': "\n\r",
 			};
 
 			j = c[j] || j;
-
-
-			var	a = this.getValue('a',true).join(j),
-				b = this.getValue('b',true).join(j);
 			
-			var r = [a,b].join(j);
+			var	a = this.removeEmpty(this.getValue('a',true)).join(j),
+				b = this.removeEmpty(this.getValue('b',true)).join(j);
+			
+			var r = [a,b];
+				r = this.removeEmpty(r);
 
-			this.setValue('output',r);
+			this.setValue('output',r.join(j));
 		}
 	}
 });

@@ -2,7 +2,6 @@
 <head>
     <title id="app-title"></title>
     
-    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="description" content="" />
     <meta name="keywords" content="" />
@@ -35,7 +34,9 @@
 
     <script src="vendor/sortable/Sortable.js" type="text/javascript" charset="utf-8"></script>
 
+    <script src="vendor/pixi/pixi.js" type="text/javascript" charset="utf-8"></script>
 
+    <script src="vendor/sweetalert/sweetalert.min.js" type="text/javascript" charset="utf-8"></script>
 </head>
 <script>
     /** Что-бы все не пропало! **/
@@ -87,6 +88,8 @@
     Ceron.package = JSON.parse(nw.file.readFileSync('package.json', 'utf8'));
 
     Ceron.netFramework = nw.file.existsSync('C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319');
+
+    _canLog = false;
 </script>
 
 <script type="text/javascript" src="classes/event.js"></script>
@@ -127,6 +130,8 @@
 
 <div class="color-piker-screen" id="color-piker-screen"></div>
 
+<div class="vtc-smart-rule" id="vtc-smart-rule"></div>
+
 <div class="layer-welcome">
     <div class="layer-welcome-video">
         <video width="1280" height="720" autoplay id="welcome">
@@ -165,6 +170,8 @@
         </li>
         
         <li onclick="Console.Open()">Консоль <span class="label label-danger layer-console-label">0</span></li>
+        
+        <li onclick="$('#popup-precess').modal('show')">Процесс <span class="label label-danger" id="process-label">1</span></li>
 
         <li>Программа <span class="label label-danger update-status-label">1</span>
             <div>
@@ -177,7 +184,6 @@
                 <span onclick="Functions.Reload()">Перезагрузить (Ctrl+R)</span>
             </div>
         </li>
-        
     </ul>
 
     <div class="pull-left ceron-conection m-l-10" style="margin-top: 2px" data-toggle="tooltip" title="Подключение к сети" data-placement="bottom"><img src="style/img/load.svg"></div>
@@ -220,6 +226,8 @@
 
     <li tab="blueprint" class="icon"><img src="style/img/icons-panel/blueprint.png" alt=""> blueprint</li>
 
+    <li tab="media" class="icon"><img src="style/img/icons-panel/media.png" alt=""> media</li>
+
     <li tab="psd" class="icon" id="psd-tab"><img src="style/img/icons-panel/show2.png" alt=""> psd</li>
 </ul>
 
@@ -234,6 +242,8 @@
             <div class="layer-iframe-history">
                 <ul></ul>
             </div>
+
+            <div class="layer-iframe-getaddresses" onclick="File.GetUrls()" data-toggle="tooltip" title="Получить список адресов"></div>
         </div>
         <div class="layer-iframe pc">
             <div class="layer-iframe-grid">
@@ -406,55 +416,138 @@
 
                         <div class="tabs-content active" id="psd-info">
                             
-                            <div class="form-btn m-b-10" id="psd-info-export-screen"><img src="style/img/icons-panel/photo.png">Экспорт скрина</div>
-
-                            <div class="vtc-psd m-b-20">
-                                <div class="vtc-psd-image">
-                                    <img class="vtc-psd-img" id="psd-info-screen">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <div class="form-name">Информация</div>
-                                <div class="form-content padding">
-                                    <div class="form-field form-field-space">
-                                        <div>
-                                            Имя
+                            <div id="psd-visible-layer" style="display: none">
+                                
+                                <div class="form-group">
+                                    <div class="form-name">Слой</div>
+                                    <div class="form-content padding">
+                                        <div class="form-field form-field-space">
+                                            <div>
+                                                Имя
+                                            </div>
+                                            <div id="psd-layer-name"></div>  
                                         </div>
-                                        <div id="psd-info-name"></div>  
-                                    </div>
-                                    
-                                    <div class="form-field form-field-space">
-                                        <div>
-                                            Размеры
+                                        
+                                        <div class="form-field form-field-space">
+                                            <div>
+                                                Размеры
+                                            </div>
+                                            <div id="psd-layer-size"></div>  
                                         </div>
-                                        <div id="psd-info-size"></div>  
                                     </div>
                                 </div>
-                            </div>
+                                
+                                <div id="psd-layer-font" class="m-b-20">
+                                    <div class="form-group">
+                                        <div class="form-name">Шрифт</div>
+                                        <div class="form-content grid grid-gap-15">
+                                            
+                                            <div class="form-field form-field-icon form-field-align-start">
+                                                <div>
+                                                    <img src="style/img/icons/font.png">
+                                                </div>
+                                                <div>
+                                                    <h5 class="cursor-pointer" id="psd-layer-font-name">Open Sans</h5>
+                                                    <div class="weights">
+                                                        <div class="form-field m-t-5">
+                                                            <div class="layer-psd-info-font" id="psd-layer-font-weight">Regular</div>
+                                                            <div class="layer-psd-info-fonts size">
+                                                                <kbd class="cursor-pointer" id="psd-layer-font-size">16px</kbd>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                            <div class="form-group">
-                                <div class="form-name">Шрифты</div>
-                                <div class="form-content grid grid-gap-15" id="psd-info-fonts">
-                                    
-                                    
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div class="form-name">Оригинальный шрифт</div>
+                                        <div class="form-content grid grid-gap-15">
+                                            
+                                            <div class="form-field form-field-icon form-field-align-start">
+                                                <div>
+                                                    <img src="style/img/icons/font.png">
+                                                </div>
+                                                <div>
+                                                    <h5 class="cursor-pointer" id="psd-layer-font-name-original">Open Sans</h5>
+                                                    
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
                                 </div>
+
+                                <div class="form-group" id="psd-layer-text">
+                                    <div class="form-name">Текст</div>
+                                    <div class="form-content">
+                                        <div class="form-input">
+                                            <textarea rows="6" id="psd-layer-text-value"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" id="psd-layer-css">
+                                    <div class="form-name">CSS</div>
+                                    <div class="form-content">
+                                        <div class="form-input">
+                                            <textarea rows="6" id="psd-layer-css-value"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+
                             </div>
+                            <div id="psd-visible-psd">
+                            
+                                <div class="form-btn m-b-10" id="psd-info-export-screen"><img src="style/img/icons-panel/photo.png">Экспорт скрина</div>
 
+                                <div class="vtc-psd m-b-20">
+                                    <div class="vtc-psd-image">
+                                        <img class="vtc-psd-img" id="psd-info-screen">
+                                    </div>
+                                </div>
 
-                            <div class="form-group">
-                                <div class="form-name">Цвета</div>
-                                <div class="form-content padding">
-                                    <div class="layer-psd-info-colors" id="psd-info-colors">
+                                <div class="form-group">
+                                    <div class="form-name">Информация</div>
+                                    <div class="form-content padding">
+                                        <div class="form-field form-field-space">
+                                            <div>
+                                                Имя
+                                            </div>
+                                            <div id="psd-info-name"></div>  
+                                        </div>
+                                        
+                                        <div class="form-field form-field-space">
+                                            <div>
+                                                Размеры
+                                            </div>
+                                            <div id="psd-info-size"></div>  
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="form-name">Шрифты</div>
+                                    <div class="form-content grid grid-gap-15" id="psd-info-fonts">
+                                        
                                         
                                     </div>
                                 </div>
+
+
+                                <div class="form-group">
+                                    <div class="form-name">Цвета</div>
+                                    <div class="form-content padding">
+                                        <div class="layer-psd-info-colors" id="psd-info-colors">
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
-
-
-
-    
-
 
                         </div>
                     </div>
@@ -539,8 +632,7 @@
         <iframe src="live.html" id="vtc-live"></iframe>
     </div>
 
-    <ul class="tools-iframe tools-vtc"> 
-        <li id="vtc-viewport-enable-edit"><img src="style/img/icons-panel/pointer.png"></li>
+    <ul class="tools-iframe tools-vtc">
         <li id="vtc-viewport-auto-join" data-toggle="tooltip" title="Автоматически создавать классы" ><img src="style/img/icons-panel/auto-join.png"></li> 
         <li id="vtc-viewport-draw-line" data-toggle="tooltip" title="Показать-Скрыть линии" ><img src="style/img/icons-panel/line.png"></li> 
         <li id="vtc-viewport-showhide-psd" data-toggle="tooltip" title="Сделать макет прозрачным" ><img src="style/img/icons-panel/show.png"></li>  
@@ -548,6 +640,25 @@
         <li id="vtc-viewport-join-add" data-toggle="tooltip" title="Создать классы для выделенных элементов" >
             <img src="style/img/icons-panel/auto-join-add.png">
         </li>
+        <li id="vtc-viewport-join-nodes" data-toggle="tooltip" title="Объединить выделенные ноды в один" >
+            <img src="style/img/icons-panel/join-nodes.png">
+        </li>
+        <li id="vtc-viewport-group-nodes" data-toggle="tooltip" title="Создать наружный нод" >
+            <img src="style/img/icons-panel/group-nodes.png">
+        </li>
+        <li id="vtc-viewport-select-childrens" data-toggle="tooltip" title="Выделить детей" >
+            <img src="style/img/icons-panel/vtc-get-childrens.png">
+        </li>
+        <li id="vtc-viewport-create-vars" data-toggle="tooltip" title="Создать переменные" >
+            <img src="style/img/icons-panel/var.png">
+        </li>
+
+        <li id="vtc-viewport-draw-rule" data-toggle="tooltip" title="Расчитать отступы между двумя элементами" >
+            <img src="style/img/icons-panel/rule.png">
+        </li>
+
+        
+       
         <li class="sep"></li>
         <li>
             <img src="style/img/icons/j-1.png" class="vtc-align" name="leftEdges">
@@ -586,23 +697,6 @@
         <li id="vtc-viewport-enable-live" data-toggle="tooltip" title="Живой просмотр" ><img src="style/img/icons-panel/vtc-live.png"></li> 
     </ul>
     
-    <div class="vtc-cascade-container" id="vtc-cascade">
-        <div class="vtc-cascade hide">
-            <div class="vtc-cascade-top">
-                <p class="m-b-0 p-l-10">Если вам надо выделить элементы определенного типа из множества дочерних элементов, используете этот инструмент.</p>
-
-                <div class="d-flex">
-                    <div class="form-btn form-btn-icon form-btn-icon-min m-r-5" id="vtc-create-cascade"><img src="style/img/icons-panel/plus.png"></div>
-                    <div class="form-btn form-btn-icon form-btn-icon-min m-r-5" id="vtc-cascade-toggle"><img src="style/img/icons-panel/show.png"></div>
-                    <div class="form-btn form-btn-icon form-btn-icon-min" id="vtc-create-cascade-helper"><img src="style/img/icons-panel/info.png"></div>
-                </div>
-            </div>
-            <ul class="vtc-cascade-list" id="vtc-cascade-list">
-                
-            </ul>
-        </div>
-    </div>
-
     <div class="vtc-scss-display main" id="vtc-scss-display-main">
         <div class="vtc-scss-display items" id="vtc-scss-display-items">
             <div class="vtc-scss-container items">
@@ -826,27 +920,9 @@
 
         <div class="tabs-content" id="vtc-tpl-settings">
     
-    <div class="form-group">
-        <div class="form-name">Пикселизация</div>
-        <div class="form-content">
-            
-            <div class="form-field form-field-icon">
-                <div>
-                    <div class="form-checkbox reloadBrowser">
-                        <input type="checkbox" id="vtc-vieport-quality">
-                        <label for="vtc-vieport-quality"></label>
-                    </div>
-                </div>
-                <div>
-                    <span class="help-block m-b-0 m-t-0">Включить отрисовку пикселей при увеличении</span>
-                </div>
-            </div>
-            
-        </div>
-    </div>
 
     <div class="form-group">
-        <div class="form-name">Цвет линий</div>
+        <div class="form-name">Цвет</div>
         <div class="form-content">
             <div id="vtc-tpl-colors-line">
                 <ul class="color-palette m-b-5">
@@ -872,64 +948,6 @@
                 </ul>
             </div>
 
-        </div>
-    </div>
-
-    <div class="form-group">
-        <div class="form-name">Цвет нодов</div>
-        <div class="form-content">
-            <div id="vtc-tpl-colors-node">
-                <ul class="color-palette m-b-5">
-                    <li class="color-1"></li>
-                    <li class="color-2"></li>
-                    <li class="color-3"></li>
-                    <li class="color-4"></li>
-                    <li class="color-5"></li>
-                </ul>
-                <ul class="color-palette m-b-5">
-                    <li class="color-6"></li>
-                    <li class="color-7"></li>
-                    <li class="color-8"></li>
-                    <li class="color-9"></li>
-                    <li class="color-10"></li>
-                </ul>
-                <ul class="color-palette">
-                    <li class="color-11"></li>
-                    <li class="color-12"></li>
-                    <li class="color-13"></li>
-                    <li class="color-14"></li>
-                    <li class="color-15"></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <div class="form-group">
-        <div class="form-name">Цвет фона</div>
-        <div class="form-content">
-            <div id="vtc-tpl-colors-background">
-                <ul class="color-palette m-b-5">
-                    <li class="color-1"></li>
-                    <li class="color-2"></li>
-                    <li class="color-3"></li>
-                    <li class="color-4"></li>
-                    <li class="color-5"></li>
-                </ul>
-                <ul class="color-palette m-b-5">
-                    <li class="color-6"></li>
-                    <li class="color-7"></li>
-                    <li class="color-8"></li>
-                    <li class="color-9"></li>
-                    <li class="color-10"></li>
-                </ul>
-                <ul class="color-palette">
-                    <li class="color-11"></li>
-                    <li class="color-12"></li>
-                    <li class="color-13"></li>
-                    <li class="color-14"></li>
-                    <li class="color-15"></li>
-                </ul>
-            </div>
         </div>
     </div>
 
@@ -960,6 +978,29 @@
 
     </div>
 </div>
+                <div class="tabs-content" id="media">
+    <div class="form-group">
+        <div class="form-name">Медиа (<span class="media-count">0</span>)</div>
+        <div class="form-content">
+            <div class="form-field form-field-space form-field-align-center">
+                <div>
+                    <div class="form-btn" onclick="Media.Add()">Добавить медиа блок</div>
+                </div>
+                <div>
+                    <div class="form-btn form-btn-icon" onclick="Media.Sort()" data-toggle="tooltip" title="Сортировать">
+                        <img src="style/img/icons/flex-dir-col.png" alt="">
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="panel-media">
+        
+    </div>
+
+</div>
 			</div>
         </div>
 
@@ -978,10 +1019,10 @@
         <div class="layer-content-options">
             <div class="tabs-container">
                 <ul class="tabs-menu">
-    <li class="active" tab="options"><img src="style/img/icons-panel/pencel.png" alt=""></li>
-    <li tab="childrens"><img src="style/img/icons-panel/childrens.png" alt=""></li>
+    <li class="active" tab="options" id="option-tab"><img src="style/img/icons-panel/pencel.png" alt=""></li>
+    <li tab="class-info" id="class-info-tab"><img src="style/img/icons-panel/info.png" alt=""></li>
+    <li tab="childrens" id="childrens-tab"><img src="style/img/icons-panel/childrens.png" alt=""></li>
     <li tab="css" id="elem-styles-tab"><img src="style/img/icons-panel/css.png" alt=""></li>
-    <li tab="media"><img src="style/img/icons-panel/media.png" alt=""></li>
     <li tab="server"><img src="style/img/icons-panel/server.png" alt=""></li>
 </ul>
 
@@ -1012,7 +1053,8 @@
             
         </div>
     </div>
-
+    
+    <!--
     <div class="form-group" style="display: none">
         <div class="form-name">Родительский класс</div>
         <div class="form-content">
@@ -1029,27 +1071,28 @@
             
         </div>
     </div>
+    -->
 
 
     <div class="form-group">
         <div class="form-name">Рабочий класс <span class="vtc-css-list-output" id="class-name-doth"></span></div>
         <div class="form-content">
             <div class="form-field">
-                <div class="form-class-info select-name-info">---</div>
+                <div class="form-class-info select-name-info" id="select-class-info">---</div>
             </div>
 
             
             <div class="form-divider"></div>
             
-            <div class="form-class select-class-custom" style="display: none;">
-                <div class="form-class-select blueprint select-class-custom-selector"></div>
+            <div class="form-class select-class-custom" id="select-class-from-name" style="display: none;">
+                <div class="form-class-select blueprint select-class-custom-selector" id="select-class-from-name-selector"></div>
             </div>
 
-            <div class="form-class select-class-none">
+            <div class="form-class select-class-none" id="select-custom-nofound">
                 Совпадений не найдено
             </div>
 
-            <div class="form-class select-class" style="display: none;">
+            <div class="form-class select-class" id="select-class-from-iframe" style="display: none;">
                 <div class="form-class-select"></div>
                 <div class="form-class-drop">
                    
@@ -1085,6 +1128,37 @@
         
     </div>
 </div>
+                <div class="tabs-content" id="class-info">
+    <p class="text-center">Информация о классе</p>
+
+    <div class="form-field form-field-grow-one m-b-30">
+        <div>
+            <div class="form-input">
+                <input type="text" id="class-info-name">
+            </div>
+        </div>
+        <div class="m-l-5">
+            <div class="form-btn form-btn-icon" id="class-info-copy">
+                <img src="style/img/icons-panel/copy.png" alt="">
+            </div>
+        </div>
+    </div>
+    
+    
+    <div class="form-group">
+        <div class="form-name">Найдено в шаблонах</div>
+        <div class="form-content">
+            <ul class="list-css" id="class-info-in-template"></ul>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="form-name">Найдено в CASCADE</div>
+        <div class="form-content">
+            <ul class="list-css" id="class-info-in-cascade"></ul>
+        </div>
+    </div>
+</div>
 				<div class="tabs-content" id="childrens">
     <p class="text-center">Html дерево элемента</p>
 
@@ -1098,29 +1172,6 @@
     <div class="select-css">
         
     </div>
-</div>
-				<div class="tabs-content" id="media">
-    <div class="form-group">
-        <div class="form-name">Медиа (<span class="media-count">0</span>)</div>
-        <div class="form-content">
-            <div class="form-field form-field-space form-field-align-center">
-                <div>
-                    <div class="form-btn" onclick="Media.Add()">Добавить медиа блок</div>
-                </div>
-                <div>
-                    <div class="form-btn form-btn-icon" onclick="Media.Sort()" data-toggle="tooltip" title="Сортировать">
-                        <img src="style/img/icons/flex-dir-col.png" alt="">
-                    </div>
-                </div>
-            </div>
-            
-        </div>
-    </div>
-
-    <div class="panel-media">
-        
-    </div>
-
 </div>
                 <div class="tabs-content" id="server">
     <p class="text-center">Локальный веб сервер Browsersync</p>
@@ -1269,6 +1320,7 @@
                             <li tab="settings-common" class="active">Общие</li>
                             <li tab="settings-css">Стили</li>
                             <li tab="settings-css-default">CSS по дефолту</li>
+                            <li tab="settings-css-fonts">Шрифты</li>
                         </ul>
                         
                         <div class="tabs-content active p-5 p-t-20 project-settings" id="settings-common">
@@ -1290,7 +1342,6 @@
                                         <option value="px">PX</option>
                                         <option value="em">EM</option>
                                         <option value="rem">REM</option>
-                                        <option value="vw">VW</option>
                                     </select>
 
                                     <span class="help-block m-b-0">Укажите тип единиц измерения по дефолту</span>
@@ -1374,7 +1425,18 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
+                        <div class="tabs-content p-5 p-t-20 project-settings" id="settings-css-fonts">
+                            <div class="form-group">
+                                <div class="form-name">Коректировать названия шрифтов</div>
+                                <div class="form-content">
+                                    <div class="form-input">
+                                        <textarea name="base" rows="6" class="font-rename" placeholder="SFUI Text=SF UI Text"></textarea>
+                                        <span class="help-block m-b-0">Изменить названия шрифта на другое, перечеслить с новой строки</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
 
@@ -1711,7 +1773,27 @@
                     <li><a target="_blank" class="link" href="http://nwjs.io/">NWJS</a> (Node.js + Chromium)</li>
                     <li><a target="_blank" class="link" href="http://getbootstrap.com/">Twitter Bootstrap</a></li> 
                     <li><a target="_blank" class="link" href="http://jquery.com">jQuery and jQuery UI</a></li>
+                    <li><a target="_blank" class="link" href="http://pixijs.com">Pixi.js</a></li>
                 </ul>                
+            </div>
+        </div>
+    
+    </div>
+</div>
+<div id="popup-precess" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-md">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Процесс</h4>
+            </div>
+            <div class="modal-body">
+                <p id="process-empty" class="text-center">Список пуст</p>
+
+                <ul id="process-content" class="layer-process-list">
+                    
+                </ul>
             </div>
         </div>
     
@@ -1832,15 +1914,6 @@
 				</div>
 			</div>
 
-			<div class="boxMenu-item" data-method="modeTextSplit">
-				<div class="boxMenu-item-ico">
-					<img src="style/img/vtc/icons-create/text-split.png">
-				</div>
-				<div class="boxMenu-item-body">
-					<h4>Разбить текст</h4>
-					<p>Разбивает текста на SPAN если в тексте есть разные стили.</p>
-				</div>
-			</div>
 
 			<div class="boxMenu-item" data-method="modeList">
 				<div class="boxMenu-item-ico">
@@ -1862,22 +1935,12 @@
 				</div>
 			</div>
 
-			<div class="boxMenu-item" data-method="modeColumnsTwo">
-				<div class="boxMenu-item-ico">
-					<img src="style/img/vtc/icons-create/colum-two.png">
-				</div>
-				<div class="boxMenu-item-body">
-					<h4>2 Колонки</h4>
-					<p>Bootstrap колонки.</p>
-				</div>
-			</div>
-
-			<div class="boxMenu-item" data-method="modeColumnsThree">
+			<div class="boxMenu-item" data-method="modeColumns">
 				<div class="boxMenu-item-ico">
 					<img src="style/img/vtc/icons-create/colum-three.png">
 				</div>
 				<div class="boxMenu-item-body">
-					<h4>3 Колонки</h4>
+					<h4>Колонки</h4>
 					<p>Bootstrap колонки.</p>
 				</div>
 			</div>
@@ -1890,6 +1953,66 @@
 					<h4>Кнопка</h4>
 					<p>Создает кнопку с текстом и эффектами.</p>
 				</div>
+			</div>
+
+			<div class="boxMenu-item" data-method="modeInput">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/input.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>Input</h4>
+					<p>Создает поле ввода с эффектами.</p>
+				</div>
+			</div>
+
+			<div class="boxMenu-item" data-method="modeTextarea">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/textarea.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>Textarea</h4>
+					<p>Создает текстовое поле с эффектами.</p>
+				</div> 
+			</div>
+
+			<div class="boxMenu-item" data-method="modeTemplate">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/template.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>Шаблон</h4>
+					<p>Создает из выделенных элементов шаблон.</p>
+				</div> 
+			</div>
+
+			<div class="boxMenu-item" data-method="modeToTemplate">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/template.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>В Шаблон</h4>
+					<p>Переводит выделенные элементы в шаблон.</p>
+				</div> 
+			</div>
+
+			<div class="boxMenu-item" data-method="modeForm">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/form.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>Форма</h4>
+					<p>Создает поля, кнопки и текста.</p>
+				</div> 
+			</div>
+
+			<div class="boxMenu-item" data-method="modeIcon">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/icon.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>Иконка</h4>
+					<p>Создает DIV с фоновой картинкой.</p>
+				</div> 
 			</div>
 
 			<div class="boxMenu-item" data-method="modeIconHorisontal">
@@ -1931,6 +2054,14 @@
             <p>Нет соединение с сервером, пожалуйста проверьте подключение к сети интернет.</p>
         </div>
     </div>
+</div>
+<div class="layer-warning" id="warning">
+	<div class="layer-warning-background"></div>
+	<div class="layer-warning-element" id="warning-element">
+		<div class="layer-warning-text" id="warning-text">
+			warning
+		</div>
+	</div>
 </div>
 <div id="crash">
     <div class="layer-crash">
