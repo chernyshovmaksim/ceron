@@ -1218,18 +1218,23 @@ Object.assign( Blueprint.classes.Line.prototype, EventDispatcher.prototype, {
 	},
 	draw: function(ctx){
 		if(this.error) return;
-		
-		this.calculate();
 
-		ctx.beginPath();
+		try{
+			this.calculate();
 
-		ctx.moveTo(this.line.start.x, this.line.start.y);
-		ctx.bezierCurveTo(this.line.output.x, this.line.output.y, this.line.input.x, this.line.input.y, this.line.end.x, this.line.end.y);
+			ctx.beginPath();
 
-		ctx.lineWidth   = 2 * Blueprint.Viewport.scale;
-		ctx.strokeStyle = this.parentVar.color || '#ddd';
+			ctx.moveTo(this.line.start.x, this.line.start.y);
+			ctx.bezierCurveTo(this.line.output.x, this.line.output.y, this.line.input.x, this.line.input.y, this.line.end.x, this.line.end.y);
 
-		ctx.stroke();
+			ctx.lineWidth   = 2 * Blueprint.Viewport.scale;
+			ctx.strokeStyle = this.parentVar.color || '#ddd';
+
+			ctx.stroke();
+		}
+		catch(e){
+			
+		}
 	}
 })
 

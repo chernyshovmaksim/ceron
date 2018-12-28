@@ -736,7 +736,7 @@ Ceron.modules.PsdPipette =  function(){
         $('select',selectAll).val(Data.units).on('change',function(){
             var unit = $(this).val();
 
-            $('.list-css > li').each(function(){
+            $('.list-css > li',content).each(function(){
 
                 var input = $('input',this),
                     code  = $('code',this),
