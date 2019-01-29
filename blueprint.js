@@ -118,7 +118,7 @@ Blueprint.Initialization = {
 					//создаем нод
 					Blueprint.Render.addNode(node.uid).create();
 
-					Blueprint.Callback.Program.fireChangeEvent();
+					Blueprint.Callback.Program.fireChangeEvent({type: 'dragCopy'});
 				}
 
 				//чистим выделение
@@ -263,7 +263,7 @@ Blueprint.Initialization = {
 				//создаем нод
 				Blueprint.Render.addNode(node.uid).create();
 
-				Blueprint.Callback.Program.fireChangeEvent();
+				Blueprint.Callback.Program.fireChangeEvent({type: 'paste'});
 				
 			}
 
@@ -352,7 +352,7 @@ Blueprint.Initialization = {
 			node.addEventListener('setValue',function(){
 				Blueprint.Render.draw();
 
-				Blueprint.Callback.Program.fireChangeEvent();
+				Blueprint.Callback.Program.fireChangeEvent({type: 'setValue'});
 			})
 
 			node.addEventListener('mouseenter',function(event){
@@ -383,7 +383,7 @@ Blueprint.Initialization = {
 						})
 					}
 
-					Blueprint.Callback.Program.fireChangeEvent();
+					Blueprint.Callback.Program.fireChangeEvent({type: 'input'});
 					
 					Blueprint.Render.update();
 				}
@@ -393,14 +393,14 @@ Blueprint.Initialization = {
 
 			//если удалили инпуты
 			node.addEventListener('inputRemove',function(event){
-				Blueprint.Callback.Program.fireChangeEvent();
+				Blueprint.Callback.Program.fireChangeEvent({type: 'inputRemove'});
 
 				Blueprint.Render.update();
 			})
 
 			//если удалили выходы
 			node.addEventListener('outputRemove',function(event){
-				Blueprint.Callback.Program.fireChangeEvent();
+				Blueprint.Callback.Program.fireChangeEvent({type: 'outputRemove'});
 
 				Blueprint.Render.update();
 			})
@@ -488,12 +488,12 @@ Blueprint.Initialization = {
 			//если новый то запускаем эвент создать
 			e.node.create();
 
-			Blueprint.Callback.Program.fireChangeEvent();
+			Blueprint.Callback.Program.fireChangeEvent({type: 'newNode'});
 		})
 
 		//событие удаляем нод
 		Blueprint.Render.addEventListener('removeNode',function(e){
-			Blueprint.Callback.Program.fireChangeEvent();
+			Blueprint.Callback.Program.fireChangeEvent({type: 'removeNode'});
 		})
 
 		//эвент на добовление нового хелпера
@@ -1166,8 +1166,9 @@ Object.assign( Blueprint.classes.Image.prototype, EventDispatcher.prototype, {
 })
 Blueprint.classes.Line = function(params){
 	try{
-		this.params = params;
-		this.line   = {};
+		this.params  = params;
+		this.line    = {};
+		this.visible = true;
 
 		this.parent = $('#'+this.params.parent.uid),
 		this.self   = $('#'+this.params.node.data.uid);
@@ -1191,10 +1192,35 @@ Blueprint.classes.Line = function(params){
 }
 
 Object.assign( Blueprint.classes.Line.prototype, EventDispatcher.prototype, {
-	calculate: function(){
-		this.line.start = this.point(this.output)
-		this.line.end   = this.point(this.input)
+	/**
+	 * Найти точки входа и выхода
+	 */
+	dots: function(){
+		this.line.start = this.point(this.output);
+		this.line.end   = this.point(this.input);
+	},
 
+	/**
+	 * Видна ли линия в вьюпорте
+	 */
+	intersect: function(){
+		var box = {
+			left: 0,
+			top: 0,
+			width: Blueprint.Render.can.width,
+			height: Blueprint.Render.can.height
+		};
+
+		var a = Blueprint.Utility.intersectPoint(box,this.line.start);
+		var b = Blueprint.Utility.intersectPoint(box,this.line.end);
+
+		this.visible = a || b;
+	},
+
+	/**
+	 * Расчитать изгиб линии
+	 */
+	bezier: function(){
 		var min      = Math.min(100,Math.abs(this.line.end.y - this.line.start.y));
 		var distance = Math.max(min,(this.line.end.x - this.line.start.x) / 2) * Blueprint.Viewport.scale;
 		
@@ -1208,24 +1234,58 @@ Object.assign( Blueprint.classes.Line.prototype, EventDispatcher.prototype, {
 			y: this.line.end.y
 		}
 	},
-	point: function(node,varName){
+
+	/**
+	 * Найти точку у нода
+	 */
+	point: function(node){
 		var offset = node.offset();
 
 		return {
-			x: offset.left + node.width() / 2 * Blueprint.Viewport.scale,
-			y: offset.top + node.height() / 2 * Blueprint.Viewport.scale,
+			x: offset.left + 7 * Blueprint.Viewport.scale,
+			y: offset.top + 5 * Blueprint.Viewport.scale,
 		}
 	},
+
+	/**
+	 * Рисуем линию
+	 */
 	draw: function(ctx){
+		//если есть ошибка, 
+		//то не рисуем линию
 		if(this.error) return;
 
 		try{
-			this.calculate();
+			//находим точки
+			this.dots();
 
+			//проверяем видимость
+			this.intersect();
+
+			//если не видно, то накой рисовать?
+			//отпимизация чуваки!
+			if(!this.visible) return;
+
+			//изгиб
+			this.bezier();
+
+			//ну а дальше рисуем
+			
 			ctx.beginPath();
 
-			ctx.moveTo(this.line.start.x, this.line.start.y);
-			ctx.bezierCurveTo(this.line.output.x, this.line.output.y, this.line.input.x, this.line.input.y, this.line.end.x, this.line.end.y);
+			ctx.moveTo(
+				this.line.start.x, 
+				this.line.start.y
+			);
+			
+			ctx.bezierCurveTo(
+				this.line.output.x, 
+				this.line.output.y, 
+				this.line.input.x, 
+				this.line.input.y, 
+				this.line.end.x, 
+				this.line.end.y
+			);
 
 			ctx.lineWidth   = 2 * Blueprint.Viewport.scale;
 			ctx.strokeStyle = this.parentVar.color || '#ddd';
@@ -2727,6 +2787,18 @@ Blueprint.Utility = {
         check(input);
 
         return change;
+    },
+    intersect: function(r1, r2) {
+        r1.right  = r1.left + r1.width;
+        r1.bottom = r1.top + r1.height;
+
+        r2.right  = r2.left + r2.width;
+        r2.bottom = r2.top + r2.height;
+
+        return !(r2.left > r1.right || r2.right < r1.left || r2.top > r1.bottom || r2.bottom < r1.top);
+    },
+    intersectPoint: function(box, point){
+        return point.x > box.left && point.x < box.left + box.width && point.y > box.top && point.y < box.top + box.height;
     }
 }
 
@@ -4137,22 +4209,14 @@ Blueprint.Worker.add('generate',{
 			
 		},
 		build: function(){
-			var massage = [
-		        '/*!',
-		        ' * Ceron v'+Ceron.package.version,
-		        ' * Copyright (c) 2018 Ceron, Inc.',
-		        ' * Website: https://ceron.pw',
-		        ' * ',
-		        ' * ВНИМАНИЕ!',
-		        ' * --------',
-		        ' * Этот файл сгенерирован программой Ceron, все дальнейшие изменения файла будут утеряны!',
-		        ' * Вносить изменения в файл можно если вы на 100% уверены что верстка полностью готова и больше не будет не каких изменений!',
-		        ' * Если же вам нужно что-то поменять, то пожалуйста создайте дополнительный файл и там вносите изменения',
-		        ' * ',
-		        ' * PS. Я вас предупредил! :) ',
-		        ' */',
-		    ].join("\n")
-
+			try{
+				var massage = nw.file.readFileSync('generate.txt', 'utf8');
+					massage = massage.replace(/{ver}/gi, Ceron.package.version);
+			}
+			catch(e){
+				Console.Add({message: 'Не удалось открыть файл', stack: 'generate.txt'});
+			}
+			
 			this.setValue('output', massage);
 		}
 	}

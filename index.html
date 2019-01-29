@@ -163,12 +163,6 @@
             </div>
         </li>
 
-        <li>Последние
-            <div class="menu-open-last-projects">
-                
-            </div>
-        </li>
-        
         <li onclick="Console.Open()">Консоль <span class="label label-danger layer-console-label">0</span></li>
         
         <li onclick="$('#popup-precess').modal('show')">Процесс <span class="label label-danger" id="process-label">1</span></li>
@@ -216,8 +210,12 @@
     <li tab="frame-result" class="select-screen-size" size="responsive"><img src="style/img/icons-panel/pc-size.png" alt=""></li>
     
     <li class="sep"></li>
+    
+    <li tab="opened-last" class="icon shortcut-toogle"><img src="style/img/icons-panel/folder.png" alt=""> открыть</li>
 
     <!--<li class="empty"></li>-->
+
+    <li class="sep"></li>
     
     <li tab="tpl" class="icon shortcut-toogle vtc-cascade-hide" id="vtc-tab-activate"><img src="style/img/icons-panel/vtc-2.png" alt=""> vtc</li>
     <li tab="tpl" class="icon shortcut-toogle vtc-cascade-show"><img src="style/img/icons-panel/cascade-2.png" alt=""> cascade</li>
@@ -228,7 +226,7 @@
 
     <li tab="media" class="icon"><img src="style/img/icons-panel/media.png" alt=""> media</li>
 
-    <li tab="psd" class="icon" id="psd-tab"><img src="style/img/icons-panel/show2.png" alt=""> psd</li>
+    <li tab="psd" class="icon" id="psd-tab"><img src="style/img/icons-panel/ps-2.png" alt=""> psd</li>
 </ul>
 
 				<div class="tabs-content active" id="frame-result">
@@ -635,6 +633,7 @@
     <ul class="tools-iframe tools-vtc">
         <li id="vtc-viewport-auto-join" data-toggle="tooltip" title="Автоматически создавать классы" ><img src="style/img/icons-panel/auto-join.png"></li> 
         <li id="vtc-viewport-draw-line" data-toggle="tooltip" title="Показать-Скрыть линии" ><img src="style/img/icons-panel/line.png"></li> 
+        <li id="vtc-viewport-draw-grid" data-toggle="tooltip" title="Показать сетку" ><img src="style/img/icons-panel/grid-small.png"></li>
         <li id="vtc-viewport-showhide-psd" data-toggle="tooltip" title="Сделать макет прозрачным" ><img src="style/img/icons-panel/show.png"></li>  
         <li class="sep"></li>
         <li id="vtc-viewport-join-add" data-toggle="tooltip" title="Создать классы для выделенных элементов" >
@@ -741,7 +740,8 @@
     <li class="active" tab="vtc-tpl-list"><img src="style/img/icons-panel/childrens.png" alt=""></li>
     <li tab="vtc-tpl-node"><img src="style/img/icons-panel/node-vtc.png" alt=""></li>
     <li tab="vtc-tpl-settings"><img src="style/img/icons-panel/settings.png" alt=""></li>
-    <li tab="vtc-tpl-psd"><img src="style/img/icons-panel/ps.png" alt=""></li>
+    <li tab="vtc-tpl-psd"><img src="style/img/icons-panel/ps-2.png" alt=""></li>
+    <li tab="vtc-tpl-templates"><img src="style/img/icons-panel/template.png" alt=""></li>
 </ul>
     
         <div class="tabs-content active" id="vtc-tpl-list">
@@ -796,13 +796,37 @@
             <div class="form-field form-field-icon">
                 <div><img src="style/img/icons-panel/tag-help.png" alt=""></div>
                 <div>
-                    <div class="form-input e-vtc-tpl-node-option-help" id="">
-                        <input type="text" value="" name="tag" placeholder="Выводит ">
+                    <div class="form-input e-vtc-tpl-node-option-help">
+                        <input type="text" value="" name="tag" placeholder="">
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="form-group">
+        <div class="form-name">Рендер блока</div>
+        <div class="form-content">
+            
+            <div class="form-field form-field-grow-one">
+                <div>
+                    <div class="form-input m-r-5 e-vtc-tpl-node-option-check-variable">
+                        <input type="text" value="" name="check_variable" placeholder="название переменной">
+                    </div>
+                </div>
+                <div>
+                    <ul class="form-radio e-vtc-tpl-node-option-check-variable-status">
+                        <li name="0"><img src="style/img/icons/none.png" alt=""></li>
+                        <li name="1"><img src="style/img/icons/ok.png" alt=""></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <span class="help-block m-b-0">Показать/скрыть блок при наличии переменной или её отсутствие.</span>
+        </div>
+    </div>
+
+    
 
     <div class="form-group">
         <div class="form-name">Выбрать из заготовки</div>
@@ -822,6 +846,25 @@
             <div class="form-input e-vtc-tpl-node-option-data" id="">
                 <textarea name="data" rows="6" ></textarea>
             </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="form-name">Разбить содержимое на строки</div>
+        <div class="form-content">
+            
+            <div class="form-field form-field-icon">
+                <div>
+                    <div class="form-checkbox e-vtc-tpl-node-option-split">
+                        <input type="checkbox" id="e-vtc-tpl-split">
+                        <label for="e-vtc-tpl-split"></label>
+                    </div>
+                </div>
+                <div>
+                    <span class="help-block m-b-0 m-t-0">Обвернуть каждую строку в тег</span>
+                </div>
+            </div>
+            
         </div>
     </div>
 
@@ -919,7 +962,59 @@
         </div>
 
         <div class="tabs-content" id="vtc-tpl-settings">
-    
+
+    <div class="form-group">
+        <div class="form-name">Сетка</div>
+        <div class="form-content padding" id="vtc-tpl-settings-grid">
+            <div class="form-field form-field-half">
+                <div>
+                    <div class="form-field form-field-space form-field-icon">
+                        <div>
+                            Ширина:
+                        </div>
+                        <div>
+                            <div class="form-input form-input-small">
+                                <input type="text" value="" name="width" placeholder="auto" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="form-field form-field-space form-field-icon">
+                        <div>
+                            Колонок:
+                        </div>
+                        <div>
+                            <div class="form-input num cols form-input-small">
+                                <input type="text" value="" name="cols" placeholder="auto" />
+                            </div>
+                        </div>
+                    </div>
+                </div>  
+            </div>
+            <div class="form-divider form-divider-small"></div>
+            <div class="form-field form-field-half">
+                <div>
+                    <div class="form-field form-field-space form-field-icon">
+                        <div>
+                            Отступ:
+                        </div>
+                        <div>
+                            <div class="form-input px form-input-small">
+                                <input type="text" value="" name="gap" placeholder="auto" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-field-align-center">
+                    <div class="form-range">
+                        <input type="range" name="opacity" min="0" max="1" step="0.01" value="" placeholder="auto" />
+                    </div>
+                </div> 
+            </div>
+
+        </div>
+    </div>
 
     <div class="form-group">
         <div class="form-name">Цвет</div>
@@ -969,6 +1064,17 @@
     </div>
     
 </div>
+        <div class="tabs-content vtc-tab-content" id="vtc-tpl-templates">
+    <div class="vtc-css-create">
+        <select id="ptpl-select-categories" data-actions-box="true" data-width="100%">
+            <option>Загрузка...</option>
+        </select>
+    </div>
+
+    <div class="vtc-tab-body-scroll" id="ptpl-content-items">
+       
+    </div>
+</div>
     </div>
 </div>
 
@@ -1000,6 +1106,13 @@
         
     </div>
 
+</div>
+                <div class="tabs-content" id="opened-last">
+    
+    <div class="layer-psd-items" id="opened-last-items">
+        
+        
+    </div>
 </div>
 			</div>
         </div>
@@ -1302,7 +1415,13 @@
 </div>
 <div class="popup-box" id="popup-box"></div>
 <div class="popup-box popup-contextmenu"></div>
-
+<div class="layer-minibbcode" id="mini-bbcode">
+	<ul>
+		<li class="b" data-tag="b"></li>
+		<li class="i" data-tag="i"></li>
+		<li class="u" data-tag="u"></li>
+	</ul>
+</div>
 
 <div id="project-settings" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -1799,6 +1918,118 @@
     
     </div>
 </div>
+<div id="public-template" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Публикация шаблона</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-container">
+                    
+                    <div class="tabs-container">
+                        <ul class="tabs-menu">
+                            <li tab="ptpl-common" class="active">Общие</li>
+                            <li tab="ptpl-classes">Классы</li>
+                        </ul>
+                        
+                        <div class="tabs-content active p-0 p-t-20 project-settings" id="ptpl-common">
+                            
+                                <div class="form-field">
+                                    <div class="col-md-8 p-0">
+                                        <img src="style/img/tpl_506n.png" id="ptpl-img" class="img-fluid" style="border-radius: 3px;">
+                                    </div>
+                                    <div class="col-md-4 p-5 p-l-15">
+                                        <div class="form-group">
+                                            <div class="form-name">Название шаблона</div>
+                                            <div class="form-content">
+                                                <div class="form-input" id="ptpl-name">
+                                                    <input type="text" name="" value="" placeholder="">
+                                                </div>
+                                                <span class="help-block m-b-0">Укажите как называется шаблон</span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="form-name">Категория</div>
+                                            <div class="form-content">
+                                                <select class="form-select" name="" id="ptpl-category">
+                                                    
+                                                </select>
+
+                                                <span class="help-block m-b-0">К какой категории относится шаблон</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            
+
+                        </div>
+
+                        <div class="tabs-content p-5 p-t-20" id="ptpl-classes">
+                            
+                            <div class="form-field">
+                                <div class="col-md-6 p-0 p-r-15">
+                                    
+                                    <h4 class="m-b-0">Искать классы</h4>
+                                    <span class="help-block m-b-15">Найти класс по имени если есть.</span>
+
+                                    <div class="form-group form-group-box p-10 m-b-0">
+                                        <div class="form-content">
+                                            <ul class="list-tags" id="ptpl-class-search">
+                                                
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-6 p-0 p-l-15">
+                                    
+                                    <h4 class="m-b-0">Создать классы</h4>
+                                    <span class="help-block m-b-15">Слассы которые будут созданы в папке.</span>
+
+                                    <div class="form-group form-group-box p-10 m-b-0">
+                                        <div class="form-content">
+                                            <ul class="list-tags" id="ptpl-class-create">
+                                                
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    
+
+                                </div>
+
+                            </div>
+                            
+                        </div>
+
+                        
+
+
+                    </div>
+                    
+                    <div class="form-field form-field-align-center p-t-20">
+                        <div class="form-btn-inline">
+                            <div class="form-btn form-btn-big" id="ptpl-public">Опубликовать</div>
+                        </div>
+
+                        <div class="p-l-10 p-r-10 ptpl-public-load">
+                            <img src="style/img/load.svg">
+                        </div>
+                        <div class="ptpl-public-load">
+                            <span class="help-block m-0">Публикация, подождите.</span>
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
+    
+    </div>
+</div>
 
 
 <div class="layer-side">
@@ -1884,25 +2115,27 @@
 				</div>
 			</div>
 
+			<div class="boxMenu-item" data-method="modeTemplateSection">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/section.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>Шаблон с секцией</h4>
+					<p>Создает шаблон в котором создается секция.</p>
+				</div>
+			</div>
+
 			<div class="boxMenu-item" data-method="modeSection">
 				<div class="boxMenu-item-ico">
 					<img src="style/img/vtc/icons-create/section.png">
 				</div>
 				<div class="boxMenu-item-body">
 					<h4>Секция</h4>
-					<p>SECTION элемент с контейнером и заголовком внутри.</p>
+					<p>SECTION элемент с контейнером внутри.</p>
 				</div>
 			</div>
 
-			<div class="boxMenu-item" data-method="modeElement">
-				<div class="boxMenu-item-ico">
-					<img src="style/img/vtc/icons-create/element.png">
-				</div>
-				<div class="boxMenu-item-body">
-					<h4>Элемент</h4>
-					<p>Создает DIV элемент с эффектами.</p>
-				</div>
-			</div>
+			
 
 			<div class="boxMenu-item" data-method="modeText">
 				<div class="boxMenu-item-ico">
@@ -1935,15 +2168,7 @@
 				</div>
 			</div>
 
-			<div class="boxMenu-item" data-method="modeColumns">
-				<div class="boxMenu-item-ico">
-					<img src="style/img/vtc/icons-create/colum-three.png">
-				</div>
-				<div class="boxMenu-item-body">
-					<h4>Колонки</h4>
-					<p>Bootstrap колонки.</p>
-				</div>
-			</div>
+			
 
 			<div class="boxMenu-item" data-method="modeButton">
 				<div class="boxMenu-item-ico">
@@ -1973,6 +2198,16 @@
 					<h4>Textarea</h4>
 					<p>Создает текстовое поле с эффектами.</p>
 				</div> 
+			</div>
+
+			<div class="boxMenu-item" data-method="modeColumns">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/colum-three.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>Колонки</h4>
+					<p>Bootstrap колонки.</p>
+				</div>
 			</div>
 
 			<div class="boxMenu-item" data-method="modeTemplate">
@@ -2032,6 +2267,16 @@
 				<div class="boxMenu-item-body">
 					<h4>IconBox Vertical</h4>
 					<p>FLEX элемент с иконкой и текстом внутри.</p>
+				</div>
+			</div>
+
+			<div class="boxMenu-item" data-method="modeElement">
+				<div class="boxMenu-item-ico">
+					<img src="style/img/vtc/icons-create/element.png">
+				</div>
+				<div class="boxMenu-item-body">
+					<h4>Элемент</h4>
+					<p>Создает DIV элемент с эффектами.</p>
 				</div>
 			</div>
 

@@ -33,22 +33,14 @@ Blueprint.Worker.add('generate',{
 			
 		},
 		build: function(){
-			var massage = [
-		        '/*!',
-		        ' * Ceron v'+Ceron.package.version,
-		        ' * Copyright (c) 2018 Ceron, Inc.',
-		        ' * Website: https://ceron.pw',
-		        ' * ',
-		        ' * ВНИМАНИЕ!',
-		        ' * --------',
-		        ' * Этот файл сгенерирован программой Ceron, все дальнейшие изменения файла будут утеряны!',
-		        ' * Вносить изменения в файл можно если вы на 100% уверены что верстка полностью готова и больше не будет не каких изменений!',
-		        ' * Если же вам нужно что-то поменять, то пожалуйста создайте дополнительный файл и там вносите изменения',
-		        ' * ',
-		        ' * PS. Я вас предупредил! :) ',
-		        ' */',
-		    ].join("\n")
-
+			try{
+				var massage = nw.file.readFileSync('generate.txt', 'utf8');
+					massage = massage.replace(/{ver}/gi, Ceron.package.version);
+			}
+			catch(e){
+				Console.Add({message: 'Не удалось открыть файл', stack: 'generate.txt'});
+			}
+			
 			this.setValue('output', massage);
 		}
 	}

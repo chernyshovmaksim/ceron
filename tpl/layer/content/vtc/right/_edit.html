@@ -41,13 +41,37 @@
             <div class="form-field form-field-icon">
                 <div><img src="style/img/icons-panel/tag-help.png" alt=""></div>
                 <div>
-                    <div class="form-input e-vtc-tpl-node-option-help" id="">
-                        <input type="text" value="" name="tag" placeholder="Выводит ">
+                    <div class="form-input e-vtc-tpl-node-option-help">
+                        <input type="text" value="" name="tag" placeholder="">
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="form-group">
+        <div class="form-name">Рендер блока</div>
+        <div class="form-content">
+            
+            <div class="form-field form-field-grow-one">
+                <div>
+                    <div class="form-input m-r-5 e-vtc-tpl-node-option-check-variable">
+                        <input type="text" value="" name="check_variable" placeholder="название переменной">
+                    </div>
+                </div>
+                <div>
+                    <ul class="form-radio e-vtc-tpl-node-option-check-variable-status">
+                        <li name="0"><img src="style/img/icons/none.png" alt=""></li>
+                        <li name="1"><img src="style/img/icons/ok.png" alt=""></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <span class="help-block m-b-0">Показать/скрыть блок при наличии переменной или её отсутствие.</span>
+        </div>
+    </div>
+
+    
 
     <div class="form-group">
         <div class="form-name">Выбрать из заготовки</div>
@@ -67,6 +91,25 @@
             <div class="form-input e-vtc-tpl-node-option-data" id="">
                 <textarea name="data" rows="6" ></textarea>
             </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="form-name">Разбить содержимое на строки</div>
+        <div class="form-content">
+            
+            <div class="form-field form-field-icon">
+                <div>
+                    <div class="form-checkbox e-vtc-tpl-node-option-split">
+                        <input type="checkbox" id="e-vtc-tpl-split">
+                        <label for="e-vtc-tpl-split"></label>
+                    </div>
+                </div>
+                <div>
+                    <span class="help-block m-b-0 m-t-0">Обвернуть каждую строку в тег</span>
+                </div>
+            </div>
+            
         </div>
     </div>
 

@@ -118,7 +118,7 @@ Blueprint.Initialization = {
 					//создаем нод
 					Blueprint.Render.addNode(node.uid).create();
 
-					Blueprint.Callback.Program.fireChangeEvent();
+					Blueprint.Callback.Program.fireChangeEvent({type: 'dragCopy'});
 				}
 
 				//чистим выделение
@@ -263,7 +263,7 @@ Blueprint.Initialization = {
 				//создаем нод
 				Blueprint.Render.addNode(node.uid).create();
 
-				Blueprint.Callback.Program.fireChangeEvent();
+				Blueprint.Callback.Program.fireChangeEvent({type: 'paste'});
 				
 			}
 
@@ -352,7 +352,7 @@ Blueprint.Initialization = {
 			node.addEventListener('setValue',function(){
 				Blueprint.Render.draw();
 
-				Blueprint.Callback.Program.fireChangeEvent();
+				Blueprint.Callback.Program.fireChangeEvent({type: 'setValue'});
 			})
 
 			node.addEventListener('mouseenter',function(event){
@@ -383,7 +383,7 @@ Blueprint.Initialization = {
 						})
 					}
 
-					Blueprint.Callback.Program.fireChangeEvent();
+					Blueprint.Callback.Program.fireChangeEvent({type: 'input'});
 					
 					Blueprint.Render.update();
 				}
@@ -393,14 +393,14 @@ Blueprint.Initialization = {
 
 			//если удалили инпуты
 			node.addEventListener('inputRemove',function(event){
-				Blueprint.Callback.Program.fireChangeEvent();
+				Blueprint.Callback.Program.fireChangeEvent({type: 'inputRemove'});
 
 				Blueprint.Render.update();
 			})
 
 			//если удалили выходы
 			node.addEventListener('outputRemove',function(event){
-				Blueprint.Callback.Program.fireChangeEvent();
+				Blueprint.Callback.Program.fireChangeEvent({type: 'outputRemove'});
 
 				Blueprint.Render.update();
 			})
@@ -488,12 +488,12 @@ Blueprint.Initialization = {
 			//если новый то запускаем эвент создать
 			e.node.create();
 
-			Blueprint.Callback.Program.fireChangeEvent();
+			Blueprint.Callback.Program.fireChangeEvent({type: 'newNode'});
 		})
 
 		//событие удаляем нод
 		Blueprint.Render.addEventListener('removeNode',function(e){
-			Blueprint.Callback.Program.fireChangeEvent();
+			Blueprint.Callback.Program.fireChangeEvent({type: 'removeNode'});
 		})
 
 		//эвент на добовление нового хелпера

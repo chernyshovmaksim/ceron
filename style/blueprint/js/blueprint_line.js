@@ -1,7 +1,8 @@
 Blueprint.classes.Line = function(params){
 	try{
-		this.params = params;
-		this.line   = {};
+		this.params  = params;
+		this.line    = {};
+		this.visible = true;
 
 		this.parent = $('#'+this.params.parent.uid),
 		this.self   = $('#'+this.params.node.data.uid);
@@ -25,10 +26,35 @@ Blueprint.classes.Line = function(params){
 }
 
 Object.assign( Blueprint.classes.Line.prototype, EventDispatcher.prototype, {
-	calculate: function(){
-		this.line.start = this.point(this.output)
-		this.line.end   = this.point(this.input)
+	/**
+	 * Найти точки входа и выхода
+	 */
+	dots: function(){
+		this.line.start = this.point(this.output);
+		this.line.end   = this.point(this.input);
+	},
 
+	/**
+	 * Видна ли линия в вьюпорте
+	 */
+	intersect: function(){
+		var box = {
+			left: 0,
+			top: 0,
+			width: Blueprint.Render.can.width,
+			height: Blueprint.Render.can.height
+		};
+
+		var a = Blueprint.Utility.intersectPoint(box,this.line.start);
+		var b = Blueprint.Utility.intersectPoint(box,this.line.end);
+
+		this.visible = a || b;
+	},
+
+	/**
+	 * Расчитать изгиб линии
+	 */
+	bezier: function(){
 		var min      = Math.min(100,Math.abs(this.line.end.y - this.line.start.y));
 		var distance = Math.max(min,(this.line.end.x - this.line.start.x) / 2) * Blueprint.Viewport.scale;
 		
@@ -42,27 +68,66 @@ Object.assign( Blueprint.classes.Line.prototype, EventDispatcher.prototype, {
 			y: this.line.end.y
 		}
 	},
-	point: function(node,varName){
+
+	/**
+	 * Найти точку у нода
+	 */
+	point: function(node){
 		var offset = node.offset();
 
 		return {
-			x: offset.left + node.width() / 2 * Blueprint.Viewport.scale,
-			y: offset.top + node.height() / 2 * Blueprint.Viewport.scale,
+			x: offset.left + 7 * Blueprint.Viewport.scale,
+			y: offset.top + 5 * Blueprint.Viewport.scale,
 		}
 	},
+
+	/**
+	 * Рисуем линию
+	 */
 	draw: function(ctx){
+		//если есть ошибка, 
+		//то не рисуем линию
 		if(this.error) return;
-		
-		this.calculate();
 
-		ctx.beginPath();
+		try{
+			//находим точки
+			this.dots();
 
-		ctx.moveTo(this.line.start.x, this.line.start.y);
-		ctx.bezierCurveTo(this.line.output.x, this.line.output.y, this.line.input.x, this.line.input.y, this.line.end.x, this.line.end.y);
+			//проверяем видимость
+			this.intersect();
 
-		ctx.lineWidth   = 2 * Blueprint.Viewport.scale;
-		ctx.strokeStyle = this.parentVar.color || '#ddd';
+			//если не видно, то накой рисовать?
+			//отпимизация чуваки!
+			if(!this.visible) return;
 
-		ctx.stroke();
+			//изгиб
+			this.bezier();
+
+			//ну а дальше рисуем
+			
+			ctx.beginPath();
+
+			ctx.moveTo(
+				this.line.start.x, 
+				this.line.start.y
+			);
+			
+			ctx.bezierCurveTo(
+				this.line.output.x, 
+				this.line.output.y, 
+				this.line.input.x, 
+				this.line.input.y, 
+				this.line.end.x, 
+				this.line.end.y
+			);
+
+			ctx.lineWidth   = 2 * Blueprint.Viewport.scale;
+			ctx.strokeStyle = this.parentVar.color || '#ddd';
+
+			ctx.stroke();
+		}
+		catch(e){
+			
+		}
 	}
 })

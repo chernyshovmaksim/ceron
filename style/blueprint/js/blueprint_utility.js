@@ -66,5 +66,17 @@ Blueprint.Utility = {
         check(input);
 
         return change;
+    },
+    intersect: function(r1, r2) {
+        r1.right  = r1.left + r1.width;
+        r1.bottom = r1.top + r1.height;
+
+        r2.right  = r2.left + r2.width;
+        r2.bottom = r2.top + r2.height;
+
+        return !(r2.left > r1.right || r2.right < r1.left || r2.top > r1.bottom || r2.bottom < r1.top);
+    },
+    intersectPoint: function(box, point){
+        return point.x > box.left && point.x < box.left + box.width && point.y > box.top && point.y < box.top + box.height;
     }
 }

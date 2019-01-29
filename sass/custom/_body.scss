@@ -649,7 +649,7 @@
 		    width: 100%;
 		    align-items: start;
 		    grid-template-columns: repeat(auto-fit, 240px);
-		    grid-gap: 30px;
+		    grid-gap: 20px;
 		    padding: 15px;
 		    align-content: start;
 		}
@@ -702,12 +702,15 @@
 			&-bottom{
 				padding: 10px;
 				text-align: center;
+				
+				h3,p{
+					white-space: nowrap;
+				    overflow: hidden;
+				    text-overflow: ellipsis;
+				}
 
 				h3{
 					font-size: 15px;
-					overflow: hidden;
-    				text-overflow: ellipsis;
-    				white-space: nowrap;
 				}
 
 				p{
@@ -1174,6 +1177,7 @@
 
 	&-warning{
 		display: none;
+		pointer-events: none;
 
 		&-background{
 			position: fixed;
@@ -1296,6 +1300,40 @@
 				> span{
 					color: #fff;
 					font-weight: bold;
+				}
+			}
+		}
+	}
+
+	&-minibbcode{
+		position: absolute;
+		background: rgba(0,0,0,0.8);
+		border-radius: 5px;
+		overflow: hidden;
+		box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+		z-index: 1051;
+		
+		> ul{
+			display: flex;
+			position: relative;
+
+			> li{
+				width: 30px;
+				height: 30px;
+				background-position: 50% 50%;
+				background-repeat: no-repeat;
+				cursor: pointer;
+
+				&.b{
+					background-image: url(../img/icons-panel/bbcode/b.png)
+				}
+
+				&.i{
+					background-image: url(../img/icons-panel/bbcode/i.png)
+				}
+
+				&.u{
+					background-image: url(../img/icons-panel/bbcode/u.png)
 				}
 			}
 		}
@@ -2011,10 +2049,16 @@
 		}
 	}
 
-	&-tab-content{
+	&-tab-content.active{
 		display: flex !important;
 		flex-direction: column;
 		padding: 0 !important;
+	}
+
+	&-tab-body-scroll{
+		flex-grow: 1;
+	    overflow: auto;
+	    padding: 10px;
 	}
 
 	&-css{
@@ -2976,7 +3020,7 @@
 		border-radius: 2px;
 
 		> li{
-			height: 24px;
+			height: 22px;
 			min-width: 20px;
 			@include flex-center();
 			flex-grow: 1;
@@ -4157,6 +4201,18 @@
 	    	}
 		}
 	}
+
+	&-tags{
+		display: flex;
+	    justify-content: left;
+	    flex-wrap: wrap;
+	    min-height: 25px;
+
+		li{
+			cursor: pointer;
+			margin: 5px;
+		}
+	}
 }
 
 .boxMenu{
@@ -4525,6 +4581,10 @@ $colors-list: #ffd32a #667c87 #ff4e00 #8ea604 #3a6ea5 #202c39 #f038ff #9f7e69 #f
 	background-color: #5e5e5e;
     border-color: #333333;
     outline: none !important;
+}
+
+.img-fluid{
+	max-width: 100%;
 }
 
 .dropdown-menu{
