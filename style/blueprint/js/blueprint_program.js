@@ -196,7 +196,8 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 							'</div>',
 							'<div>',
 								'<div class="form-input">',
-                                    '<input type="text" name="background-position" value="" disabled placeholder="'+(params.placeholder || (params.name || name))+'" />',
+                                    '<input type="'+(params.inputType || 'text')+'" name="background-position" autocomplete="off value="" disabled placeholder="'+(params.placeholder || (params.name || name))+'" />',
+                                    '<ul class="drop up icons"><li class="clear"><img src="style/img/icons-panel/delete.png" alt=""></li></ul>',
                                 '</div>',
 							'</div>',
                         '</div>',
@@ -214,15 +215,23 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 			                input.val(file)
 			            },nw.path.dirname(Functions.LocalPath(path)))
 			        });
+
+			        $('.clear',html).on('click',function(){
+			        	event.target.setValue(entrance, name, '');
+
+			        	input.val('')
+			        })
 				}
 				else{
 					html = $([
 						'<div class="m-b-5">',
 	                        '<div class="form-input">',
-	                            '<input type="text" name="'+name+'" value="'+event.target.getValue(entrance, name)+'" placeholder="'+(params.placeholder || (params.name || name))+'" />',
+	                            '<input type="'+(params.inputType || 'text')+'" name="'+name+'" value="" autocomplete="new-password" placeholder="'+(params.placeholder || (params.name || name))+'" />',
 	                        '</div>',
 		                '</div>',
-					].join(''))
+					].join(''));
+
+					$('input',html).val(event.target.getValue(entrance, name));
 
 					var change = function(inputName, inputValue){
 						if(inputValue == undefined) inputValue= '';

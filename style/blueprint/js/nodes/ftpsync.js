@@ -24,6 +24,7 @@ Blueprint.Worker.add('ftpsync',{
 				password: {
 					name: 'user password',
 					color: '#ddd',
+					inputType: 'password'
 				},
 				ftp_folder: {
 					name: 'folder ftp',
@@ -73,10 +74,13 @@ Blueprint.Worker.add('ftpsync',{
 			
 		},
 		build: function(){
+			var ftpuid = this.data.uid;
 			var change = Blueprint.Utility.onChange(this.getValue('change',true));
 
-			if(Ceron.cache.ftpsync !== undefined && !Ceron.cache.ftpsync && change){
-				Ceron.cache.ftpsync = true;
+			if(Ceron.cache.ftpsync == undefined) Ceron.cache.ftpsync = {};
+
+			if(Ceron.cache.ftpsync[ftpuid] !== undefined && !Ceron.cache.ftpsync[ftpuid].wait && change){
+				Ceron.cache.ftpsync[ftpuid].wait = true;
 
 				var name     = this.getValue('name').join('');
 				var execFile = require('child_process').execFile;
@@ -90,6 +94,29 @@ Blueprint.Worker.add('ftpsync',{
 					LastSyncGood: this.data.userData.lastTime
 				}
 
+				if(config.Passwd){
+					Ceron.cache.ftpsync[ftpuid].pass = config.Passwd;
+				}
+				else if(Ceron.cache.ftpsync[ftpuid].pass){
+					config.Passwd = Ceron.cache.ftpsync[ftpuid].pass;
+				}
+
+				if(!config.IP){
+					Console.Add({message: 'FTP Sync', stack: 'Укажите IP сервера'});
+				}
+				else if(!config.Login){
+					Console.Add({message: 'FTP Sync', stack: 'Укажите логин'});
+				}
+				else if(!config.Passwd){
+					Console.Add({message: 'FTP Sync', stack: 'Укажите пароль'});
+				}
+
+				if(!config.IP || !config.Login || !config.Passwd){
+					Ceron.cache.ftpsync[ftpuid].wait = false;
+
+					return;
+				} 
+
 				var json = JSON.stringify(config);
 				var base = btoa(json);
 
@@ -99,7 +126,7 @@ Blueprint.Worker.add('ftpsync',{
 
 		        var spawn = require('child_process').spawn;
 
-		        var total = upload = 0, errors = [];
+		        var total = 0, upload = 0, errors = [];
 
 		        var parse = (data) => {
 		        	data = data.trim();
@@ -148,29 +175,40 @@ Blueprint.Worker.add('ftpsync',{
 						proces.error();
 					}
 		        }
-				
-				var ls = spawn('worker/ftpsync/FtpSync.exe',['base64',base]);
 
-					ls.stdout.on('data', (data) => {
-						(data + '').split("\n").map(parse);
-					});
+		        setTimeout(()=>{
+					var ls = spawn('worker/ftpsync/FtpSync.exe',['base64',base]);
 
-					ls.stderr.on('data', (data) => {
-						console.log(`stderr: ${data}`);
+						ls.stdout.on('data', (data) => {
+							(data + '').split("\n").map(parse);
+						});
 
-						proces.error();
-					});
+						ls.stderr.on('data', (data) => {
+							proces.error();
+						});
 
-					ls.on('close', (code) => {
-						Ceron.cache.ftpsync = false;
-					});
+						ls.on('close', (code) => {
+							Ceron.cache.ftpsync[ftpuid].wait = false;
+						});
+
+				},1000);
+
+				//надо чистить пароль
+				//а то не хорошо хранить его
+				try{
+					this.data.varsData.input.password = '';
+				}
+				catch(e){}
 			}
 
-			if(Ceron.cache.ftpsync == undefined){
+			if(Ceron.cache.ftpsync[ftpuid] == undefined){
 				//а то несколько раз срабатывает
 				//поэтому таймер поможет!
 				setTimeout(()=>{
-					Ceron.cache.ftpsync = false;
+					Ceron.cache.ftpsync[ftpuid] = {
+						wait: false,
+						pass: ''
+					};
 				},1000);
 			}
 		}

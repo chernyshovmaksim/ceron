@@ -111,6 +111,14 @@ Ceron.modules.Effects =  function(){
                 pointer: 'pointer'
             })
 
+            /** pointer-events **/
+            Form.InputChange($('.pointer-events',self.module))
+            
+            Form.InputDrop($('.pointer-events',self.module),{
+                auto: 'auto',
+                none: 'none'
+            })
+
             /** Filter **/
             $('.add-filter',self.module).on('click',function(){
                 var ul = $('<ul class="list-select"></ul>');
@@ -352,7 +360,7 @@ Ceron.modules.Effects =  function(){
             $('input[name="'+i+'"]',transforms.list).val(transforms.use[i]);
         }
 
-        Form.InputSelect($('.opacity,.cursor',self.module));
+        Form.InputSelect($('.opacity,.cursor,.pointer-events',self.module));
 
         $('input[name="opacity"]',self.module).val(opacity);
     }

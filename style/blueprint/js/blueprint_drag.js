@@ -1,8 +1,9 @@
 Blueprint.classes.Drag = function(){
 	this.callbacks = [];
 	this.enable    = true;
+	this.sticking  = false;
 
-	var drag = {
+	this.drag = {
 		active: false,
 		start: {
 			x: 0,
@@ -20,49 +21,59 @@ Blueprint.classes.Drag = function(){
 
 	var self = this;
 
-	var stop = function(e){
-		drag.active = false;
+	var calcSticking = (e)=>{
+		var point = {
+			x: e.pageX,
+			y: e.pageY
+		}
 
-		self.callbacks = [];
+		if(this.sticking) point = Blueprint.Utility.checkSticking(this.sticking, point).point;
 
-		self.dispatchEvent({type: 'stop', drag: drag})
+		return point;
 	}
 
-	$(document).mouseup(stop).mousedown(function(e) {
-    	drag.start.x = e.pageX;
-    	drag.start.y = e.pageY;
 
-    	drag.move.x = e.pageX;
-    	drag.move.y = e.pageY;
+	$(document).mouseup((e)=>{
+		this.stop(e);
+	}).mousedown((e)=> {
+		var stic = calcSticking(e);
 
-		drag.active = true;
+    	this.drag.start.x = stic.x;
+    	this.drag.start.y = stic.y;
 
-		self.dispatchEvent({type: 'start', drag: drag})
-    }).mousemove(function(e) {
+    	this.drag.move.x = stic.x;
+    	this.drag.move.y = stic.y;
+
+		this.drag.active = true;
+
+		this.dispatchEvent({type: 'start', drag: this.drag})
+    }).mousemove((e)=> {
         var ww = window.innerWidth,
             wh = window.innerHeight;
 
-        if(drag.active && (e.pageY > wh-10 || e.pageY < 10 || e.pageX > ww-10 || e.pageX < 10)) stop(e)
+        var stic = calcSticking(e);
 
-        drag.dif = {
-    		x: drag.move.x - e.pageX,
-    		y: drag.move.y - e.pageY,
+        if(this.drag.active && (stic.y > wh-10 || stic.y < 10 || stic.x > ww-10 || stic.x < 10)) this.stop(e)
+
+        this.drag.dif = {
+    		x: this.drag.move.x - stic.x,
+    		y: this.drag.move.y - stic.y,
     	}
 
-    	drag.move.x = e.pageX;
-    	drag.move.y = e.pageY;
+    	this.drag.move.x = stic.x;
+    	this.drag.move.y = stic.y;
 
-        if(drag.active == false || !self.callbacks.length) return
+        if(this.drag.active == false || !this.callbacks.length) return
         else{
-        	self.dispatchEvent({type: 'drag', drag: drag})
+        	this.dispatchEvent({type: 'drag', drag: this.drag})
 
-        	if(self.enable){
-	            for(var i = 0; i < self.callbacks.length; i++){
-	            	self.callbacks[i](drag.dif, drag.start, drag.move)
+        	if(this.enable){
+	            for(var i = 0; i < this.callbacks.length; i++){
+	            	this.callbacks[i](this.drag.dif, this.drag.start, this.drag.move)
 	            }
 	        }
 
-	        self.dispatchEvent({type: 'drag-after', drag: drag})
+	        this.dispatchEvent({type: 'drag-after', drag: this.drag})
         }
     });
 }
@@ -70,6 +81,9 @@ Blueprint.classes.Drag = function(){
 Object.assign( Blueprint.classes.Drag.prototype, EventDispatcher.prototype, {
 	add: function(call){
 		this.callbacks.push(call)
+	},
+	get: function(){
+		return this.drag;
 	},
 	has: function(call){
 		if(this.callbacks.indexOf(call) >= 0) return true;
@@ -79,5 +93,16 @@ Object.assign( Blueprint.classes.Drag.prototype, EventDispatcher.prototype, {
 	},
 	clear: function(){
 		this.callbacks = [];
+	},
+	setSticking: function(sticking){
+		this.sticking = sticking;
+	},
+	stop: function(e){
+		this.drag.active = false;
+
+		this.callbacks = [];
+		this.sticking  = [];
+
+		this.dispatchEvent({type: 'stop', drag: this.drag})
 	}
 })

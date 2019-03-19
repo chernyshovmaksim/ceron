@@ -23,6 +23,8 @@ Blueprint.Initialization = {
 		Blueprint.Drag.addEventListener('start',function(event){
 			selectNode = false;
 
+			Blueprint.Render.sticking = Blueprint.Utility.getSticking();
+
 			//если зажата одна из клавиш
 			//то показывме мыделение
 			if(presed.shiftKey || presed.altKey || presed.ctrlKey){
@@ -116,7 +118,7 @@ Blueprint.Initialization = {
 					Blueprint.Data.get().nodes[node.uid] = node;
 
 					//создаем нод
-					Blueprint.Render.addNode(node.uid).create();
+					Blueprint.Render.addNode(node.uid).create(true);
 
 					Blueprint.Callback.Program.fireChangeEvent({type: 'dragCopy'});
 				}
@@ -141,9 +143,12 @@ Blueprint.Initialization = {
 							data: node.data
 						})
 
-						node.dragStart();
+						node.dragStart(true);
 					}
 				}
+
+				
+				Blueprint.Drag.setSticking(Blueprint.Utility.getStickingNodes(Blueprint.Selection.selection, event.drag.start));
 
 				//обновляем рендер
 				Blueprint.Render.update();
@@ -409,14 +414,25 @@ Blueprint.Initialization = {
 			node.addEventListener('drag',function(event){
 				var selection = Blueprint.Selection.selection;
 
+				//поздно каллбак приходит
+				//на ум пришло только это
+				var real_start = {
+					x: event.event.pageX,
+					y: event.event.pageY
+				};
+
+				Blueprint.Drag.setSticking(Blueprint.Utility.getStickingNodes(selection, real_start));
+
 				//есть более одного выделения
 				//а значит ташим их все
 				if(selection.length > 1){
+					this.group_drag = true;
+					
 					for(var i = 0; i < selection.length; i++){
 						var node = selection[i];
 
 						//естественно кроме себя так как уже добавлен эвент
-						if(node !== event.target) node.dragStart();
+						if(node !== event.target) node.dragStart(true);
 					}
 				}
 			})
@@ -514,12 +530,14 @@ Blueprint.Initialization = {
 				var h_size = helper.data.size;
 				var h_posi = helper.data.position;
 
+				this.group_drag = true;
+
 				for (var i = 0; i < Blueprint.Render.nodes.length; i++) {
 					var n_node = Blueprint.Render.nodes[i],
 						n_posi = n_node.data.position;
 
 					if(n_posi.x > h_posi.x && n_posi.x < h_posi.x + h_size.width  &&  n_posi.y > h_posi.y && n_posi.y < h_posi.y + h_size.height){
-						n_node.dragStart();
+						n_node.dragStart(true);
 					}
 				}
 			})
@@ -535,18 +553,27 @@ Blueprint.Initialization = {
 		//если в меню был выбран нод то создаем его
 		Blueprint.Callback.Menu.addEventListener('select',function(event){
 			if(has_focus){
-				var cur  = event.cursor || cursor;
 
+				//получаем реальный курсор
+				var cur_set  = Arrays.clone(event.cursor || cursor);
+				//конвертим в вьюпорт
+				var cru_rel  = Blueprint.Utility.getViewportPoint(cur_set);
+				//находим где бы разместить красиво
+				var cur_ofs  = Blueprint.Utility.getStickingVertical(cru_rel);
+
+				//если есть такой, то смешаем позицию
+				if(cur_ofs !== null) cru_rel.y = cur_ofs;
+
+				//дата
 				var node = {
 					worker: event.name,
-					position: {
-						x: cur.x,
-						y: cur.y
-					}
+					position: cru_rel
 				}
 
-				Arrays.extend(node,event.data);
+				//если есть дополнительные данные
+				Arrays.extend(node, event.data);
 
+				//создаем нод
 				Blueprint.Render.newNode(node);
 			}
 		})
@@ -643,6 +670,8 @@ Blueprint.Initialization = {
 		})
 
 		Blueprint.Render.update();
+
+		Blueprint.Render.sticking = Blueprint.Utility.getSticking();
 	},
 
 	//после установки данных и классов, создаем ноды

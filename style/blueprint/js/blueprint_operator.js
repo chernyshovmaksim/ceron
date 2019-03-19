@@ -42,11 +42,23 @@ Blueprint.classes.Operator.prototype = {
 
 		return value;
 	},
+	getDefaultFromWorker: function(entrance,name){
+		var value = '';
+
+		try{
+			value = this.worker.params.vars[entrance][name].value;
+
+			if(value == undefined) value = '';
+		}
+		catch(e){ }
+
+		return value;
+	},
 	/** Вытавскивае значение у родителей **/
 	getValue: function(name,getDefault){
 		var values = [];
 
-		var defaultValue = this.getDefault('input',name);
+		var defaultValue = this.getDefault('input',name) || this.getDefaultFromWorker('input',name);
 
 		for(var i = 0 ; i < this.data.parents.length; i++){
 			var parent = this.data.parents[i];

@@ -28,7 +28,7 @@
             <div>
                 <!--<span onclick="abount()">Помощь</span>-->
                 <span class="open-update">О программе</span>
-                <!--<span class="buy-and-activated">Покупка и активация</span>-->
+                <!--<span class="buy-and-activated">Подписка Ceron</span>-->
 
                 <span class="line"></span>
 
@@ -37,7 +37,15 @@
         </li>
     </ul>
 
-    <div class="pull-left ceron-conection m-l-10" style="margin-top: 2px" data-toggle="tooltip" title="Подключение к сети" data-placement="bottom"><img src="style/img/load.svg"></div>
+    <div class="layer-head pull-left">
+        <div class="item c-conection">
+            <img src="style/img/load.svg"><span class="m-l-5">Подключение к сети ...</span>
+        </div>
+
+        <div class="item c-noconection cursor-pointer c-try-again">
+            <img src="style/img/no-connect-network.png"><span class="m-l-5">Нет подключения к сети</span>
+        </div>
+    </div>
     
     <ul class="layer-menu pull-right">
         <li class="project-opened">Проект: <span></span></li>

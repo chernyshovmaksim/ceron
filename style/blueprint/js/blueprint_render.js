@@ -2,12 +2,13 @@ Blueprint.classes.Render = function(){
 	this.nodes = [];
 	this.lines = [];
 
-	this.helpers = [];
+	this.helpers  = [];
+	this.sticking = [];
 
 	this.can = document.getElementById("blueprint-canvas");
 	this.ctx = this.can.getContext("2d");
 
-	this.can.width = window.innerWidth;
+	this.can.width  = window.innerWidth;
 	this.can.height = window.innerHeight;
 
 	$(window).resize(this.resize.bind(this));
@@ -90,8 +91,8 @@ Object.assign( Blueprint.classes.Render.prototype, EventDispatcher.prototype, {
 			}
 		}
 
-		option.position.x = option.position.x / Blueprint.Viewport.scale - Blueprint.Viewport.position.x;
-		option.position.y = option.position.y / Blueprint.Viewport.scale - Blueprint.Viewport.position.y;
+		//option.position.x = option.position.x / Blueprint.Viewport.scale - Blueprint.Viewport.position.x;
+		//option.position.y = option.position.y / Blueprint.Viewport.scale - Blueprint.Viewport.position.y;
         
         var data = $.extend(defaults,option,{
             uid: uid,

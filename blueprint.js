@@ -23,6 +23,8 @@ Blueprint.Initialization = {
 		Blueprint.Drag.addEventListener('start',function(event){
 			selectNode = false;
 
+			Blueprint.Render.sticking = Blueprint.Utility.getSticking();
+
 			//если зажата одна из клавиш
 			//то показывме мыделение
 			if(presed.shiftKey || presed.altKey || presed.ctrlKey){
@@ -116,7 +118,7 @@ Blueprint.Initialization = {
 					Blueprint.Data.get().nodes[node.uid] = node;
 
 					//создаем нод
-					Blueprint.Render.addNode(node.uid).create();
+					Blueprint.Render.addNode(node.uid).create(true);
 
 					Blueprint.Callback.Program.fireChangeEvent({type: 'dragCopy'});
 				}
@@ -141,9 +143,12 @@ Blueprint.Initialization = {
 							data: node.data
 						})
 
-						node.dragStart();
+						node.dragStart(true);
 					}
 				}
+
+				
+				Blueprint.Drag.setSticking(Blueprint.Utility.getStickingNodes(Blueprint.Selection.selection, event.drag.start));
 
 				//обновляем рендер
 				Blueprint.Render.update();
@@ -409,14 +414,25 @@ Blueprint.Initialization = {
 			node.addEventListener('drag',function(event){
 				var selection = Blueprint.Selection.selection;
 
+				//поздно каллбак приходит
+				//на ум пришло только это
+				var real_start = {
+					x: event.event.pageX,
+					y: event.event.pageY
+				};
+
+				Blueprint.Drag.setSticking(Blueprint.Utility.getStickingNodes(selection, real_start));
+
 				//есть более одного выделения
 				//а значит ташим их все
 				if(selection.length > 1){
+					this.group_drag = true;
+					
 					for(var i = 0; i < selection.length; i++){
 						var node = selection[i];
 
 						//естественно кроме себя так как уже добавлен эвент
-						if(node !== event.target) node.dragStart();
+						if(node !== event.target) node.dragStart(true);
 					}
 				}
 			})
@@ -514,12 +530,14 @@ Blueprint.Initialization = {
 				var h_size = helper.data.size;
 				var h_posi = helper.data.position;
 
+				this.group_drag = true;
+
 				for (var i = 0; i < Blueprint.Render.nodes.length; i++) {
 					var n_node = Blueprint.Render.nodes[i],
 						n_posi = n_node.data.position;
 
 					if(n_posi.x > h_posi.x && n_posi.x < h_posi.x + h_size.width  &&  n_posi.y > h_posi.y && n_posi.y < h_posi.y + h_size.height){
-						n_node.dragStart();
+						n_node.dragStart(true);
 					}
 				}
 			})
@@ -535,18 +553,27 @@ Blueprint.Initialization = {
 		//если в меню был выбран нод то создаем его
 		Blueprint.Callback.Menu.addEventListener('select',function(event){
 			if(has_focus){
-				var cur  = event.cursor || cursor;
 
+				//получаем реальный курсор
+				var cur_set  = Arrays.clone(event.cursor || cursor);
+				//конвертим в вьюпорт
+				var cru_rel  = Blueprint.Utility.getViewportPoint(cur_set);
+				//находим где бы разместить красиво
+				var cur_ofs  = Blueprint.Utility.getStickingVertical(cru_rel);
+
+				//если есть такой, то смешаем позицию
+				if(cur_ofs !== null) cru_rel.y = cur_ofs;
+
+				//дата
 				var node = {
 					worker: event.name,
-					position: {
-						x: cur.x,
-						y: cur.y
-					}
+					position: cru_rel
 				}
 
-				Arrays.extend(node,event.data);
+				//если есть дополнительные данные
+				Arrays.extend(node, event.data);
 
+				//создаем нод
 				Blueprint.Render.newNode(node);
 			}
 		})
@@ -643,6 +670,8 @@ Blueprint.Initialization = {
 		})
 
 		Blueprint.Render.update();
+
+		Blueprint.Render.sticking = Blueprint.Utility.getSticking();
 	},
 
 	//после установки данных и классов, создаем ноды
@@ -825,8 +854,9 @@ Object.assign( Blueprint.classes.Data.prototype, EventDispatcher.prototype, {
 Blueprint.classes.Drag = function(){
 	this.callbacks = [];
 	this.enable    = true;
+	this.sticking  = false;
 
-	var drag = {
+	this.drag = {
 		active: false,
 		start: {
 			x: 0,
@@ -844,49 +874,59 @@ Blueprint.classes.Drag = function(){
 
 	var self = this;
 
-	var stop = function(e){
-		drag.active = false;
+	var calcSticking = (e)=>{
+		var point = {
+			x: e.pageX,
+			y: e.pageY
+		}
 
-		self.callbacks = [];
+		if(this.sticking) point = Blueprint.Utility.checkSticking(this.sticking, point).point;
 
-		self.dispatchEvent({type: 'stop', drag: drag})
+		return point;
 	}
 
-	$(document).mouseup(stop).mousedown(function(e) {
-    	drag.start.x = e.pageX;
-    	drag.start.y = e.pageY;
 
-    	drag.move.x = e.pageX;
-    	drag.move.y = e.pageY;
+	$(document).mouseup((e)=>{
+		this.stop(e);
+	}).mousedown((e)=> {
+		var stic = calcSticking(e);
 
-		drag.active = true;
+    	this.drag.start.x = stic.x;
+    	this.drag.start.y = stic.y;
 
-		self.dispatchEvent({type: 'start', drag: drag})
-    }).mousemove(function(e) {
+    	this.drag.move.x = stic.x;
+    	this.drag.move.y = stic.y;
+
+		this.drag.active = true;
+
+		this.dispatchEvent({type: 'start', drag: this.drag})
+    }).mousemove((e)=> {
         var ww = window.innerWidth,
             wh = window.innerHeight;
 
-        if(drag.active && (e.pageY > wh-10 || e.pageY < 10 || e.pageX > ww-10 || e.pageX < 10)) stop(e)
+        var stic = calcSticking(e);
 
-        drag.dif = {
-    		x: drag.move.x - e.pageX,
-    		y: drag.move.y - e.pageY,
+        if(this.drag.active && (stic.y > wh-10 || stic.y < 10 || stic.x > ww-10 || stic.x < 10)) this.stop(e)
+
+        this.drag.dif = {
+    		x: this.drag.move.x - stic.x,
+    		y: this.drag.move.y - stic.y,
     	}
 
-    	drag.move.x = e.pageX;
-    	drag.move.y = e.pageY;
+    	this.drag.move.x = stic.x;
+    	this.drag.move.y = stic.y;
 
-        if(drag.active == false || !self.callbacks.length) return
+        if(this.drag.active == false || !this.callbacks.length) return
         else{
-        	self.dispatchEvent({type: 'drag', drag: drag})
+        	this.dispatchEvent({type: 'drag', drag: this.drag})
 
-        	if(self.enable){
-	            for(var i = 0; i < self.callbacks.length; i++){
-	            	self.callbacks[i](drag.dif, drag.start, drag.move)
+        	if(this.enable){
+	            for(var i = 0; i < this.callbacks.length; i++){
+	            	this.callbacks[i](this.drag.dif, this.drag.start, this.drag.move)
 	            }
 	        }
 
-	        self.dispatchEvent({type: 'drag-after', drag: drag})
+	        this.dispatchEvent({type: 'drag-after', drag: this.drag})
         }
     });
 }
@@ -894,6 +934,9 @@ Blueprint.classes.Drag = function(){
 Object.assign( Blueprint.classes.Drag.prototype, EventDispatcher.prototype, {
 	add: function(call){
 		this.callbacks.push(call)
+	},
+	get: function(){
+		return this.drag;
 	},
 	has: function(call){
 		if(this.callbacks.indexOf(call) >= 0) return true;
@@ -903,6 +946,17 @@ Object.assign( Blueprint.classes.Drag.prototype, EventDispatcher.prototype, {
 	},
 	clear: function(){
 		this.callbacks = [];
+	},
+	setSticking: function(sticking){
+		this.sticking = sticking;
+	},
+	stop: function(e){
+		this.drag.active = false;
+
+		this.callbacks = [];
+		this.sticking  = [];
+
+		this.dispatchEvent({type: 'stop', drag: this.drag})
 	}
 })
 Blueprint.classes.Helper = function(uid){
@@ -959,7 +1013,7 @@ Object.assign( Blueprint.classes.Helper.prototype, EventDispatcher.prototype, {
 			else{
 				self.dragStart();
 
-				self.dispatchEvent({type: 'drag'});
+				self.dispatchEvent({type: 'drag',event: event});
 			}
 		});
 
@@ -997,7 +1051,9 @@ Object.assign( Blueprint.classes.Helper.prototype, EventDispatcher.prototype, {
 	remove: function(){
 		this.node.remove();
 	},
-	dragStart: function(){
+	dragStart: function(group_drag){
+		this.group_drag = group_drag;
+
 		this.position.x = this.data.position.x;
 		this.position.y = this.data.position.y;
 
@@ -1008,16 +1064,18 @@ Object.assign( Blueprint.classes.Helper.prototype, EventDispatcher.prototype, {
 	dragRemove: function(){
 		Blueprint.Drag.remove(this.dragCall);
 	},
-	drag: function(dif){
-		this.position.x -= dif.x / Blueprint.Viewport.scale;
-		this.position.y -= dif.y / Blueprint.Viewport.scale;
+	drag: function(dif, move, start){
+		var snap = {};
 
-		var snap = {
-			x: this.position.x,
-			y: this.position.y
+		snap.x = this.position.x - (move.x - start.x) / Blueprint.Viewport.scale;
+		snap.y = this.position.y - (move.y - start.y) / Blueprint.Viewport.scale;
+
+		if(this.group_drag){
+			this.data.position = snap;
 		}
-
-		this.data.position = Blueprint.Utility.snapPosition(snap)
+		else{
+			this.data.position = Blueprint.Utility.snapPosition(snap)
+		}
 
 		this.setPosition();
 	},
@@ -1475,8 +1533,8 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 			add: add
 		})
 	},
-	create: function(){
-		this.data.position = Blueprint.Utility.snapPosition(this.data.position);
+	create: function(nosnap){
+		if(!nosnap) this.data.position = Blueprint.Utility.snapPosition(this.data.position);
 
 		this.setPosition();
 
@@ -1661,7 +1719,7 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 				else{
 					self.dragStart();
 
-					self.dispatchEvent({type: 'drag'});
+					self.dispatchEvent({type: 'drag',event: event});
 				}
 			}
 		});
@@ -1695,7 +1753,9 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 
 		this.dispatchEvent({type: 'remove', uid: self.uid});
 	},
-	dragStart: function(){
+	dragStart: function(group_drag){
+		this.group_drag = group_drag;
+
 		this.position.x = this.data.position.x;
 		this.position.y = this.data.position.y;
 
@@ -1706,16 +1766,19 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 	dragRemove: function(){
 		Blueprint.Drag.remove(this.dragCall);
 	},
-	drag: function(dif){
-		this.position.x -= dif.x / Blueprint.Viewport.scale;
-		this.position.y -= dif.y / Blueprint.Viewport.scale;
+	drag: function(dif, move, start){
+		var snap = {};
 
-		var snap = {
-			x: this.position.x,
-			y: this.position.y
+		snap.x = this.position.x - (move.x - start.x) / Blueprint.Viewport.scale;
+		snap.y = this.position.y - (move.y - start.y) / Blueprint.Viewport.scale;
+
+		
+		if(this.group_drag){
+			this.data.position = snap;
 		}
-
-		this.data.position = Blueprint.Utility.snapPosition(snap)
+		else{
+			this.data.position = Blueprint.Utility.snapPosition(snap)
+		}
 
 		this.setPosition();
 	},
@@ -1803,11 +1866,23 @@ Blueprint.classes.Operator.prototype = {
 
 		return value;
 	},
+	getDefaultFromWorker: function(entrance,name){
+		var value = '';
+
+		try{
+			value = this.worker.params.vars[entrance][name].value;
+
+			if(value == undefined) value = '';
+		}
+		catch(e){ }
+
+		return value;
+	},
 	/** Вытавскивае значение у родителей **/
 	getValue: function(name,getDefault){
 		var values = [];
 
-		var defaultValue = this.getDefault('input',name);
+		var defaultValue = this.getDefault('input',name) || this.getDefaultFromWorker('input',name);
 
 		for(var i = 0 ; i < this.data.parents.length; i++){
 			var parent = this.data.parents[i];
@@ -2076,7 +2151,8 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 							'</div>',
 							'<div>',
 								'<div class="form-input">',
-                                    '<input type="text" name="background-position" value="" disabled placeholder="'+(params.placeholder || (params.name || name))+'" />',
+                                    '<input type="'+(params.inputType || 'text')+'" name="background-position" autocomplete="off value="" disabled placeholder="'+(params.placeholder || (params.name || name))+'" />',
+                                    '<ul class="drop up icons"><li class="clear"><img src="style/img/icons-panel/delete.png" alt=""></li></ul>',
                                 '</div>',
 							'</div>',
                         '</div>',
@@ -2094,15 +2170,23 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 			                input.val(file)
 			            },nw.path.dirname(Functions.LocalPath(path)))
 			        });
+
+			        $('.clear',html).on('click',function(){
+			        	event.target.setValue(entrance, name, '');
+
+			        	input.val('')
+			        })
 				}
 				else{
 					html = $([
 						'<div class="m-b-5">',
 	                        '<div class="form-input">',
-	                            '<input type="text" name="'+name+'" value="'+event.target.getValue(entrance, name)+'" placeholder="'+(params.placeholder || (params.name || name))+'" />',
+	                            '<input type="'+(params.inputType || 'text')+'" name="'+name+'" value="" autocomplete="new-password" placeholder="'+(params.placeholder || (params.name || name))+'" />',
 	                        '</div>',
 		                '</div>',
-					].join(''))
+					].join(''));
+
+					$('input',html).val(event.target.getValue(entrance, name));
 
 					var change = function(inputName, inputValue){
 						if(inputValue == undefined) inputValue= '';
@@ -2435,12 +2519,13 @@ Blueprint.classes.Render = function(){
 	this.nodes = [];
 	this.lines = [];
 
-	this.helpers = [];
+	this.helpers  = [];
+	this.sticking = [];
 
 	this.can = document.getElementById("blueprint-canvas");
 	this.ctx = this.can.getContext("2d");
 
-	this.can.width = window.innerWidth;
+	this.can.width  = window.innerWidth;
 	this.can.height = window.innerHeight;
 
 	$(window).resize(this.resize.bind(this));
@@ -2523,8 +2608,8 @@ Object.assign( Blueprint.classes.Render.prototype, EventDispatcher.prototype, {
 			}
 		}
 
-		option.position.x = option.position.x / Blueprint.Viewport.scale - Blueprint.Viewport.position.x;
-		option.position.y = option.position.y / Blueprint.Viewport.scale - Blueprint.Viewport.position.y;
+		//option.position.x = option.position.x / Blueprint.Viewport.scale - Blueprint.Viewport.position.x;
+		//option.position.y = option.position.y / Blueprint.Viewport.scale - Blueprint.Viewport.position.y;
         
         var data = $.extend(defaults,option,{
             uid: uid,
@@ -2720,7 +2805,9 @@ Object.assign( Blueprint.classes.Shortcut.prototype, EventDispatcher.prototype, 
 	}
 })
 Blueprint.Utility = {
-	 uid: function(len){
+    sticking_ammount: 8,
+
+	uid: function(len){
         var ALPHABET  = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         var ID_LENGTH = len || 8;
 
@@ -2765,13 +2852,208 @@ Blueprint.Utility = {
     },
 
     snapPosition: function(position,size){
-    	if(Blueprint.snaped){
-			position.x = Blueprint.Utility.snapValue(position.x)
-			position.y = Blueprint.Utility.snapValue(position.y)
-    	}
+        if(Blueprint.snaped){
+            var stick = this.checkSticking(Blueprint.Render.sticking, position, size);
+
+            if(stick.sticked){
+                position.x = stick.point.x;
+                position.y = stick.point.y;
+            }
+            else{
+                position.x = Blueprint.Utility.snapValue(position.x)
+                position.y = Blueprint.Utility.snapValue(position.y)
+            }
+        }
 
     	return position;
     },
+
+    getNodesConner: function(nodes){
+        var box = {
+            x: Infinity,
+            y: Infinity,
+        }
+
+        for(var i = 0; i < nodes.length; i++){
+            var node = nodes[i],
+                posi = node.data.position;
+
+            box.x = Math.min(box.x, posi.x);
+            box.y = Math.min(box.y, posi.y);
+        }
+
+        return box;
+    },
+
+    getViewportPoint: function(position){
+        return {
+            x: position.x / Blueprint.Viewport.scale - Blueprint.Viewport.position.x,
+            y: position.y / Blueprint.Viewport.scale - Blueprint.Viewport.position.y
+        }
+    },
+
+    getScreenPoint: function(position){
+        return {
+            x: position.x * Blueprint.Viewport.scale + Blueprint.Viewport.position.x,
+            y: position.y * Blueprint.Viewport.scale + Blueprint.Viewport.position.y,
+        }
+    },
+
+    getStickingNodes: function(select, start){
+        var diff = {};
+
+        //получаем реальную точку в вьюпорте
+        var poin = this.getViewportPoint(start);
+
+        //вычисляем левый верхний угол
+        var conr = this.getNodesConner(select);
+
+        //где реально находится угол на экране
+        var scrn = this.getScreenPoint(conr)
+
+        //разница между вьюпортом и экраном
+        var offt = {
+            x: conr.x - scrn.x,
+            y: conr.y - scrn.y
+        }
+        
+        //разница между курсором, углом и экраном
+        diff.x = conr.x - poin.x + offt.x;
+        diff.y = conr.y - poin.y + offt.y;
+
+        return this.getSticking(diff);
+    },
+
+    getSticking: function(differ){
+        var dif = differ ? differ : {x: 0, y: 0};
+
+        //дальше самое интресное
+        var sticking = [];
+
+        var node, point;
+
+        //надо найти линии 
+        for (var i = 0; i < Blueprint.Render.nodes.length; i++) {
+            node = Blueprint.Render.nodes[i];
+
+            point = node.data.position;
+
+            //добовляем линии
+            //линия |
+            sticking.push({
+                pos: point.x - dif.x, 
+                dir: 'y',
+                node: node, 
+                dif: dif
+            });
+            //линия | + width
+            sticking.push({
+                pos: point.x + node.node.outerWidth() - dif.x, 
+                dir: 'y',
+                node: node, 
+                dif: dif
+            });
+
+            //линия --
+            sticking.push({
+                pos: point.y - dif.y, 
+                dir: 'x',
+                node: node, 
+                dif: dif
+            });
+
+            //линия -- + height
+            sticking.push({
+                pos: point.y + node.node.outerHeight() - dif.y, 
+                dir: 'x',
+                node: node, 
+                dif: dif
+            });
+
+            //линия -- + height / 2
+            sticking.push({
+                pos: point.y + node.node.outerHeight() / 2 - dif.y, 
+                dir: 'x',
+                node: node, 
+                dif: dif
+            });
+        }
+
+        return sticking;
+    },
+
+    getStickingHeight: function(differ){
+        var dif = differ ? differ : {x: 0, y: 0};
+
+        //дальше самое интресное
+        var sticking = [];
+
+        var node, point;
+
+        //надо найти линии 
+        for (var i = 0; i < Blueprint.Render.nodes.length; i++) {
+            node = Blueprint.Render.nodes[i];
+
+            point = node.data.position;
+
+            //линия --
+            sticking.push({
+                pos: point.y - dif.y, 
+                node: node, 
+                height: node.node.outerHeight(),
+                dif: dif
+            });
+        }
+
+        return sticking;
+    },
+
+    getStickingVertical: function(point, differ){
+        var sticks = this.getStickingHeight(differ);
+        var found  = null;
+
+        sticks.sort(function(a,b){
+            if(a.height > b.height) return -1;
+            else if(a.height < b.height) return 1;
+            else return 0;
+        });
+
+        for (var i = 0; i < sticks.length; i++) {
+            var stick = sticks[i];
+
+            if(point.y >= stick.pos && point.y <= stick.pos + stick.height){
+                found = stick.pos;
+            }
+        }
+
+        return found;
+    },
+
+    checkSticking: function(sticking, point, ammount){
+        var st,dr,tr,cr = {
+            x: (point.pageX || point.left || point.x),
+            y: (point.pageY || point.top || point.y)
+        };
+
+        var power = ammount || this.sticking_ammount;
+
+        for (var i = 0; i < sticking.length; i++) {
+            st = sticking[i];
+            dr = st.dir == 'x' ? 'y' : 'x';
+
+            if(cr[dr] > st.pos - power && cr[dr] < st.pos + power ){
+                cr[dr] = st.pos;
+
+                tr = st;
+            }
+        }
+
+        return {
+            sticked: tr,
+            point: cr
+        };
+    },
+
     onChange: function(input){
         var change = false;
 
@@ -3174,6 +3456,60 @@ Blueprint.Worker.add('css_custom_font',{
 					displayInTitle: true,
 				},
 
+				display: {
+					name: 'Display',
+					color: '#ddd',
+					value: 'swap',
+					display: true,
+					type: function(entrance, group, fieldname, params, event){
+						var select = $([
+							'<select class="form-select m-b-5">',
+								'<option value="auto">Auto</option>',
+								'<option value="block">Block</option>',
+								'<option value="swap">Swap</option>',
+								'<option value="fallback">Fallback</option>',
+								'<option value="optional">Optional</option>',
+							'</select>'
+						].join(''))
+
+						select.val(event.target.getValue(entrance, fieldname));
+
+						select.on('change', function(){
+							event.target.setValue(entrance, fieldname, $(this).val());
+						});
+
+						return select;
+					}
+				},
+
+				local: {
+					name: 'Local',
+					color: '#ddd',
+					value: 'false',
+					type: function(entrance, group, fieldname, params, event){
+						var field = $([
+							'<div class="form-field form-field-space form-field-align-center">',
+								'<div>Локальные шрифты:</div>',
+								'<div>',
+									'<ul class="form-radio">',
+                                        '<li name="false"><img src="style/img/icons/none.png" alt=""></li>',
+                                        '<li name="true"><img src="style/img/icons/ok.png" alt=""></li>',
+                                    '</ul>',
+								'</div>',
+							'</div>',
+							'<div class="form-divider"></div>'
+						].join(''));
+
+						Form.RadioChangeEvent($('.form-radio',field),function(value){
+							event.target.setValue(entrance, fieldname, value);
+						});
+
+						Form.RadioSetValue($('.form-radio',field),event.target.getValue(entrance, fieldname));
+
+						return field;
+					}
+				},
+
 				Thin: {
 					name: '100 Thin',
 					color: '#ddd',
@@ -3300,7 +3636,7 @@ Blueprint.Worker.add('css_custom_font',{
 		init: function(event){
 			event.target.addEventListener('setValue',function(e){
 				if(e.name !== 'name'){
-					if(!this.getValue('input', e.name)){
+					if(!this.getValue('input', e.name) && e.value){
 						this.setValue('input', e.name, parent.Blueprint.Worker.get('css_custom_font').working.name(e.value));
 
 						this.showOptionAgain();
@@ -3328,7 +3664,9 @@ Blueprint.Worker.add('css_custom_font',{
 			
 		},
 		build: function(){
-			var font_name = this.getValue('name',true).join('');
+			var font_name    = this.getValue('name',true).join('');
+			var font_display = this.getValue('display',true).join('');
+			var font_local   = this.getValue('local',true).join('') == 'true';
 
 			var weights = {
 		        'Thin': '100',
@@ -3387,6 +3725,12 @@ Blueprint.Worker.add('css_custom_font',{
 		    	var style  = /Italic/.test(name) ? 'italic' : 'normal';
 		    	var urls   = [];
 
+		    	if(font_local){
+		    		urls.push('local("'+font_name+' '+name+'")');
+		    		urls.push('local("'+font_name+'-'+name+'")');
+		    	}
+		    	
+
 		    	for(var fr in formats){
 		    		var newPath = folder + '.' + fr;
 
@@ -3398,9 +3742,9 @@ Blueprint.Worker.add('css_custom_font',{
 				var font = [
 					'@font-face {',
 					    '	font-family: "' + font_name + '";',
+					    '	font-display: ' + font_display + ';',
 					    '	src: ',
-					    //'	src: local("' + font_name + '"), local("'+font_name+'-'+name+'"),',
-					    '	'+urls.join(",\n    ")+';',
+					    '		'+urls.join(",\n    	")+';',
 					    '	font-weight: '+weight+';',
 					    '	font-style: '+style+';',
 					'}',
@@ -3542,14 +3886,35 @@ Blueprint.Worker.add('css_result',{
 		saturation: 'hsl(212, 100%, 65%)',
 		alpha: 0.58,
 		category: 'css',
-		type: 'round',
 		vars: {
 			input: {
-				
+				list: {
+					name: 'list',
+					color: '#fdbe00',
+					disableChange: true
+				},
 			},
 			output: {
 				output: {
+					name: 'all',
+					color: '#ddd',
+					varType: 'round',
 					disableChange: true
+				},
+				main: {
+					name: 'main',
+					color: '#ddd',
+					disableChange: true,
+				},
+				cascade: {
+					name: 'cascade',
+					color: '#ddd',
+					disableChange: true,
+				},
+				media: {
+					name: 'media',
+					color: '#ddd',
+					disableChange: true,
 				},
 			}
 		},
@@ -3571,7 +3936,19 @@ Blueprint.Worker.add('css_result',{
 		},
 		
 		build: function(){
-			this.setValue('output', Generators.Build.Css(true));
+			var lis = this.getValue('list');
+			var any = this.isAnyTrue(lis);
+			
+			var css = Generators.Build.Css(true,{
+				toObject: true,
+				list: any ? lis : false
+			});
+
+			this.setValue('main', css.main);
+			this.setValue('cascade', css.cascade);
+			this.setValue('media', css.media);
+
+			this.setValue('output', [css.main, css.cascade, css.media].join("\n"));
 		},
 	}
 });
@@ -3891,7 +4268,7 @@ Blueprint.Worker.add('file_save',{
 			var result = this.getValue('input').join(''),
 				path   = this.getValue('path',true).join('');
 
-			if(Blueprint.Program._start_save && Ceron.connected){
+			if(Blueprint.Program._start_save){
 				try{
 					nw.file.writeFileSync(Functions.LocalPath(path), result, 'utf8');
 				}
@@ -4022,6 +4399,7 @@ Blueprint.Worker.add('ftpsync',{
 				password: {
 					name: 'user password',
 					color: '#ddd',
+					inputType: 'password'
 				},
 				ftp_folder: {
 					name: 'folder ftp',
@@ -4071,10 +4449,13 @@ Blueprint.Worker.add('ftpsync',{
 			
 		},
 		build: function(){
+			var ftpuid = this.data.uid;
 			var change = Blueprint.Utility.onChange(this.getValue('change',true));
 
-			if(Ceron.cache.ftpsync !== undefined && !Ceron.cache.ftpsync && change){
-				Ceron.cache.ftpsync = true;
+			if(Ceron.cache.ftpsync == undefined) Ceron.cache.ftpsync = {};
+
+			if(Ceron.cache.ftpsync[ftpuid] !== undefined && !Ceron.cache.ftpsync[ftpuid].wait && change){
+				Ceron.cache.ftpsync[ftpuid].wait = true;
 
 				var name     = this.getValue('name').join('');
 				var execFile = require('child_process').execFile;
@@ -4088,6 +4469,29 @@ Blueprint.Worker.add('ftpsync',{
 					LastSyncGood: this.data.userData.lastTime
 				}
 
+				if(config.Passwd){
+					Ceron.cache.ftpsync[ftpuid].pass = config.Passwd;
+				}
+				else if(Ceron.cache.ftpsync[ftpuid].pass){
+					config.Passwd = Ceron.cache.ftpsync[ftpuid].pass;
+				}
+
+				if(!config.IP){
+					Console.Add({message: 'FTP Sync', stack: 'Укажите IP сервера'});
+				}
+				else if(!config.Login){
+					Console.Add({message: 'FTP Sync', stack: 'Укажите логин'});
+				}
+				else if(!config.Passwd){
+					Console.Add({message: 'FTP Sync', stack: 'Укажите пароль'});
+				}
+
+				if(!config.IP || !config.Login || !config.Passwd){
+					Ceron.cache.ftpsync[ftpuid].wait = false;
+
+					return;
+				} 
+
 				var json = JSON.stringify(config);
 				var base = btoa(json);
 
@@ -4097,7 +4501,7 @@ Blueprint.Worker.add('ftpsync',{
 
 		        var spawn = require('child_process').spawn;
 
-		        var total = upload = 0, errors = [];
+		        var total = 0, upload = 0, errors = [];
 
 		        var parse = (data) => {
 		        	data = data.trim();
@@ -4146,29 +4550,40 @@ Blueprint.Worker.add('ftpsync',{
 						proces.error();
 					}
 		        }
-				
-				var ls = spawn('worker/ftpsync/FtpSync.exe',['base64',base]);
 
-					ls.stdout.on('data', (data) => {
-						(data + '').split("\n").map(parse);
-					});
+		        setTimeout(()=>{
+					var ls = spawn('worker/ftpsync/FtpSync.exe',['base64',base]);
 
-					ls.stderr.on('data', (data) => {
-						console.log(`stderr: ${data}`);
+						ls.stdout.on('data', (data) => {
+							(data + '').split("\n").map(parse);
+						});
 
-						proces.error();
-					});
+						ls.stderr.on('data', (data) => {
+							proces.error();
+						});
 
-					ls.on('close', (code) => {
-						Ceron.cache.ftpsync = false;
-					});
+						ls.on('close', (code) => {
+							Ceron.cache.ftpsync[ftpuid].wait = false;
+						});
+
+				},1000);
+
+				//надо чистить пароль
+				//а то не хорошо хранить его
+				try{
+					this.data.varsData.input.password = '';
+				}
+				catch(e){}
 			}
 
-			if(Ceron.cache.ftpsync == undefined){
+			if(Ceron.cache.ftpsync[ftpuid] == undefined){
 				//а то несколько раз срабатывает
 				//поэтому таймер поможет!
 				setTimeout(()=>{
-					Ceron.cache.ftpsync = false;
+					Ceron.cache.ftpsync[ftpuid] = {
+						wait: false,
+						pass: ''
+					};
 				},1000);
 			}
 		}
@@ -4499,6 +4914,66 @@ Blueprint.Worker.add('join_reverse',{
 		}
 	}
 });
+Blueprint.Worker.add('list',{
+	params: {
+		name: 'String to list',
+		description: 'Разбивает строку на список',
+		saturation: 'hsl(35, 89%, 40%)',
+		alpha: 0.85,
+		category: 'all',
+		type: 'round',
+		vars: {
+			input: {
+
+			},
+			output: {
+				output: {
+					color: '#fdbe00',
+					varType: 'round',
+					enableChange: true,
+					type: function(entrance, group, name, params, event){
+						var input = $([
+							'<div class="form-input">',
+								'<textarea rows="6" name="'+name+'" placeholder="" />',
+                            '</div>',
+						].join(''))
+
+						Form.InputChangeEvent(input,function(name,value){
+							event.target.setValue(entrance, name, value);
+						},function(name,value){
+							event.target.setValue(entrance, name, '');
+						})
+
+						input.find('textarea').val(event.target.getValue(entrance, name) || '');
+
+						return input;
+					}
+				}
+			}
+		},
+	},
+	on: {
+		create: function(){
+			
+		},
+		remove: function(){
+
+		},
+		init: function(event){
+			
+		}
+	},
+	working: {
+		start: function(){
+			
+		},
+		build: function(){
+			var str = this.getDefault('output', 'output');
+			
+			this.setValue('output', str.trim().split("\n"));
+		}
+	}
+});
 Blueprint.Worker.add('merge',{
 	params: {
 		name: 'Merge',
@@ -4773,6 +5248,67 @@ Blueprint.Worker.add('output',{
 		}
 	}
 });
+Blueprint.Worker.add('regex',{
+	params: {
+		name: 'Regexp',
+		description: 'Находит и заменяет',
+		saturation: 'hsl(197, 98%, 83%)',
+		alpha: 0.42,
+		category: 'all',
+		vars: {
+			input: {
+				input: {
+					name: '',
+					color: '#ddd',
+				},
+				find: {
+					name: 'find',
+					color: '#ddd',
+					placeholder: 'Что найти'
+				},
+				replace: {
+					name: 'replace',
+					color: '#ddd',
+					placeholder: 'На что заменить'
+				},
+				flag: {
+					name: 'flag',
+					color: '#ddd',
+					value: 'gi'
+				},
+			},
+			output: {
+				output: {
+					name: '',
+					color: '#ddd'
+				},
+			}
+		},
+	},
+	on: {
+		create: function(){
+			
+		},
+		remove: function(){
+
+		}
+	},
+	working: {
+		start: function(){
+			
+		},
+		build: function(){
+			var input   = this.getValue('input',true).join('');
+			var find    = this.getValue('find',true).join('');
+			var replace = this.getValue('replace',true).join('');
+			var flag    = this.getValue('flag',true).join('');
+
+			input = input.replace(new RegExp(find, flag), replace);
+
+			this.setValue('output', input);
+		}
+	}
+});
 Blueprint.Worker.add('replace',{
 	params: {
 		name: 'Replace',
@@ -5039,7 +5575,7 @@ Blueprint.Worker.add('scss_class',{
 
 					status(data.join);
 
-					Blueprint.Callback.Program.fireChangeEvent();
+					Blueprint.Callback.Program.fireChangeEvent({type: 'scss_join'}); 
 				})
 
 			var status = function(joined){

@@ -45,7 +45,7 @@ Blueprint.Worker.add('scss_class',{
 
 					status(data.join);
 
-					Blueprint.Callback.Program.fireChangeEvent();
+					Blueprint.Callback.Program.fireChangeEvent({type: 'scss_join'}); 
 				})
 
 			var status = function(joined){

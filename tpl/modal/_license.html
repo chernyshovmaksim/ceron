@@ -4,13 +4,15 @@
         <div class="modal-content intro">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">покупка и активация</h4>
-
-                <p>Привет! Хотите быстро верстать свои проекты?</p>
-                <p>Используйте Ceron чтобы верстать быстрее и легче, чем когда-либо прежде.</p>
+                <h4 class="modal-title">Активация подписки</h4>
+                
+                <div>
+                    <!--<h2>Получите больше возможностей</h2>-->
+                    <p>Используйте все возможности Ceron чтобы верстать быстрее и легче, чем когда-либо прежде.</p>
+                </div>
             </div>
             <div class="reguest-code">
-                Код запроса: <b class="intro-reguest-code"></b>
+                <div>Код запроса: <b class="intro-reguest-code"></b></div>  <p class="m-b-0"><button class="btn btn-success">копировать</button></p>
             </div>
             <div class="modal-body">
                 <div class="container-fluid">
@@ -18,30 +20,34 @@
                         <div class="col-md-4">
                             <div class="step-count">Шаг 1</div>
                             
-                            <section class="intro-section-buy-done" style="display: none;">
-                                <h3>Лицензия на Ceron куплена <img src="style/img/ok.png" style="margin-top: -2px;" alt=""></h3>
+                            <section class="intro-section-buy-done">
+                                <h3>Подписка оформлена <img src="style/img/ok.png" style="margin-top: -2px;" alt=""></h3>
                                 <p class="intro-thanks">Спасибо!</p>
                             </section>
+                            <section class="intro-section-buy-expired">
+                                <h3>Подписка закончилась</h3>
+                                <div class="trial-days-left expired">Осталось дней: <span class="days">0</span></div>
+                            </section>
                             <section class="intro-section-trial-active">
-                                <h3>Пробная версия!</h3>
-                                <p>Посетите портал <a href="http://docs.pinegrow.com" target="_blank" class="external">документации и поддержки</a>, чтобы узнать больше о том, как Ceron может облегчить вашу работу.</p>
-                                <div class="trial-days-left">осталось дней: <span class="intro-days">7</span></div>
+                                <h3>Временная подписка!</h3>
+                                <p>Посетите портал <a href="https://ceron.pw/help" target="_blank" class="external">документации и поддержки</a>, чтобы узнать больше о том, как Ceron может облегчить вашу работу.</p>
+                                <div class="trial-days-left">Осталось дней: <span class="days" id="c-t-d">7</span></div>
                             </section>               
                         </div>
                         <div class="col-md-4">
                             <div class="step-count">Шаг 2</div>
                             <section class="intro-section-buy-new">
-                                <h3 class="trial-activated">Купить Ceron</h3>
+                                <h3 class="trial-activated">Оформить подписку</h3>
                                 <div> 
-                                    <p class="buy-text">Купите копию Ceron для себя, <b>затем введите серийный код на шаге 3.</b></p> 
-                                    <p><a class="btn btn-success" target="_blank" href="http://pinegrow.com/#buy">&nbsp;&nbsp;Купить сейчас&nbsp;&nbsp;</a></p> 
+                                    <p class="buy-text">Оформите подписку Ceron для себя, <b>затем введите серийный код на шаге 3.</b></p> 
+                                    <p><a class="btn btn-success" target="_blank" href="https://ceron.pw/subscription">&nbsp;&nbsp;Оформить сейчас&nbsp;&nbsp;</a></p> 
                                 </div>
                             </section>              
                         </div>
                         <div class="col-md-4">
                             <div class="step-count">Шаг 3</div>
                             <section class="intro-section-buy">
-                                <h3 class="trial-activated">Введите свой серийный код после покупки Ceron</h3>
+                                <h3 class="trial-activated">Введите свой серийный код после покупки подписки Ceron</h3>
                             
                                 <p>Введите свой адрес электронной почты (тот же, который использовался для совершения платежа), и серийный код, который вы получили в конце процесса оплаты:</p>
                                 
@@ -57,10 +63,12 @@
                                 </div>
                                 <div class="form-group-simple">
                                     <div>
-                                        <button type="submit" class="btn btn-success btn-block intro-activated">
-                                            Активировать
-                                        </button>
-                                        <a class="btn btn-link btn-block forgot-serial external" target="_blank" href="http://shop.pinegrow.com/mylicences"><small>Как получить серийный код?</small></a>
+                                        <p class="m-b-0">
+                                            <button type="submit" class="btn btn-success btn-block intro-activated">
+                                                Активировать
+                                            </button>
+                                        </p>
+                                        <a class="btn btn-link btn-block forgot-serial external" target="_blank" href="https://ceron.pw/page/how_get_serial"><small>Как получить серийный код?</small></a>
                                     </div>
                                 </div>
                                 
@@ -74,7 +82,7 @@
             </div>
             
             <div class="modal-footer">
-                <button type="button" class="btn cancel btn-link" data-dismiss="modal">Использовать Ceron</button>
+                <a target="_blank" href="https://ceron.pw/page/subscription" class="btn cancel btn-link">Что дает подписка?</a>
             </div>
 
         </div>

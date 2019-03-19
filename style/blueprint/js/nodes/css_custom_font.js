@@ -15,6 +15,60 @@ Blueprint.Worker.add('css_custom_font',{
 					displayInTitle: true,
 				},
 
+				display: {
+					name: 'Display',
+					color: '#ddd',
+					value: 'swap',
+					display: true,
+					type: function(entrance, group, fieldname, params, event){
+						var select = $([
+							'<select class="form-select m-b-5">',
+								'<option value="auto">Auto</option>',
+								'<option value="block">Block</option>',
+								'<option value="swap">Swap</option>',
+								'<option value="fallback">Fallback</option>',
+								'<option value="optional">Optional</option>',
+							'</select>'
+						].join(''))
+
+						select.val(event.target.getValue(entrance, fieldname));
+
+						select.on('change', function(){
+							event.target.setValue(entrance, fieldname, $(this).val());
+						});
+
+						return select;
+					}
+				},
+
+				local: {
+					name: 'Local',
+					color: '#ddd',
+					value: 'false',
+					type: function(entrance, group, fieldname, params, event){
+						var field = $([
+							'<div class="form-field form-field-space form-field-align-center">',
+								'<div>Локальные шрифты:</div>',
+								'<div>',
+									'<ul class="form-radio">',
+                                        '<li name="false"><img src="style/img/icons/none.png" alt=""></li>',
+                                        '<li name="true"><img src="style/img/icons/ok.png" alt=""></li>',
+                                    '</ul>',
+								'</div>',
+							'</div>',
+							'<div class="form-divider"></div>'
+						].join(''));
+
+						Form.RadioChangeEvent($('.form-radio',field),function(value){
+							event.target.setValue(entrance, fieldname, value);
+						});
+
+						Form.RadioSetValue($('.form-radio',field),event.target.getValue(entrance, fieldname));
+
+						return field;
+					}
+				},
+
 				Thin: {
 					name: '100 Thin',
 					color: '#ddd',
@@ -141,7 +195,7 @@ Blueprint.Worker.add('css_custom_font',{
 		init: function(event){
 			event.target.addEventListener('setValue',function(e){
 				if(e.name !== 'name'){
-					if(!this.getValue('input', e.name)){
+					if(!this.getValue('input', e.name) && e.value){
 						this.setValue('input', e.name, parent.Blueprint.Worker.get('css_custom_font').working.name(e.value));
 
 						this.showOptionAgain();
@@ -169,7 +223,9 @@ Blueprint.Worker.add('css_custom_font',{
 			
 		},
 		build: function(){
-			var font_name = this.getValue('name',true).join('');
+			var font_name    = this.getValue('name',true).join('');
+			var font_display = this.getValue('display',true).join('');
+			var font_local   = this.getValue('local',true).join('') == 'true';
 
 			var weights = {
 		        'Thin': '100',
@@ -228,6 +284,12 @@ Blueprint.Worker.add('css_custom_font',{
 		    	var style  = /Italic/.test(name) ? 'italic' : 'normal';
 		    	var urls   = [];
 
+		    	if(font_local){
+		    		urls.push('local("'+font_name+' '+name+'")');
+		    		urls.push('local("'+font_name+'-'+name+'")');
+		    	}
+		    	
+
 		    	for(var fr in formats){
 		    		var newPath = folder + '.' + fr;
 
@@ -239,9 +301,9 @@ Blueprint.Worker.add('css_custom_font',{
 				var font = [
 					'@font-face {',
 					    '	font-family: "' + font_name + '";',
+					    '	font-display: ' + font_display + ';',
 					    '	src: ',
-					    //'	src: local("' + font_name + '"), local("'+font_name+'-'+name+'"),',
-					    '	'+urls.join(",\n    ")+';',
+					    '		'+urls.join(",\n    	")+';',
 					    '	font-weight: '+weight+';',
 					    '	font-style: '+style+';',
 					'}',

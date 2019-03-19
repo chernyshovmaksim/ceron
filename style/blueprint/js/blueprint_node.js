@@ -19,8 +19,8 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 			add: add
 		})
 	},
-	create: function(){
-		this.data.position = Blueprint.Utility.snapPosition(this.data.position);
+	create: function(nosnap){
+		if(!nosnap) this.data.position = Blueprint.Utility.snapPosition(this.data.position);
 
 		this.setPosition();
 
@@ -205,7 +205,7 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 				else{
 					self.dragStart();
 
-					self.dispatchEvent({type: 'drag'});
+					self.dispatchEvent({type: 'drag',event: event});
 				}
 			}
 		});
@@ -239,7 +239,9 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 
 		this.dispatchEvent({type: 'remove', uid: self.uid});
 	},
-	dragStart: function(){
+	dragStart: function(group_drag){
+		this.group_drag = group_drag;
+
 		this.position.x = this.data.position.x;
 		this.position.y = this.data.position.y;
 
@@ -250,16 +252,19 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 	dragRemove: function(){
 		Blueprint.Drag.remove(this.dragCall);
 	},
-	drag: function(dif){
-		this.position.x -= dif.x / Blueprint.Viewport.scale;
-		this.position.y -= dif.y / Blueprint.Viewport.scale;
+	drag: function(dif, move, start){
+		var snap = {};
 
-		var snap = {
-			x: this.position.x,
-			y: this.position.y
+		snap.x = this.position.x - (move.x - start.x) / Blueprint.Viewport.scale;
+		snap.y = this.position.y - (move.y - start.y) / Blueprint.Viewport.scale;
+
+		
+		if(this.group_drag){
+			this.data.position = snap;
 		}
-
-		this.data.position = Blueprint.Utility.snapPosition(snap)
+		else{
+			this.data.position = Blueprint.Utility.snapPosition(snap)
+		}
 
 		this.setPosition();
 	},

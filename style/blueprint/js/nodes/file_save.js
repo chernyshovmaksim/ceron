@@ -50,7 +50,7 @@ Blueprint.Worker.add('file_save',{
 			var result = this.getValue('input').join(''),
 				path   = this.getValue('path',true).join('');
 
-			if(Blueprint.Program._start_save && Ceron.connected){
+			if(Blueprint.Program._start_save){
 				try{
 					nw.file.writeFileSync(Functions.LocalPath(path), result, 'utf8');
 				}
