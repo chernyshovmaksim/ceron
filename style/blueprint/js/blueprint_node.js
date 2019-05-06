@@ -9,6 +9,8 @@ Blueprint.classes.Node = function(uid){
 		y: 0
 	}
 
+	Blueprint.seed++;
+
 	this.init();
 }
 Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
@@ -25,6 +27,8 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 		this.setPosition();
 
 		this.fire('create');
+
+		return this;
 	},
 	init: function(){
 		var self = this;
@@ -70,7 +74,7 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 
 		$('.blueprint-container').append(this.node)
 
-		this.fire('init');
+		return this;
 	},
 	addVars: function(entrance){
 		var self = this;
@@ -81,6 +85,10 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 			}
 
 			if(params.disableVisible) return;
+
+			var use_color = params.color 
+
+			
 
 			var variable, select,
 				is_content = name == 'input' || name == 'output';
@@ -98,11 +106,21 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 			else                    select.appendTo(variable);
 
 			variable.appendTo($('.vars.'+entrance,self.node));
+
+			if(params.color_random){
+				use_color = randomColor({
+				   luminosity: 'light',
+				   hue: params.color_random,
+				   seed: Math.round(self.data.position.y * 0.02 + 1600)
+				});
+
+				select.data('random-color',use_color);
+			}
 			
-			if(params.color){
+			if(use_color){
 				var img = type == 'content' ? 'node-content' : 'var';
 
-				Blueprint.Image.color('style/blueprint/img/'+img+'.png',params.color,function(base){
+				Blueprint.Image.color('style/blueprint/img/'+img+'.png',use_color,function(base){
 					select.css({
 						backgroundImage: 'url('+base+')'
 					})

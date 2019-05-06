@@ -63,9 +63,13 @@ body {
   display: flex;
   pointer-events: none;
   background: rgba(0, 0, 0, 0.25);
-  border: 2px solid #fff;
   -webkit-border-radius: 3px;
-          border-radius: 3px; }
+          border-radius: 3px;
+  overflow: hidden;
+  -webkit-box-shadow: 0 0 25px rgba(0, 0, 0, 0.29);
+          box-shadow: 0 0 25px rgba(0, 0, 0, 0.29);
+  -webkit-box-shadow: none;
+          box-shadow: none; }
   .blueprint-helper-inner {
     position: relative;
     -webkit-box-flex: 1;
@@ -74,7 +78,6 @@ body {
             flex-grow: 1;
     overflow: hidden; }
   .blueprint-helper-top {
-    background: rgba(221, 221, 221, 0.15);
     color: #ddd;
     display: -webkit-box;
     display: -webkit-flex;
@@ -137,7 +140,9 @@ body {
           border-radius: 4px;
   -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.26);
           box-shadow: 0 0 5px rgba(0, 0, 0, 0.26);
-  padding: 8px; }
+  padding: 8px;
+  -webkit-box-shadow: none;
+          box-shadow: none; }
   .blueprint-node:hover {
     border-color: rgba(187, 207, 218, 0.96);
     -webkit-box-shadow: 0 0 5px rgba(185, 206, 228, 0.26);
@@ -253,7 +258,10 @@ body {
   .blueprint-node.css {
     background: transparent !important;
     padding: 8px;
-    min-width: 80px; }
+    min-width: 80px;
+    -webkit-box-shadow: none;
+            box-shadow: none;
+    background-image: none !important; }
   .blueprint-node.reverse {
     -webkit-transform: scaleX(-1);
         -ms-transform: scaleX(-1);

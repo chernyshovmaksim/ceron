@@ -1,6 +1,7 @@
 var Blueprint = {
 	classes: {},
-	cache: {}
+	cache: {},
+	seed: 0
 };
 
 Blueprint.Initialization = {
@@ -118,7 +119,7 @@ Blueprint.Initialization = {
 					Blueprint.Data.get().nodes[node.uid] = node;
 
 					//создаем нод
-					Blueprint.Render.addNode(node.uid).create(true);
+					Blueprint.Render.addNode(node.uid).create(true).fire('init');
 
 					Blueprint.Callback.Program.fireChangeEvent({type: 'dragCopy'});
 				}
@@ -266,7 +267,7 @@ Blueprint.Initialization = {
 				Blueprint.Data.get().nodes[node.uid] = node;
 
 				//создаем нод
-				Blueprint.Render.addNode(node.uid).create();
+				Blueprint.Render.addNode(node.uid).create().fire('init');
 
 				Blueprint.Callback.Program.fireChangeEvent({type: 'paste'});
 				
@@ -503,6 +504,7 @@ Blueprint.Initialization = {
 		Blueprint.Render.addEventListener('newNode',function(e){
 			//если новый то запускаем эвент создать
 			e.node.create();
+			e.node.fire('init');
 
 			Blueprint.Callback.Program.fireChangeEvent({type: 'newNode'});
 		})
@@ -666,7 +668,7 @@ Blueprint.Initialization = {
 		var nodes = Blueprint.Data.get().nodes;
 
 		$.each(nodes,function(uid,params){
-			if(Blueprint.Worker.get(params.worker)) Blueprint.Render.addNode(uid)
+			if(Blueprint.Worker.get(params.worker)) Blueprint.Render.addNode(uid).fire('init');
 		})
 
 		Blueprint.Render.update();
@@ -1241,8 +1243,10 @@ Blueprint.classes.Line = function(params){
 		this.parentWorker = Blueprint.Worker.get(this.parentData.worker)
 		this.parentVar    = this.parentWorker.params.vars.output[this.params.parent.output];
 
-		this.reverse = this.params.node.params.reverse;
+		this.reverse        = this.params.node.params.reverse;
 		this.reverse_parent = this.parent.hasClass('reverse');
+
+		this.random_color = this.parentVar.color_random ? this.output.data('random-color') : false;
 	}
 	catch(e){
 		this.error = true;
@@ -1346,7 +1350,7 @@ Object.assign( Blueprint.classes.Line.prototype, EventDispatcher.prototype, {
 			);
 
 			ctx.lineWidth   = 2 * Blueprint.Viewport.scale;
-			ctx.strokeStyle = this.parentVar.color || '#ddd';
+			ctx.strokeStyle = this.random_color || this.parentVar.color || '#ddd';
 
 			ctx.stroke();
 		}
@@ -1523,6 +1527,8 @@ Blueprint.classes.Node = function(uid){
 		y: 0
 	}
 
+	Blueprint.seed++;
+
 	this.init();
 }
 Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
@@ -1539,6 +1545,8 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 		this.setPosition();
 
 		this.fire('create');
+
+		return this;
 	},
 	init: function(){
 		var self = this;
@@ -1584,7 +1592,7 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 
 		$('.blueprint-container').append(this.node)
 
-		this.fire('init');
+		return this;
 	},
 	addVars: function(entrance){
 		var self = this;
@@ -1595,6 +1603,10 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 			}
 
 			if(params.disableVisible) return;
+
+			var use_color = params.color 
+
+			
 
 			var variable, select,
 				is_content = name == 'input' || name == 'output';
@@ -1612,11 +1624,21 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 			else                    select.appendTo(variable);
 
 			variable.appendTo($('.vars.'+entrance,self.node));
+
+			if(params.color_random){
+				use_color = randomColor({
+				   luminosity: 'light',
+				   hue: params.color_random,
+				   seed: Math.round(self.data.position.y * 0.02 + 1600)
+				});
+
+				select.data('random-color',use_color);
+			}
 			
-			if(params.color){
+			if(use_color){
 				var img = type == 'content' ? 'node-content' : 'var';
 
-				Blueprint.Image.color('style/blueprint/img/'+img+'.png',params.color,function(base){
+				Blueprint.Image.color('style/blueprint/img/'+img+'.png',use_color,function(base){
 					select.css({
 						backgroundImage: 'url('+base+')'
 					})
@@ -5543,6 +5565,7 @@ Blueprint.Worker.add('scss_class',{
 					name: '',
 					color: '#ddd',
 					varType: 'round',
+					color_random: 'random'
 				}
 			},
 			output: {
@@ -5551,14 +5574,19 @@ Blueprint.Worker.add('scss_class',{
 					enableChange: true,
 					displayInTitle: true,
 					varType: 'round',
-					color: '#ddd'
+					color: '#ddd',
+					color_random: 'random'
 				},
 			}
 		},
 	},
 	on: {
-		create: function(){
-			
+		create: function(event){
+			var data = event.target.data.userData;
+
+			if(data.custom && data.custom[0] == ':'){
+				data.join = true;
+			}
 		},
 		remove: function(){
 
@@ -5597,11 +5625,11 @@ Blueprint.Worker.add('scss_class',{
 
 			if(data.join) join.addClass('active'), status(true);
 
-			event.target.setDisplayInTitle(working.search(data.custom || data.uid) || data.custom || 'Не найдено');
+			event.target.setDisplayInTitle( working.decode( working.search(data.custom || data.uid) || data.custom || 'Не найдено' ) );
 			event.target.setDisplayTitle(join);
 
 			Blueprint.Callback.Program.addEventListener('update', function(){
-				event.target.setDisplayInTitle(working.search(data.custom || data.uid) || data.custom || 'Не найдено');
+				event.target.setDisplayInTitle( working.decode( working.search(data.custom || data.uid) || data.custom || 'Не найдено' ) );
 			})
 
 			Blueprint.Callback.Program.addEventListener('highlight', function(e){
@@ -5614,11 +5642,14 @@ Blueprint.Worker.add('scss_class',{
 		search: function(nameOrUid){
 			var found, name = Generators.Css._check(nameOrUid);
 
-			if(Data.css[nameOrUid]) found = Data.css[nameOrUid].fullname;
+			if(Data.css[nameOrUid]) found = '{@css-'+nameOrUid+'}';//Data.css[nameOrUid].fullname;
 
 			if(name) found = name.fullname;
 
 			return found;
+		},
+		decode: function(css){
+			return Generators.Build.decode( css );
 		},
 		start: function(){
 			
@@ -5723,6 +5754,7 @@ Blueprint.Worker.add('scss_sheet',{
 		category: 'none',
 		type: 'round',
 		add_class: 'css',
+		random_line_color: true,
 		vars: {
 			input: {
 				input: {

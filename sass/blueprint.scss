@@ -70,8 +70,10 @@ body{
 
 
 		background: rgba(#000, 0.25);
-		border: 2px solid #fff;
 		border-radius: 3px;
+		overflow: hidden;
+    	box-shadow: 0 0 25px rgba(0, 0, 0, 0.29);
+    	box-shadow: none;
 
 		&-inner{
 			position: relative;
@@ -79,7 +81,6 @@ body{
 			overflow: hidden;
 		}
 		&-top{
-			background: rgba(#ddd, 0.15);
 			color: #ddd;
 			display: flex;
 			justify-content: space-between;
@@ -134,6 +135,7 @@ body{
 		border-radius: 4px;
 		box-shadow: 0 0 5px rgba(0,0,0,0.26);
 		padding: 8px;
+		box-shadow: none;
 
 		&:hover{
 			border-color: rgba(187, 207, 218, 0.96);
@@ -281,6 +283,8 @@ body{
 			background: transparent !important;
 			padding: 8px;
 			min-width: 80px;
+			box-shadow:  none;
+			background-image: none !important;
 		}
 
 		&.reverse{

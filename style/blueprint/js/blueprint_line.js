@@ -17,8 +17,10 @@ Blueprint.classes.Line = function(params){
 		this.parentWorker = Blueprint.Worker.get(this.parentData.worker)
 		this.parentVar    = this.parentWorker.params.vars.output[this.params.parent.output];
 
-		this.reverse = this.params.node.params.reverse;
+		this.reverse        = this.params.node.params.reverse;
 		this.reverse_parent = this.parent.hasClass('reverse');
+
+		this.random_color = this.parentVar.color_random ? this.output.data('random-color') : false;
 	}
 	catch(e){
 		this.error = true;
@@ -122,7 +124,7 @@ Object.assign( Blueprint.classes.Line.prototype, EventDispatcher.prototype, {
 			);
 
 			ctx.lineWidth   = 2 * Blueprint.Viewport.scale;
-			ctx.strokeStyle = this.parentVar.color || '#ddd';
+			ctx.strokeStyle = this.random_color || this.parentVar.color || '#ddd';
 
 			ctx.stroke();
 		}

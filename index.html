@@ -37,6 +37,10 @@
     <script src="vendor/pixi/pixi.js" type="text/javascript" charset="utf-8"></script>
 
     <script src="vendor/sweetalert/sweetalert.min.js" type="text/javascript" charset="utf-8"></script>
+
+    <script src="vendor/random-color/random-color.js" type="text/javascript" charset="utf-8"></script>
+
+    <script src="vendor/ntc/ntc.js" type="text/javascript" charset="utf-8"></script>
 </head>
 <script>
     /** Что-бы все не пропало! **/
@@ -82,7 +86,7 @@
 
     nw.crypto = require('crypto');
 
-    nw.beautify_css = require('js-beautify').css;
+    nw.beautify_css  = require('js-beautify').css;
     nw.beautify_html = require('js-beautify').html;
 
     Ceron.package = JSON.parse(nw.file.readFileSync('package.json', 'utf8'));
@@ -119,6 +123,8 @@
 <script type="text/javascript" src="modules/arrow/arrow.js"></script>
 <script type="text/javascript" src="modules/fonticon/fonticon.js"></script>
 <script type="text/javascript" src="modules/content/content.js"></script>
+<script type="text/javascript" src="modules/image-crope/image-crope.js"></script>
+<script type="text/javascript" src="modules/package-manager/package-manager.js"></script>
 <script type="text/javascript" src="modules/perfect-pixel/perfect-pixel.js"></script>
 
 <div style="display: none">
@@ -304,57 +310,11 @@
 				<div class="tabs-content" id="css">
 
     <div class="layer-ecss">
-        <div class="layer-ecss-search">
-            <div class="form-input">
-                <input type="text" value="" id="ecss-search" placeholder="Искать...">
-            </div>
-            <ul class="tools-ecss">
-                <li onclick="ECSS.ToSelect()">
-                    <img src="style/img/icons-panel/target.png" alt="">
-                </li>
-                <li onclick="ECSS.ShowHideEmpty()">
-                    <img src="style/img/icons-panel/show.png" alt="">
-                </li>
-            </ul>
-        </div>
         <div class="layer-ecss-content">
-            <div class="layer-ecss-abs">
-                <span>A</span>
-                <span>B</span>
-                <span>C</span>
-                <span>D</span>
-                <span>E</span>
-                <span>F</span>
-                <span>G</span>
-                <span>H</span>
-                <span>I</span>
-                <span>J</span>
-                <span>K</span>
-                <span>L</span>
-                <span>M</span>
-                <span>N</span>
-                <span>O</span>
-                <span>P</span>
-                <span>Q</span>
-                <span>R</span>
-                <span>S</span>
-                <span>T</span>
-                <span>U</span>
-                <span>V</span>
-                <span>W</span>
-                <span>X</span>
-                <span>Y</span>
-                <span>Z</span>
+            <div class="layer-ecss-edit-top">
+                <div class="form-btn" id="ecss-save"><img src="style/img/icons/ok.png">Сохранить изменения</div>
             </div>
-            <div class="layer-ecss-rows" id="ecss-rows">
-                
-            </div>
-            <div class="layer-ecss-edit-box">
-                <div class="layer-ecss-edit-top">
-                    <div class="form-btn" id="editor-css-save"><img src="style/img/icons/ok.png">Сохранить изменения</div>
-                </div>
-                <div class="layer-ecss-edit-textbox" id="editor-css"></div>
-            </div>
+            <div class="layer-ecss-edit-textbox" id="ecss-editor"></div>
         </div>
     </div>
 
@@ -502,6 +462,10 @@
                                             <textarea rows="6" id="psd-layer-css-value"></textarea>
                                         </div>
                                     </div>
+                                </div>
+                                
+                                <div id="psd-layer-classes" class="form-group-wrap">
+                                    <ul id="psd-layer-classes-value" class="list-classes"></ul>
                                 </div>
 
 
@@ -1031,7 +995,7 @@
         </div>
     </div>
 
-    <div class="panel-media">
+    <div class="panel-media" id="media-all-items">
         
     </div>
 
@@ -1276,7 +1240,7 @@
 	<div class="layer-color clearfix layer-size-copyright">
     <div class="pull-left layer-info layer-noti-info"></div>
     <div class="pull-left layer-info layer-noti-error"></div>
-    <div class="pull-right layer-copyright">CERON © 2018 Версия <span class="ceron-version">-</span></div></div>
+    <div class="pull-right layer-copyright">CERON © 2019 Версия <span class="ceron-version">-</span></div></div>
 </div>
 </div>
 
@@ -1489,6 +1453,16 @@
                                         <input type="text" name="vars" value="" readonly placeholder="_vars.sass">
                                     </div>
                                     <span class="help-block m-b-0">Sass файл в котором заданы параметры цветов, отступов, шрифтов и тд.</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-name">CASCADE паттерны</div>
+                                <div class="form-content">
+                                    <div class="form-input cascade_paterns">
+                                        <input type="text" name="cascade_paterns" value="" readonly placeholder="_paterns.cascade">
+                                    </div>
+                                    <span class="help-block m-b-0">Файл в котором заданы готовые паттерны для CASCADE</span>
                                 </div>
                             </div>
                         </div>
@@ -2265,6 +2239,19 @@
 					</div>
 				</div>
 			</div>
+
+		</div>
+	</div>
+</div>
+<div class="boxMenu" id="vtc-tpl-last-open-menu">
+	<div class="boxMenu-inner">
+		<h3 class="boxMenu-head text-center">Открыть</h3>
+		<div class="boxMenu-container">
+			
+
+			<ul id="vtc-tpl-last-open-list"  class="boxMenu-list boxMenu-list-last">
+				
+			</ul>
 
 		</div>
 	</div>

@@ -8,6 +8,7 @@ Blueprint.Worker.add('scss_sheet',{
 		category: 'none',
 		type: 'round',
 		add_class: 'css',
+		random_line_color: true,
 		vars: {
 			input: {
 				input: {

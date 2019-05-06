@@ -42,7 +42,21 @@ Ceron.modules.Display = function(){
 
 		Form.InputChange($('.grid .form-input',this.module));
 
-		
+
+		//авто колонки
+		var auto_width = $('.grid-autosize-min',this.module);
+		var auto_type  = $('.grid-autosize-type',this.module);
+
+		Form.InputDrag(auto_width);
+
+		Form.InputChangeEvent(auto_width, function(name,val){
+			Generators.Css.Add('grid-template-columns: repeat( '+auto_type.val()+', minmax('+val+', 1fr) )');
+		});
+
+		auto_type.on('change', function(){
+			Generators.Css.Add('grid-template-columns: repeat( '+$(this).val()+', minmax('+Form.InputGetValue(auto_width)+', 1fr) )');
+		})
+
 		/**
 		 * Init
 		 */

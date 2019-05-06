@@ -1,6 +1,7 @@
 var Blueprint = {
 	classes: {},
-	cache: {}
+	cache: {},
+	seed: 0
 };
 
 Blueprint.Initialization = {
@@ -118,7 +119,7 @@ Blueprint.Initialization = {
 					Blueprint.Data.get().nodes[node.uid] = node;
 
 					//создаем нод
-					Blueprint.Render.addNode(node.uid).create(true);
+					Blueprint.Render.addNode(node.uid).create(true).fire('init');
 
 					Blueprint.Callback.Program.fireChangeEvent({type: 'dragCopy'});
 				}
@@ -266,7 +267,7 @@ Blueprint.Initialization = {
 				Blueprint.Data.get().nodes[node.uid] = node;
 
 				//создаем нод
-				Blueprint.Render.addNode(node.uid).create();
+				Blueprint.Render.addNode(node.uid).create().fire('init');
 
 				Blueprint.Callback.Program.fireChangeEvent({type: 'paste'});
 				
@@ -503,6 +504,7 @@ Blueprint.Initialization = {
 		Blueprint.Render.addEventListener('newNode',function(e){
 			//если новый то запускаем эвент создать
 			e.node.create();
+			e.node.fire('init');
 
 			Blueprint.Callback.Program.fireChangeEvent({type: 'newNode'});
 		})
@@ -666,7 +668,7 @@ Blueprint.Initialization = {
 		var nodes = Blueprint.Data.get().nodes;
 
 		$.each(nodes,function(uid,params){
-			if(Blueprint.Worker.get(params.worker)) Blueprint.Render.addNode(uid)
+			if(Blueprint.Worker.get(params.worker)) Blueprint.Render.addNode(uid).fire('init');
 		})
 
 		Blueprint.Render.update();

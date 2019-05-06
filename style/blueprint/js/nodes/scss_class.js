@@ -13,6 +13,7 @@ Blueprint.Worker.add('scss_class',{
 					name: '',
 					color: '#ddd',
 					varType: 'round',
+					color_random: 'random'
 				}
 			},
 			output: {
@@ -21,14 +22,19 @@ Blueprint.Worker.add('scss_class',{
 					enableChange: true,
 					displayInTitle: true,
 					varType: 'round',
-					color: '#ddd'
+					color: '#ddd',
+					color_random: 'random'
 				},
 			}
 		},
 	},
 	on: {
-		create: function(){
-			
+		create: function(event){
+			var data = event.target.data.userData;
+
+			if(data.custom && data.custom[0] == ':'){
+				data.join = true;
+			}
 		},
 		remove: function(){
 
@@ -67,11 +73,11 @@ Blueprint.Worker.add('scss_class',{
 
 			if(data.join) join.addClass('active'), status(true);
 
-			event.target.setDisplayInTitle(working.search(data.custom || data.uid) || data.custom || 'Не найдено');
+			event.target.setDisplayInTitle( working.decode( working.search(data.custom || data.uid) || data.custom || 'Не найдено' ) );
 			event.target.setDisplayTitle(join);
 
 			Blueprint.Callback.Program.addEventListener('update', function(){
-				event.target.setDisplayInTitle(working.search(data.custom || data.uid) || data.custom || 'Не найдено');
+				event.target.setDisplayInTitle( working.decode( working.search(data.custom || data.uid) || data.custom || 'Не найдено' ) );
 			})
 
 			Blueprint.Callback.Program.addEventListener('highlight', function(e){
@@ -84,11 +90,14 @@ Blueprint.Worker.add('scss_class',{
 		search: function(nameOrUid){
 			var found, name = Generators.Css._check(nameOrUid);
 
-			if(Data.css[nameOrUid]) found = Data.css[nameOrUid].fullname;
+			if(Data.css[nameOrUid]) found = '{@css-'+nameOrUid+'}';//Data.css[nameOrUid].fullname;
 
 			if(name) found = name.fullname;
 
 			return found;
+		},
+		decode: function(css){
+			return Generators.Build.decode( css );
 		},
 		start: function(){
 			
