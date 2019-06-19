@@ -178,6 +178,8 @@ Ceron.modules.Effects =  function(){
                 Generators.Css.Add('transform-origin' + ': ' + $('input',posX).val() + ' ' + val );
             })
             
+            Form.SelectChange($('.mix-blend-mode',self.module));
+
             Generators.Module.AddToTool(self.module);
         })
     }
@@ -331,6 +333,7 @@ Ceron.modules.Effects =  function(){
         var opacity   = Generators.Css.Get('opacity');
         var filter    = Generators.Css.Get('filter');
         var transform = Generators.Css.Get('transform');
+        var blend     = Generators.Css.Get('mix-blend-mode');
 
         Form.RadioSelect($('.transform-origin',self.module),'transform-origin');
 
@@ -361,6 +364,8 @@ Ceron.modules.Effects =  function(){
         }
 
         Form.InputSelect($('.opacity,.cursor,.pointer-events',self.module));
+
+        Form.SelectSetValue($('.mix-blend-mode',self.module),blend);
 
         $('input[name="opacity"]',self.module).val(opacity);
     }

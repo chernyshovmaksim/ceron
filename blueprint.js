@@ -207,6 +207,10 @@ Blueprint.Initialization = {
 			parent.Shortcut.Fire('Ctrl+S');
 		})
 
+		Blueprint.Shortcut.add('Ctrl+F',function(){
+			parent.Shortcut.Fire('Ctrl+F');
+		})
+
 		Blueprint.Shortcut.add('Ctrl+C',function(){
 			buffer = [];
 
@@ -988,6 +992,7 @@ Object.assign( Blueprint.classes.Helper.prototype, EventDispatcher.prototype, {
 			'<div class="blueprint-helper" id="'+this.data.uid+'">',
 				'<div class="blueprint-helper-inner">',
 	                '<div class="blueprint-helper-top">',
+	                	'<div class="blueprint-helper-trigger"></div>',
 	                    '<div class="blueprint-helper-title">'+this.data.title+'</div>',
 	                    '<div class="blueprint-helper-close"></div>',
 	                '</div>',
@@ -995,6 +1000,12 @@ Object.assign( Blueprint.classes.Helper.prototype, EventDispatcher.prototype, {
                 '</div>',
             '</div>',
 		].join(''));
+
+		this.trigger = $('.blueprint-helper-trigger',this.node);
+
+		if(this.data.disable){
+			this.trigger.addClass('off');
+		}
 
 		this.addEvents();
 
@@ -1022,6 +1033,13 @@ Object.assign( Blueprint.classes.Helper.prototype, EventDispatcher.prototype, {
 		this.node.on('click',function(event){
 			self.dispatchEvent({type: 'select',worker: self.data.worker, uid: self.uid, data: self.data});
 		});
+
+		this.trigger.on('click', function(){
+			$(this).toggleClass('off');
+
+			self.data.disable = $(this).hasClass('off');
+		})
+
 
 		$('.blueprint-helper-title',this.node).dblclick(function(){
 			var new_title = prompt('Описание хелпера', self.data.title);
@@ -1468,6 +1486,9 @@ Object.assign( Blueprint.classes.Menu.prototype, EventDispatcher.prototype, {
 		this.dispatchEvent({type: 'build'})
 	},
 	search: function(){
+		//надо бы транслит забабахать
+		this.input.val(Functions.ToLatin(this.input.val()));
+
 		var term      = this.input.val(),
 			categorys = $(' > li',this.list),
 			category,inner,txt;
@@ -2399,7 +2420,7 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 		try{
 			this._processComplite(uid);
 			
-			Blueprint.Worker.build(uid, this.data[uid].data.nodes);
+			Blueprint.Worker.build(uid, this.data[uid].data.nodes, this.data[uid].data.helpers);
 		}
 		catch(err){
 			Console.Add(err)
@@ -3052,21 +3073,28 @@ Blueprint.Utility = {
     },
 
     checkSticking: function(sticking, point, ammount){
-        var st,dr,tr,cr = {
+        var st,dr,tr,df,cr = {
             x: (point.pageX || point.left || point.x),
             y: (point.pageY || point.top || point.y)
         };
 
         var power = ammount || this.sticking_ammount;
 
+        var ds = {x: Infinity,y: Infinity};
+
         for (var i = 0; i < sticking.length; i++) {
             st = sticking[i];
             dr = st.dir == 'x' ? 'y' : 'x';
 
             if(cr[dr] > st.pos - power && cr[dr] < st.pos + power ){
-                cr[dr] = st.pos;
+                df = cr[dr] > st.pos ? cr[dr] - st.pos : st.pos - cr[dr];
 
-                tr = st;
+                if(df < ds[dr]){
+                    cr[dr] = st.pos;
+                    ds[dr] = df;
+
+                    tr = st;
+                }
             }
         }
 
@@ -3235,21 +3263,57 @@ Object.assign( Blueprint.classes.Worker.prototype, EventDispatcher.prototype, {
 
 	    return assign;
 	},
-	build: function(blueprintUid,nodes){
-		var workers = [];
+	intersect: function(board,node){
+		var a = {
+			left: board.position.x,
+			top: board.position.y,
+			width: board.size.width,
+			height: board.size.height
+		}
 
-		var node,assign,working;
+		var b = {
+			left: node.position.x,
+			top: node.position.y,
+			width: 30,
+			height: 15
+		}
+
+		return Blueprint.Utility.intersect(a,b);
+	},
+	build: function(blueprintUid,nodes,helpers){
+		var workers = [];
+		var areas   = [];
+
+		if(helpers){
+			for(var i in helpers){
+				var help = helpers[i];
+
+				if(help.disable){
+					areas.push(help);
+				}
+			}
+		}
+
+		var node,assign,working,disable;
 
 		for(var uid in nodes){
 			node = nodes[uid];
 
-			assign = this.assign(node.worker);
-			
-			working = new assign(node,workers);
+			disable = false;
 
-			working.blueprintUid = blueprintUid;
+			for (var i = 0; i < areas.length; i++) {
+				if(this.intersect(areas[i],node)) disable = true;
+			}
 
-			workers.push(working);
+			if(!disable){
+				assign = this.assign(node.worker);
+				
+				working = new assign(node,workers);
+
+				working.blueprintUid = blueprintUid;
+
+				workers.push(working);
+			}
 		}
 
 		function countParents(work){
@@ -4791,7 +4855,7 @@ Blueprint.Worker.add('html_unminify',{
 		build: function(){
 			var value = this.getValue('input').join("\n");
 
-				value = nw.beautify_html(value, { indent_size: 4, space_in_empty_paren: true })
+				value = nw.beautify_html(value, { indent_size: 4, space_in_empty_paren: true });
 			
 			this.setValue('output',value);
 		}
@@ -5222,6 +5286,132 @@ Blueprint.Worker.add('merge_bigger',{
 				r = this.removeEmpty(r);
 
 			this.setValue('output',r.join(j));
+		}
+	}
+});
+Blueprint.Worker.add('minify',{
+	params: {
+		name: 'MinifyJS',
+		description: 'Сжимает JS код',
+		saturation: 'hsl(221, 100%, 16%)',
+		alpha: 0.89,
+		category: 'function',
+		type: 'round',
+		vars: {
+			input: {
+				input: {
+					varType: 'round',
+					color: '#ddd'
+				},
+			},
+			output: {
+				output: {
+					name: '',
+					varType: 'round',
+					color: '#ddd'
+				},
+			}
+		},
+	},
+	on: {
+		create: function(){
+			
+		},
+		remove: function(){
+
+		}
+	},
+	working: {
+		start: function(){
+			
+		},
+		build: function(){
+			var input  = this.getValue('input');
+
+			var options = {
+			    toplevel: true,
+			};
+
+			var minify = Terser.minify(input,options);
+			var result = minify.code || '';
+
+			if(minify.error){
+				var code = '';
+
+				try{
+					code = input[minify.error.filename].split("\n");
+					code = code[minify.error.line];
+					code = code.slice(minify.error.col-1,minify.error.col + 50);
+				}
+				catch(e){
+
+				}
+
+				var stack = [
+					'Col: '+minify.error.col,
+					'Filename: '+minify.error.filename,
+					'Line: '+minify.error.line,
+					'Pos: '+minify.error.pos,
+					'Code: '+code
+				].join("\n");
+
+				Console.Add({message: 'MinifyJS Error:' + minify.message, stack: stack});
+			}
+
+			this.setValue('output', result);
+		}
+	}
+});
+Blueprint.Worker.add('minify_css',{
+	params: {
+		name: 'MinifyCSS',
+		description: 'Сжимает CSS код',
+		saturation: 'hsl(47, 100%, 83%)',
+		alpha: 0.66,
+		category: 'function',
+		type: 'round',
+		vars: {
+			input: {
+				input: {
+					varType: 'round',
+					color: '#ddd'
+				},
+			},
+			output: {
+				output: {
+					name: '',
+					varType: 'round',
+					color: '#ddd'
+				},
+			}
+		},
+	},
+	on: {
+		create: function(){
+			
+		},
+		remove: function(){
+
+		}
+	},
+	working: {
+		start: function(){
+			
+		},
+		build: function(){
+			var input  = this.getValue('input');
+
+			var uglifycss = require('uglifycss');
+
+			var uglified = uglifycss.processString(input.join(''),
+			    { 
+			    	maxLineLen: 500, 
+			    	expandVars: true,
+			    	cuteComments: true 
+			    }
+			);
+
+			this.setValue('output', uglified);
 		}
 	}
 });
@@ -5681,6 +5871,73 @@ Blueprint.Worker.add('scss_class',{
 		}
 	}
 });
+Blueprint.Worker.add('scss_input',{
+	params: {
+		name: 'Input',
+		description: '',
+		saturation: 'hsl(93, 93%, 54%)',
+		alpha: 0.62,
+		titleColor: '#fdbe00',
+		category: 'none',
+		type: 'round',
+		add_class: 'css',
+		random_line_color: true,
+		vars: {
+			input: {
+				
+			},
+			output: {
+				output: {
+					name: '',
+					color: '#ddd',
+					varType: 'round',
+				}
+			}
+		},
+	},
+	on: {
+		create: function(event){
+			
+		},
+		remove: function(event){
+			
+		},
+		init: function(event){
+			var data = event.target.data.userData;
+
+			event.target.node.dblclick(function(){
+				var input = prompt('Название входа', data.name || '');
+
+				if(input){
+					data.name = input;
+
+					event.target.setDisplayTitle('<i class="flaticon-layers" style="font-size: 15px; margin-right: 5px"></i>Input ('+(data.name || '...')+')');
+
+					Blueprint.Render.draw();
+				}
+			})
+
+			event.target.setDisplayTitle('<i class="flaticon-layers" style="font-size: 15px; margin-right: 5px"></i>Input ('+(data.name || '...')+')');
+		}
+	},
+	working: {
+		create: function(uid, data){
+			
+		},
+		remove: function(uid){
+			
+		},
+		start: function(){
+			
+		},
+		build: function(){
+			var data  = this.data.userData;
+			var input = Data.vtc.scssEnters[data.name];
+
+			this.setValue('output', input == undefined ? '' : input);
+		}
+	}
+});
 Blueprint.Worker.add('scss_merge',{
 	params: {
 		name: 'Extend',
@@ -5741,6 +5998,75 @@ Blueprint.Worker.add('scss_merge',{
 
 			this.data.userData.input_a = a_o.join(', .');
 			this.data.userData.input_b = b_o.join(', .');
+		}
+	}
+});
+Blueprint.Worker.add('scss_output',{
+	params: {
+		name: 'Output',
+		description: '',
+		saturation: 'hsl(93, 93%, 54%)',
+		alpha: 0.62,
+		titleColor: '#fdbe00',
+		category: 'none',
+		type: 'round',
+		add_class: 'css',
+		random_line_color: true,
+		vars: {
+			input: {
+				input: {
+					name: '',
+					color: '#ddd',
+					varType: 'round',
+				}
+			},
+			output: {
+				
+			}
+		},
+	},
+	on: {
+		create: function(event){
+			
+		},
+		remove: function(event){
+			
+		},
+		init: function(event){
+			var data = event.target.data.userData;
+
+			event.target.node.dblclick(function(){
+				var input = prompt('Название выхода', data.name || '');
+
+				if(input){
+					data.name = input;
+
+					event.target.setDisplayTitle('<i class="flaticon-layers" style="font-size: 15px; margin-right: 5px"></i>Output ('+(data.name || '...')+')');
+
+					Blueprint.Render.draw();
+				}
+			})
+
+			event.target.setDisplayTitle('<i class="flaticon-layers" style="font-size: 15px; margin-right: 5px"></i>Output ('+(data.name || '...')+')');
+		}
+	},
+	working: {
+		create: function(uid, data){
+			
+		},
+		remove: function(uid){
+			
+		},
+		start: function(){
+			
+		},
+		build: function(){
+			var data   = this.data.userData;
+			var input  = this.getValue('input',true);
+
+			if(data.name !== undefined){
+				Data.vtc.scssEnters[data.name] = input.join('');
+			}
 		}
 	}
 });

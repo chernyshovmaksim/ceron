@@ -112,6 +112,40 @@ body{
 			flex-shrink: 0;
 		}
 
+		&-trigger{
+			width: 20px;
+			height: 8px;
+			position: relative;
+			border-radius: 5px;
+			background: rgba(255,255,255,0.12);
+			transition: background 0.2s;
+			cursor: pointer;
+			margin: 7px;
+    		margin-right: 0;
+
+			&:after{
+				content: '';
+				display: block;
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 10px;
+				height: 8px;
+				border-radius: 5px;
+				background: #ddd;
+				transition: left 0.2s;
+			}
+
+			&.off{
+				background: #e43438;
+
+				&:after{
+					left: 10px;
+				}
+				
+			}
+		}
+
 		&:hover{
 			border-color: #86b131;
 		}

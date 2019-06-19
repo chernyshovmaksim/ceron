@@ -9,10 +9,13 @@
 
     <link rel="stylesheet" href="style/css/bootstrap.css" type="text/css" />
     <link rel="stylesheet" href="vendor/bootstrap-select/css/bootstrap-select.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="vendor/dynatree/skin-vista/ui.dynatree.css"> 
+    <link rel="stylesheet" href="vendor/dynatree/skin-vista/ui.dynatree.css" type="text/css" > 
+    <link rel="stylesheet" href="vendor/pickr/pickr.min.css" type="text/css" />
+    <link rel="stylesheet" href="vendor/pickr/pickr.min.css" type="text/css" />
+
     <link rel="stylesheet" href="style/css/custom.css" type="text/css" />
 
-    <link rel="stylesheet" type="text/css" href="style/fonts/essential/flaticon.css"> 
+    <link rel="stylesheet" href="style/fonts/essential/flaticon.css" type="text/css"> 
     
     <script type="text/javascript" src="vendor/jquery/jquery.js"></script>
     <script type="text/javascript" src="vendor/jquery/jquery-ui.js"></script>
@@ -41,6 +44,11 @@
     <script src="vendor/random-color/random-color.js" type="text/javascript" charset="utf-8"></script>
 
     <script src="vendor/ntc/ntc.js" type="text/javascript" charset="utf-8"></script>
+
+    <script src="vendor/pickr/pickr.min.js"></script>
+    <script src="vendor/pickr/pickr.es5.min.js"></script>
+
+    <script src="vendor/terser/terser.js"></script>
 </head>
 <script>
     /** Что-бы все не пропало! **/
@@ -55,6 +63,7 @@
 
     /** Двигало **/
     var Ceron = {
+        api: 'http://ceron.host/ajax/api/',
         classes: {},
         modules: {},
         generators: {},
@@ -137,6 +146,10 @@
 <div class="color-piker-screen" id="color-piker-screen"></div>
 
 <div class="vtc-smart-rule" id="vtc-smart-rule"></div>
+
+<div class="color-piker-pipet">
+	<input type="text" id="color-pickr" value="#ffffff">
+</div>
 
 <div class="layer-welcome">
     <div class="layer-welcome-video">
@@ -240,7 +253,7 @@
 
     <li tab="media" class="icon"><img src="style/img/icons-panel/media.png" alt=""> media</li>
 
-    <li tab="psd" class="icon" id="psd-tab"><img src="style/img/icons-panel/ps-2.png" alt=""> psd</li>
+    <li tab="psd" class="icon" id="psd-tab"><img src="style/img/icons-panel/ps-2.png" alt=""> макеты</li>
 </ul>
 
 				<div class="tabs-content active" id="frame-result">
@@ -332,7 +345,7 @@
                         </div>
                         <div class="layer-psd-item-bottom">
                             <h3>Добавить</h3>
-                            <p>Загрузить PSD файл</p>
+                            <p>Загрузить новый макет</p>
                         </div>
                     </div>
                 </div>
@@ -574,8 +587,15 @@
             <li class="info"><span class="p-r-10">Создано правил: <span id="vtc-rules-total">0</span></span></li>
         </ul>
         <div class="tabs-content active vtc-tab-content" id="vtc-css-list">
-            <div class="vtc-css-create">
-                <div class="form-btn" id="vtc-css-add-folder"><img src="style/img/icons/pluse.png">Создать правило</div>
+            <div class="vtc-css-create form-field form-field-grow-one">
+                <div>
+                    <div class="form-input m-r-5">
+                        <input type="text" value="" name="" id="vtc-css-search" placeholder="Искать ...">
+                    </div>
+                </div>
+                <div>
+                    <div class="form-btn" id="vtc-css-add-folder"><img src="style/img/icons/pluse.png">Создать</div> 
+                </div>
             </div>
 
             <div class="vtc-css" id="vts-css">
@@ -949,7 +969,7 @@
     </div>
 </div>
         <div class="tabs-content" id="vtc-tpl-psd">
-    <div class="form-btn m-b-10" id="vtc-tpl-psd-add"><img src="style/img/icons/pluse.png">Добавить PSD</div>
+    <div class="form-btn m-b-10" id="vtc-tpl-psd-add"><img src="style/img/icons/pluse.png">Добавить макет</div>
     
    
     <div id="vtc-tpl-psd-list">
@@ -1675,7 +1695,7 @@
                                 <h3 class="trial-activated">Оформить подписку</h3>
                                 <div> 
                                     <p class="buy-text">Оформите подписку Ceron для себя, <b>затем введите серийный код на шаге 3.</b></p> 
-                                    <p><a class="btn btn-success" target="_blank" href="https://ceron.pw/subscription">&nbsp;&nbsp;Оформить сейчас&nbsp;&nbsp;</a></p> 
+                                    <p><a class="btn btn-success" target="_blank" href="https://ceron.pw/dashboard/subscription">&nbsp;&nbsp;Оформить сейчас&nbsp;&nbsp;</a></p> 
                                 </div>
                             </section>              
                         </div>
@@ -1684,7 +1704,7 @@
                             <section class="intro-section-buy">
                                 <h3 class="trial-activated">Введите свой серийный код после покупки подписки Ceron</h3>
                             
-                                <p>Введите свой адрес электронной почты (тот же, который использовался для совершения платежа), и серийный код, который вы получили в конце процесса оплаты:</p>
+                                <p>Введите свой адрес электронной почты (тот же, который для входа в личный кабинет), и серийный код, который вы получили после активации в личном кабинете:</p>
                                 
                                 <div class="form-group-simple">
                                     <div>
@@ -1703,7 +1723,7 @@
                                                 Активировать
                                             </button>
                                         </p>
-                                        <a class="btn btn-link btn-block forgot-serial external" target="_blank" href="https://ceron.pw/page/how_get_serial"><small>Как получить серийный код?</small></a>
+                                        <a class="btn btn-link btn-block forgot-serial external" target="_blank" href="https://ceron.pw/help"><small>Как получить серийный код?</small></a>
                                     </div>
                                 </div>
                                 
@@ -1717,7 +1737,7 @@
             </div>
             
             <div class="modal-footer">
-                <a target="_blank" href="https://ceron.pw/page/subscription" class="btn cancel btn-link">Что дает подписка?</a>
+                <a target="_blank" href="https://ceron.pw/subscription" class="btn cancel btn-link">Что дает подписка?</a>
             </div>
 
         </div>
@@ -1965,6 +1985,197 @@
                     </div>
                     
                 </form>
+            </div>
+        </div>
+    
+    </div>
+</div>
+<div id="model-select-window" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-md">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Открыть</h4>
+            </div>
+            <div class="modal-body">
+
+                <ul class="list-model">
+                    <li class="lets-open" data-model="Figma">
+                        <div>
+                            <img src="style/img/model/figma-gray.svg">
+                        </div>
+                        <span>Figma</span>
+                    </li>
+                    <li class="lets-open" data-model="AdobeXd">
+                        <div>
+                            <img src="style/img/model/xd-gray.svg">
+                        </div>
+                        <span>Adobe Xd</span>
+                    </li>
+                    <li class="lets-open" data-model="Photoshop">
+                        <div>
+                            <img src="style/img/model/photoshop-gray.svg">
+                        </div>
+                        <span>Photoshop</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    
+    </div>
+</div>
+<div id="model-figma-window" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-md">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Figma</h4>
+            </div>
+            <div class="modal-body">
+
+
+                <div class="form-group">
+                    <div class="form-name">Token ключ</div>
+                    <div class="form-content">
+                        <div class="form-input token">
+                            <input type="text" name="token" value="" placeholder="">
+                        </div>
+                        <span class="help-block m-b-0">Как получить ключ, подробнее <a href="https://www.figma.com/developers/docs#access-tokens" class="external" target="_blank">здесь.</a></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-name">Проект</div>
+                    <div class="form-content">
+                        <div class="form-input project">
+                            <input type="text" name="project" value="" placeholder="">
+                        </div>
+                        <span class="help-block m-b-0">ID проекта, найти можно в самой ссылке www.figma.com/file/ <b style="color: #ddd">EXovjhhjK8C1sdQkGh2G7Gpq</b> /...</span>
+                    </div>
+                </div>
+                
+                <div class="form-btn form-btn-big get-styles m-b-5">
+                    <img src="modules/psd-pipette/images/pip.png" alt=""> Загрузить
+                </div>
+                
+                <div class="m-t-15 loader">
+                    <div class="form-field form-field-align-center">
+                        <img src="style/img/load.svg">
+                        <span class="m-l-5">Выполняется запрос ...</span>
+                    </div>
+                </div>
+                
+                <div class="m-t-15 error">
+                    <code class="error-code"></code> <kbd class="error-name"></kbd>
+                </div>
+
+            </div>
+        </div>
+    
+    </div>
+</div>
+
+
+
+<div id="model-figma-preview-window" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-md">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Figma - выбор страниц</h4>
+            </div>
+            <div class="modal-body">
+                
+                <h4 class="m-b-0 preview-name"></h4>
+                <span class="help-block m-b-15">Обновлено: <span class="preview-time"></span></span>
+                
+                <ul class="list list-need m-b-15 preview-pages">
+                    
+                </ul>
+
+                <div class="form-btn form-btn-big get-styles m-b-5">
+                    <img src="modules/psd-pipette/images/pip.png" alt=""> Выбрать
+                </div>
+
+            </div>
+        </div>
+    
+    </div>
+</div>
+<div id="model-xd-window" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-md">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Adobe Xd</h4>
+            </div>
+            <div class="modal-body">
+
+                <!--<div class="progress">
+                    <p class="m-b-10">Обработка</p>
+
+                    <div class="layer-progress">
+                        <div class="progress-percent"></div>
+                    </div>
+                </div>-->
+
+                <div class="form-group">
+                    <div class="form-name">Ссылка</div>
+                    <div class="form-content">
+                        <div class="form-input project">
+                            <input type="text" name="project" value="" placeholder="">
+                        </div>
+                        <span class="help-block m-b-0">Укажите ссылку на проект, например https://xd.adobe.com/spec/9d10c430-4768-b4278ba694dc-eb21/</span>
+                    </div>
+                </div>
+                
+                
+                <div class="form-btn form-btn-big get-styles m-b-5">
+                    <img src="modules/psd-pipette/images/pip.png" alt=""> Загрузить
+                </div>
+                
+                <div class="m-t-15 loader">
+                    <div class="form-field form-field-align-center">
+                        <img src="style/img/load.svg">
+                        <span class="m-l-5">Выполняется запрос ...</span>
+                    </div>
+                </div>
+                
+                <div class="m-t-15 error">
+                    <code class="error-code"></code> <kbd class="error-name"></kbd>
+                </div>
+
+            </div>
+        </div>
+    
+    </div>
+</div>
+
+
+<div id="model-xd-preview-window" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-md">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Adobe Xd - выбор страниц</h4>
+            </div>
+            <div class="modal-body">
+                
+                <h4 class="m-b-0 preview-name"></h4>
+                <span class="help-block m-b-15">Обновлено: <span class="preview-time"></span></span>
+                
+                <ul class="list list-need m-b-15 preview-pages">
+                    
+                </ul>
+
+                <div class="form-btn form-btn-big get-styles m-b-5">
+                    <img src="modules/psd-pipette/images/pip.png" alt=""> Выбрать
+                </div>
+
             </div>
         </div>
     

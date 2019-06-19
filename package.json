@@ -2,7 +2,7 @@
   "main": "index.html",
   "name": "CERON",
   "description": "",
-  "version": "2.48",
+  "version": "2.49",
   "version_min": 2,
   "node-remote": "*://*/*",
   "window": {
@@ -34,6 +34,7 @@
     "sass": "^1.0.0-rc.1",
     "sass-parser": "^0.1.2",
     "scss-parser": "^1.0.0",
+    "uglifycss": "0.0.29",
     "unzip": "^0.1.11"
   },
   "chromium-args": "--enable-webgl --ignore-gpu-blacklist"

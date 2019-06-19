@@ -52,7 +52,10 @@ Ceron.modules.ImageCrop = function(){
             });
 
             $('.add',self.module).on('click',function(){
+
                 self.Add();
+
+                Generators.Module.Fixed(self.module);
             });
 
             $.each(crope.images, function(i, data){
@@ -87,6 +90,8 @@ Ceron.modules.ImageCrop = function(){
             Arrays.remove(crope.images, data);
 
             clone.remove();
+
+            Generators.Module.Fixed(self.module);
         })
 
         this.container.append(clone);

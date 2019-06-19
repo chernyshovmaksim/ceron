@@ -1,0 +1,79 @@
+<div id="model-figma-window" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-md">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Figma</h4>
+            </div>
+            <div class="modal-body">
+
+
+                <div class="form-group">
+                    <div class="form-name">Token ключ</div>
+                    <div class="form-content">
+                        <div class="form-input token">
+                            <input type="text" name="token" value="" placeholder="">
+                        </div>
+                        <span class="help-block m-b-0">Как получить ключ, подробнее <a href="https://www.figma.com/developers/docs#access-tokens" class="external" target="_blank">здесь.</a></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-name">Проект</div>
+                    <div class="form-content">
+                        <div class="form-input project">
+                            <input type="text" name="project" value="" placeholder="">
+                        </div>
+                        <span class="help-block m-b-0">ID проекта, найти можно в самой ссылке www.figma.com/file/ <b style="color: #ddd">EXovjhhjK8C1sdQkGh2G7Gpq</b> /...</span>
+                    </div>
+                </div>
+                
+                <div class="form-btn form-btn-big get-styles m-b-5">
+                    <img src="modules/psd-pipette/images/pip.png" alt=""> Загрузить
+                </div>
+                
+                <div class="m-t-15 loader">
+                    <div class="form-field form-field-align-center">
+                        <img src="style/img/load.svg">
+                        <span class="m-l-5">Выполняется запрос ...</span>
+                    </div>
+                </div>
+                
+                <div class="m-t-15 error">
+                    <code class="error-code"></code> <kbd class="error-name"></kbd>
+                </div>
+
+            </div>
+        </div>
+    
+    </div>
+</div>
+
+
+
+<div id="model-figma-preview-window" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-md">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Figma - выбор страниц</h4>
+            </div>
+            <div class="modal-body">
+                
+                <h4 class="m-b-0 preview-name"></h4>
+                <span class="help-block m-b-15">Обновлено: <span class="preview-time"></span></span>
+                
+                <ul class="list list-need m-b-15 preview-pages">
+                    
+                </ul>
+
+                <div class="form-btn form-btn-big get-styles m-b-5">
+                    <img src="modules/psd-pipette/images/pip.png" alt=""> Выбрать
+                </div>
+
+            </div>
+        </div>
+    
+    </div>
+</div>
