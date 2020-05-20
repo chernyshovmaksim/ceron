@@ -45,7 +45,18 @@ Ceron.modules.Border = function(){
 
             	if(pos) name += '-'+pos;
 
-            	Generators.Css.Add(name + ': ' + width + ' ' + style + ' ' + color);
+                if(style == 'none') Generators.Css.Add('border: 0');
+            	else Generators.Css.Add(name + ': ' + width + ' ' + style + ' ' + color);
+            })
+
+            $('.set-border-color',self.module).on('click',function(){
+                var name = 'border';
+
+                if(pos) name += '-'+pos;
+
+                name += '-color';
+
+                if(style !== 'none')  Generators.Css.Add(name + ': ' + color);
             })
 
             $('.set-radius',self.module).on('click',function(){

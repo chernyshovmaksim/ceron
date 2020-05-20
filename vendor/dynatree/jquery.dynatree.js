@@ -2784,7 +2784,7 @@ TODO: better?
 					// .append($(event.target).closest(".dynatree-title").clone());
 					.append(nodeTag.find(".dynatree-title").clone());
 			// issue 244: helper should be child of scrollParent
-			$("ul.dynatree-container", node.tree.divTree).append($helper);
+			$('body').append($helper);
 //          $(node.tree.divTree).append($helper);
 			// Attach node reference to helper object
 			$helper.data("dtSourceNode", node);

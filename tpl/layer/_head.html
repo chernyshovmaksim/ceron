@@ -1,6 +1,6 @@
-<div class="layer-color p-5 clearfix layer-size-top">
-    <img src="style/img/logo-small.png" class="pull-left m-r-10" style="margin-top: 1px;" />
-    <ul class="layer-menu pull-left">
+<div class="layer-color layer-top p-5 clearfix layer-size-top" style="-webkit-app-region: drag">
+    <img src="style/img/logo-small.png" class="m-r-10" style="margin-top: 1px;" />
+    <ul class="layer-menu" style="-webkit-app-region: no-drag">
         <li class="layer-project-name" onclick="$('#project-settings').modal('show')">Без названия</li>
         <li>Проект
             <div>
@@ -20,6 +20,10 @@
             </div>
         </li>
 
+        <li class="css-branch-open">Ветки <span style="opacity: 0.5">(<span class="css-branch-selected">Master</span>)</span></li>
+        <li onclick="$('#popup-variables').modal('show')">Переменные</li>
+        <li class="blueprint-triggers-open">Триггеры</li>
+
         <li onclick="Console.Open()">Консоль <span class="label label-danger layer-console-label">0</span></li>
         
         <li onclick="$('#popup-precess').modal('show')">Процесс <span class="label label-danger" id="process-label">1</span></li>
@@ -33,11 +37,12 @@
                 <span class="line"></span>
 
                 <span onclick="Functions.Reload()">Перезагрузить (Ctrl+R)</span>
+                <span><a href="https://docs.ceron.pw" target="_blank">Документация</a></span>
             </div>
         </li>
     </ul>
 
-    <div class="layer-head pull-left">
+    <div class="layer-head">
         <div class="item c-conection">
             <img src="style/img/load.svg"><span class="m-l-5">Подключение к сети ...</span>
         </div>
@@ -47,7 +52,16 @@
         </div>
     </div>
     
-    <ul class="layer-menu pull-right">
+    
+
+    <ul class="layer-menu layer-head-project" style="-webkit-app-region: no-drag">
         <li class="project-opened">Проект: <span></span></li>
     </ul>
+    
+    <ul class="layer-wcontrol" style="-webkit-app-region: no-drag">
+        <li class="cu" id="wn-cu"></li>
+        <li class="ex" id="wn-ex"></li>
+        <li class="cl" id="wn-cl"></li>
+    </ul>
+
 </div>

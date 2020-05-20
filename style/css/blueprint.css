@@ -105,13 +105,15 @@ body {
     bottom: 0;
     width: 20px;
     height: 20px;
-    background: url("../blueprint/img/resize.png") no-repeat 80% 80%;
+    background: url("../blueprint/img/resize.svg") no-repeat 80% 80%;
     pointer-events: all; }
   .blueprint-helper-close {
     width: 20px;
     height: 23px;
-    background: url("../blueprint/img/close.png") no-repeat 50% 50%;
-    margin-right: 5px;
+    background: url("../blueprint/img/close.svg") no-repeat 50% 50%;
+    -webkit-background-size: 11px 11px;
+            background-size: 11px;
+    margin-right: 2px;
     cursor: pointer;
     -webkit-flex-shrink: 0;
         -ms-flex-negative: 0;
@@ -167,8 +169,8 @@ body {
           background-size: 102% auto;
   min-width: 140px;
   border: 1px solid #1d1d1d;
-  -webkit-border-radius: 4px;
-          border-radius: 4px;
+  -webkit-border-radius: 3px;
+          border-radius: 3px;
   -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.26);
           box-shadow: 0 0 5px rgba(0, 0, 0, 0.26);
   padding: 8px;
@@ -179,9 +181,9 @@ body {
     -webkit-box-shadow: 0 0 5px rgba(185, 206, 228, 0.26);
             box-shadow: 0 0 5px rgba(185, 206, 228, 0.26); }
   .blueprint-node.active {
-    border-color: #ffa800;
-    -webkit-box-shadow: 0 0 5px rgba(249, 152, 0, 0.6);
-            box-shadow: 0 0 5px rgba(249, 152, 0, 0.6); }
+    border-color: #fdbe00;
+    -webkit-box-shadow: 0 0 0 2px #fdbe00;
+            box-shadow: 0 0 0 2px #fdbe00; }
   .blueprint-node-title {
     font-size: 15px; }
   .blueprint-node .display {
@@ -228,6 +230,8 @@ body {
     -webkit-justify-content: space-between;
         -ms-flex-pack: justify;
             justify-content: space-between; }
+    .blueprint-node-vars .vars svg {
+      fill: currentColor; }
     .blueprint-node-vars .vars > div {
       display: -webkit-box;
       display: -webkit-flex;
@@ -244,13 +248,17 @@ body {
         -webkit-flex-shrink: 0;
             -ms-flex-negative: 0;
                 flex-shrink: 0;
-        background: url("../blueprint/img/var.png") no-repeat 0 0;
         width: 14px;
-        height: 10px; }
-        .blueprint-node-vars .vars > div > i.active, .blueprint-node-vars .vars > div > i:hover {
-          background-position: -15px 0; }
-        .blueprint-node-vars .vars > div > i.content {
-          background-image: url("../blueprint/img/node-content.png"); }
+        height: 10px;
+        color: #ddd; }
+        .blueprint-node-vars .vars > div > i.content:not(.active) svg {
+          fill: transparent; }
+        .blueprint-node-vars .vars > div > i.content:hover svg {
+          fill: currentColor; }
+        .blueprint-node-vars .vars > div > i.var:not(.active) svg circle {
+          fill: transparent; }
+        .blueprint-node-vars .vars > div > i.var:hover svg circle {
+          fill: currentColor; }
       .blueprint-node-vars .vars > div:first-child {
         margin-top: 0; }
     .blueprint-node-vars .vars.input {
@@ -261,22 +269,23 @@ body {
       padding-left: 10px; }
       .blueprint-node-vars .vars.output i {
         margin-left: 5px; }
-        .blueprint-node-vars .vars.output i.content {
-          background-position: 4px 0; }
-          .blueprint-node-vars .vars.output i.content.active, .blueprint-node-vars .vars.output i.content:hover {
-            background-position: 100% 0; }
       .blueprint-node-vars .vars.output > div {
         -webkit-box-pack: end;
         -webkit-justify-content: flex-end;
             -ms-flex-pack: end;
                 justify-content: flex-end; }
   .blueprint-node.round {
-    -webkit-border-radius: 50px;
-            border-radius: 50px;
-    padding: 15px; }
+    /*
+			border-radius: 50px;
+			padding: 15px;
+			*/
+    /*border-radius: 7px;*/ }
     .blueprint-node.round .blueprint-node-content,
     .blueprint-node.round .blueprint-node-vars {
       margin-top: 0; }
+    .blueprint-node.round.css {
+      -webkit-border-radius: 50px;
+              border-radius: 50px; }
   .blueprint-node.icon {
     min-width: 50px;
     padding: 8px;
@@ -285,13 +294,11 @@ body {
   .blueprint-node.join {
     background: transparent !important;
     min-width: 10px;
-    padding: 4px; }
+    border: 0; }
   .blueprint-node.css {
     background: transparent !important;
     padding: 8px;
     min-width: 80px;
-    -webkit-box-shadow: none;
-            box-shadow: none;
     background-image: none !important; }
   .blueprint-node.reverse {
     -webkit-transform: scaleX(-1);

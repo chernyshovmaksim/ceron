@@ -12,75 +12,73 @@
                     <div class="tabs-container">
                         <ul class="tabs-menu">
                             <li tab="settings-common" class="active">Общие</li>
+                            <li tab="settings-prexis">Префиксы</li>
                             <li tab="settings-css">Стили</li>
                             <li tab="settings-css-default">CSS по дефолту</li>
                             <li tab="settings-css-fonts">Шрифты</li>
                         </ul>
                         
                         <div class="tabs-content active p-5 p-t-20 project-settings" id="settings-common">
-                            <div class="form-group">
-                                <div class="form-name">Название проекта</div>
-                                <div class="form-content">
-                                    <div class="form-input projectName">
-                                        <input type="text" name="projectName" value="" placeholder="">
+
+                            <div class="form-field form-field-half m-b-10">
+                                <div>
+                                    <div class="p-r-5">
+                                        <div class="form-group">
+                                            <div class="form-name">Название проекта</div>
+                                            <div class="form-content">
+                                                <div class="form-input projectName">
+                                                    <input type="text" name="projectName" value="" placeholder="">
+                                                </div>
+                                                <span class="help-block m-b-0">Укажите как называется ваш проект</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span class="help-block m-b-0">Укажите как называется ваш проект</span>
+                                </div>
+                                <div>
+                                    <div class="p-l-5">
+                                        <div class="form-group">
+                                            <div class="form-name">Единицы измерения</div>
+                                            <div class="form-content">
+                                                <select class="form-select units" name="units">
+                                                    <option value="px">PX</option>
+                                                    <option value="em">EM</option>
+                                                    <option value="rem">REM</option>
+                                                </select>
+
+                                                <span class="help-block m-b-0">Укажите тип единиц измерения по дефолту</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                            
 
                             
-                            <div class="form-group">
-                                <div class="form-name">Единицы измерения</div>
-                                <div class="form-content">
-                                    <select class="form-select units" name="units">
-                                        <option value="px">PX</option>
-                                        <option value="em">EM</option>
-                                        <option value="rem">REM</option>
-                                    </select>
-
-                                    <span class="help-block m-b-0">Укажите тип единиц измерения по дефолту</span>
-                                </div>
-                            </div>
+                            
 
                             <div class="form-group">
                                 <div class="form-name">Объединить</div>
                                 <div class="form-content">
-                                    <div class="form-input join">
-                                        <input type="text" name="join" value="" placeholder="-">
-                                    </div>
-                                    <span class="help-block m-b-0">Укажите каким знаком объединить названия и префикс.</span>
-                                </div>
-                            </div>
 
-                            <div class="form-group">
-                                <div class="form-name">Префиксы</div>
-                                <div class="form-content">
+                                    <div class="form-field form-field-half">
+                                        <div>
+                                            <div class="form-input join">
+                                                <input type="text" name="join" value="" placeholder="__">
+                                            </div>
+                                            <span class="help-block m-b-0">Укажите каким знаком объединить названия и префикс.</span>
+                                        </div>
+                                        <div>
+                                            <div class="form-input join_style">
+                                                <input type="text" name="join_style" value="" placeholder="_">
+                                            </div>
+                                            <span class="help-block m-b-0">Объединить для модификатора.</span>
+                                        </div>
+                                    </div>
                                     
-                                    <div class="form-field form-field-space">
-                                        <div style="width: 32%">
-                                            <div class="form-input prefixs-section">
-                                                <input type="text" name="" value="" placeholder="s_">
-                                            </div>
-                                            <span class="help-block m-b-0">Префикс для секции</span>
-                                        </div>
-                                        <div style="width: 32%">
-                                            <div class="form-input prefixs-block">
-                                                <input type="text" name="" value="" placeholder="b_">
-                                            </div>
-                                            <span class="help-block m-b-0">Префикс для блоков</span>
-                                        </div>
-                                        <div style="width: 32%">
-                                            <div class="form-input prefixs-elem">
-                                                <input type="text" name="" value="" placeholder="e_">
-                                            </div>
-                                            <span class="help-block m-b-0">Префикс для элементов</span>
-                                        </div>
-                                    </div>
-
                                 </div>
                             </div>
 
-
+                            
 
                             <div class="form-group">
                                 <div class="form-name">Относительный путь к файлам</div>
@@ -111,33 +109,208 @@
                                     <div class="form-input autoprefixer">
                                         <input type="text" name="autoprefixer" value="" placeholder="">
                                     </div>
-                                    <span class="help-block m-b-0">Autoprefixer будет использовать данные на основе текущей популярности браузера и поддержки свойств, чтобы применять префиксы. <a url="https://github.com/postcss/autoprefixer" target="_blank">Подробно про autoprefixer</a></span>
+                                    <span class="help-block m-b-0">Autoprefixer будет использовать данные на основе текущей популярности браузера и поддержки свойств, чтобы применять префиксы. <a href="https://github.com/postcss/autoprefixer" target="_blank" class="external">Подробно про autoprefixer</a></span>
+
+                                    <div class="form-field form-field-icon m-t-10">
+                                        <div>
+                                            <div class="form-checkbox">
+                                                <input type="checkbox" id="st-enable-autoprefixer">
+                                                <label for="st-enable-autoprefixer"></label>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span class="help-block m-b-0 m-t-0">Включить autoprefixer</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                             <div class="form-field form-field-half m-b-10">
+                                <div>
+                                    <div class="p-r-5">
+                                        <div class="form-group">
+                                            <div class="form-name">Игнорировать классы</div>
+                                            <div class="form-content">
+                                                <div class="form-input ignoreClasses">
+                                                    <input type="text" name="ignoreClasses" value="" placeholder="col-*,row,wow">
+                                                </div>
+                                                <span class="help-block m-b-0">Классы которые будут игнорироваться при выделение</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="p-l-5">
+                                         <div class="form-group">
+                                            <div class="form-name">Переменные</div>
+                                            <div class="form-content">
+                                                <div class="form-input vars">
+                                                    <input type="text" name="vars" value="" readonly placeholder="_vars.var">
+                                                </div>
+                                                <span class="help-block m-b-0">Файл в котором заданы параметры цветов, отступов, шрифтов и тд.</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            
+
+                           
+
+                            <div class="form-group">
+                                <div class="form-name">Дополнительно</div>
+                                <div class="form-content">
+                                    <div class="form-field form-field-icon m-b-10">
+                                        <div>
+                                            <div class="form-checkbox">
+                                                <input type="checkbox" id="st-add-helps">
+                                                <label for="st-add-helps"></label>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span class="help-block m-b-0 m-t-0">Показывать подсказки в HTML коде</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-field form-field-icon">
+                                        <div>
+                                            <div class="form-checkbox">
+                                                <input type="checkbox" id="st-play-sounds">
+                                                <label for="st-play-sounds"></label>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span class="help-block m-b-0 m-t-0">Включить звуковые уведомления</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> 
+
+                            <div class="form-group">
+                                <div class="form-name">Масштаб интерфейса</div>
+                                <div class="form-content">
+                                    <ul class="layer-interf-sizes" id="layer-interf-sizes">
+                                        <li data-size="100">100%</li>
+                                        <li data-size="105">105%</li>
+                                        <li data-size="110">110%</li>
+                                        <li data-size="115">115%</li>
+                                        <li data-size="120">120%</li>
+                                        <li data-size="125">125%</li>
+                                        <li data-size="130">130%</li>
+                                        <li data-size="140">140%</li>
+                                        <li data-size="150">150%</li>
+                                        <li data-size="200">200%</li>
+                                    </ul>
+                                </div>
+                            </div> 
+
+                        </div>
+
+                        <div class="tabs-content p-5 p-t-20 project-settings" id="settings-prexis">
+                            
+                            <div class="form-group">
+                                <div class="form-name">Элементы</div>
+                                <div class="form-content">
+                                    
+                                    <div class="form-field form-field-space">
+                                        <div style="width: 32%">
+                                            <div class="form-input prefixs-section">
+                                                <input type="text" name="" value="" placeholder="s_">
+                                            </div>
+                                            <span class="help-block m-b-0">Префикс для секции</span>
+                                        </div>
+                                        <div style="width: 32%">
+                                            <div class="form-input prefixs-block">
+                                                <input type="text" name="" value="" placeholder="b_">
+                                            </div>
+                                            <span class="help-block m-b-0">Префикс для блоков</span>
+                                        </div>
+                                        <div style="width: 32%">
+                                            <div class="form-input prefixs-elem">
+                                                <input type="text" name="" value="" placeholder="e_">
+                                            </div>
+                                            <span class="help-block m-b-0">Префикс для элементов</span>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <div class="form-name">Игнорировать классы</div>
+                                <div class="form-name">Типография</div>
                                 <div class="form-content">
-                                    <div class="form-input ignoreClasses">
-                                        <input type="text" name="ignoreClasses" value="" placeholder="col-*,row,wow">
+                                    <div class="form-input prefix-typo-typo">
+                                        <input type="text" name="" value="" placeholder="">
                                     </div>
-                                    <span class="help-block m-b-0">Классы которые будут игнорироваться при выделение</span>
+                                    <span class="help-block m-b-0">Основной класс, в котором будут созданы текста в виде типографии.</span>
+                                    
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-name">Текст</div>
+                                <div class="form-content">
+                                    
+                                    <div class="form-field form-field-space m-b-15">
+                                        <div style="width: 32%">
+                                            <div class="form-input prefix-typo-color">
+                                                <input type="text" name="" value="" placeholder="">
+                                            </div>
+                                            <span class="help-block m-b-0">Цвет</span>
+                                        </div>
+                                        <div style="width: 32%">
+                                            <div class="form-input prefix-typo-size">
+                                                <input type="text" name="" value="" placeholder="">
+                                            </div>
+                                            <span class="help-block m-b-0">Размер</span>
+                                        </div>
+                                        <div style="width: 32%">
+                                            <div class="form-input prefix-typo-weight">
+                                                <input type="text" name="" value="" placeholder="">
+                                            </div>
+                                            <span class="help-block m-b-0">Жирность</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-field form-field-space">
+                                        <div style="width: 32%">
+                                            <div class="form-input prefix-typo-font">
+                                                <input type="text" name="" value="" placeholder="">
+                                            </div>
+                                            <span class="help-block m-b-0">Название шрифта</span>
+                                        </div>
+                                        <div style="width: 32%">
+                                            <div class="form-input prefix-typo-style">
+                                                <input type="text" name="" value="" placeholder="">
+                                            </div>
+                                            <span class="help-block m-b-0">Стиль текста</span>
+                                        </div>
+                                        <div style="width: 32%">
+                                            <div class="form-input prefix-typo-lineheight">
+                                                <input type="text" name="" value="" placeholder="">
+                                            </div>
+                                            <span class="help-block m-b-0">Высота линии</span>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-name">Список классов</div>
+                                <div class="form-content">
+                                    <div class="form-input classes_list">
+                                        <textarea name="classes_list" rows="8" class="" placeholder="name fluid cont ..."></textarea>
+                                    </div>
+                                    <span class="help-block m-b-0">Название классов для автоматического названия, укажите через пробел.</span>
                                 </div>
                             </div>
 
                         </div>
 
                         <div class="tabs-content p-5 p-t-20 project-settings" id="settings-css">
-                            <div class="form-group">
-                                <div class="form-name">SASS переменные</div>
-                                <div class="form-content">
-                                    <div class="form-input vars">
-                                        <input type="text" name="vars" value="" readonly placeholder="_vars.sass">
-                                    </div>
-                                    <span class="help-block m-b-0">Sass файл в котором заданы параметры цветов, отступов, шрифтов и тд.</span>
-                                </div>
-                            </div>
-
+                            
                             <div class="form-group">
                                 <div class="form-name">CASCADE паттерны</div>
                                 <div class="form-content">
@@ -151,7 +324,7 @@
 
                         <div class="tabs-content p-5 p-t-20 project-settings" id="settings-css-default">
                             <div class="form-group">
-                                <div class="form-name">CSS Переменный по дефолту</div>
+                                <div class="form-name">CSS Переменные по дефолту</div>
                                 <div class="form-content">
                                     <div class="form-input">
                                         <textarea name="base" rows="6" class="base"></textarea>
@@ -171,12 +344,9 @@
                                 </div>
                             </div>
                         </div>
-
+                        
 
                     </div>
-
-
-                    
                 </form>
             </div>
         </div>

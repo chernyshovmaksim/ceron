@@ -53,7 +53,7 @@ Ceron.modules.Background = function(){
             $('.select-img',self.module).on('click',function(){
                 File.Choise('fileOpen',function(file){
                     Generators.Css.Add('background-image: url({path-'+Functions.RelativePath('', file)+'})');
-                },nw.path.dirname(Config.config.lastProject))
+                })
             })
             
             Generators.Module.AddToTool(self.module);

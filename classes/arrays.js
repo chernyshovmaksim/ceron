@@ -172,6 +172,10 @@ var Arrays = new function(){
         return arr.slice(-1)[0];
     }
 
+    this.unique = function(a){
+        return Array.from(new Set(a));
+    }
+
     
     this.getRandomSubarray = function(arr, size) {
         var shuffled = arr.slice(0), i = arr.length, temp, index;
@@ -243,5 +247,21 @@ var Arrays = new function(){
         }
         
         return equal;
+    }
+
+    this.insertAfter = function(obj, after_id, new_id, data){
+        var new_obj = {};
+
+        for(var i in obj){
+            new_obj[i] = obj[i];
+
+            if(i == after_id) new_obj[new_id] = data;
+        }
+
+        return new_obj;
+    }
+
+    this.filterEmpty = function(a){
+        return a.filter((v)=>{return v});
     }
 }

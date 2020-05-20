@@ -1,3 +1,6 @@
+html{
+    font-size: 16px;
+}
 body{
 	padding: 0;
     margin: 0;
@@ -113,7 +116,7 @@ label{
 code {
     padding: 2px 4px;
     font-size: 90%;
-    background-color: $color-6;
+    background-color: #2a2a2a;
     border-radius: 2px;
     font-family: Tahoma;
     font-size: 11px;
@@ -121,6 +124,29 @@ code {
 
     &.color-gold{
         background-color: #c59f4e;
+    }
+
+    &.code-ui{
+        background: transparent !important;
+        padding: 2px 0px !important;
+
+        span{
+            padding: 3px 5px;
+
+            &:first-child{
+                background: #5e5e5e;
+                border-top-left-radius: 3px;
+                border-bottom-left-radius: 3px;
+                text-transform: uppercase;
+            }
+            &:last-child{
+                color: #000;
+                background: #fdbe00;
+                border-top-right-radius: 3px;
+                border-bottom-right-radius: 3px;
+            }
+        }
+        
     }
 }
 
@@ -201,6 +227,25 @@ ico{
 	&:hover{
 		background-color: lighten(#333,5%)
 	}
+
+    &.info{
+        padding: 2px 4px;
+    }
+}
+
+drop{
+    width: 11px;
+    height: 11px;
+    background: url(../img/icons-panel/arrow-down.png) no-repeat 50% 50%;
+    background-color: #333;
+    border-radius: 2px;
+    display: inline-block;
+    margin-left: 5px;
+    cursor: pointer;
+
+    &:hover{
+        background-color: lighten(#333,5%)
+    }
 }
 
 .ico-big{

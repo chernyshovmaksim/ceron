@@ -1,8 +1,9 @@
 <ul class="tabs-menu" id="programm-tabs">
-    <li tab="frame-result" class="select-screen-size active shortcut-toogle" size="pc"><img src="style/img/icons-panel/pc.png" alt=""></li>
-    <li tab="frame-result" class="select-screen-size" size="ipad"><img src="style/img/icons-panel/ipad.png" alt=""></li>
-    <li tab="frame-result" class="select-screen-size" size="iphone"><img src="style/img/icons-panel/iphone.png" alt=""></li>
-    <li tab="frame-result" class="select-screen-size" size="responsive"><img src="style/img/icons-panel/pc-size.png" alt=""></li>
+
+    <li tab="frame-result" data-interf="true" data-iname="browser" class="select-screen-size active shortcut-toogle" size="pc"><img src="style/img/icons-panel/devices/net.png" alt=""></li>
+    <li tab="frame-result" data-interf="true" data-iname="browser" class="select-screen-size" size="ipad"><img src="style/img/icons-panel/devices/pad.png" alt=""></li>
+    <li tab="frame-result" data-interf="true" data-iname="browser" class="select-screen-size" size="iphone"><img src="style/img/icons-panel/devices/mobile.png" alt=""></li>
+    <li tab="frame-result" data-interf="true" data-iname="browser" class="select-screen-size" size="responsive"><img src="style/img/icons-panel/devices/responsive.png" alt=""></li>
     
     <li class="sep"></li>
     
@@ -12,14 +13,19 @@
 
     <li class="sep"></li>
     
-    <li tab="tpl" class="icon shortcut-toogle vtc-cascade-hide" id="vtc-tab-activate"><img src="style/img/icons-panel/vtc-2.png" alt=""> vtc</li>
-    <li tab="tpl" class="icon shortcut-toogle vtc-cascade-show"><img src="style/img/icons-panel/cascade-2.png" alt=""> cascade</li>
+    <li tab="tpl" data-interf="true" data-iname="vtc" class="icon shortcut-toogle vtc-cascade-hide" id="vtc-tab-activate"><img src="style/img/icons-panel/vtc-2.png" alt=""> vtc</li>
+    <li tab="tpl" data-interf="true" data-iname="cascade" class="icon shortcut-toogle vtc-cascade-show" id="scss-tab-activate"><img src="style/img/icons-panel/cascade-2.png" alt=""> cascade</li>
 
-    <li tab="css" class="icon" onclick="ECSS.ToSelect()" id="ecss-tab"><img src="style/img/icons-panel/css.png" alt=""> css</li>
+    <li tab="css" data-interf="true" data-iname="css" class="icon" onclick="ECSS.ToSelect()" id="ecss-tab"><img src="style/img/icons-panel/css.png" alt=""> css</li>
 
     <li tab="blueprint" class="icon"><img src="style/img/icons-panel/blueprint.png" alt=""> blueprint</li>
 
     <li tab="media" class="icon"><img src="style/img/icons-panel/media.png" alt=""> media</li>
 
     <li tab="psd" class="icon" id="psd-tab"><img src="style/img/icons-panel/ps-2.png" alt=""> макеты</li>
+
+
+    <li class="icon end interf-toggle"><img src="style/img/icons-panel/panel-layers.png" alt=""> <span>Разделить</span> <drop></drop></li>
+
+    <li id="interf-resize-event" data-toggle="tooltip" title="Колесико мыши для изменения"><img src="style/img/icons-panel/panel-resize.png" alt=""></li>
 </ul>

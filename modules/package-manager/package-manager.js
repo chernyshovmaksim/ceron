@@ -42,9 +42,28 @@ Ceron.modules.PackageManager = function(){
         var folder = Config.config.packageLibs;
         var eny    = false;
         var ven    = Functions.LocalPath('vendor');
+        var sort   = [];
+
+        var params = File.GetJson(nw.path.join(folder,'package.json'));
+
+        if(params.sort && Arrays.isArray(params.sort)) sort = params.sort;
 
         if (nw.file.existsSync(folder)) {
-            nw.file.readdirSync(folder).forEach(file => {
+            var to_sort = [];
+            var to_last = [];
+
+            nw.file.readdirSync(folder).forEach((a)=>{
+                if(sort.indexOf(a) == -1) to_last.push(a);
+                else to_sort.push(a);
+            })
+
+            to_sort.sort(function(a, b) {
+                return sort.indexOf(a) - sort.indexOf(b);
+            })
+
+            var all = to_sort.concat(to_last);
+
+            all.forEach(file => {
                 try{
                     var json = nw.file.readFileSync(nw.path.normalize(folder+'/'+file+'/package.json'), 'utf8');
 
@@ -94,43 +113,48 @@ Ceron.modules.PackageManager = function(){
     this.Install = function(folder, data){
         var folder_install = Functions.LocalPath('');
         var folder_vendor  = Functions.LocalPath('vendor');
+        var folder_js      = Functions.LocalPath('js');
         var folder_dst     = nw.path.join( folder_vendor, data.name );
         var folder_src     = nw.path.join( folder, 'vendor' );
 
         var path_include_css = nw.path.join( folder_vendor, 'css.html' );
         var path_include_js  = nw.path.join( folder_vendor, 'js.html' );
-        var path_app         = nw.path.join( folder_install, 'app.js' );
+        var path_app         = nw.path.join( folder_js, 'app.js' );
         var path_code        = nw.path.join( folder, 'code.js' );
 
-        if(!nw.file.existsSync( path_app )){
-            Functions.CopyFile('modules/package-manager/app.js',path_app);
-        }
+        
+        if(!nw.file.existsSync( folder_vendor )) nw.file.mkdirSync(folder_vendor);
+        if(!nw.file.existsSync( folder_js ))     nw.file.mkdirSync(folder_js);
+        if(!nw.file.existsSync( folder_dst ))    nw.file.mkdirSync(folder_dst);
+
+        Functions.CopyFolder(folder_src, folder_dst);
+
+        if(!nw.file.existsSync( path_app )) Functions.CopyFile('modules/package-manager/app.js',path_app);
 
         var data_css = File.GetData(path_include_css);
         var data_js  = File.GetData(path_include_js);
         var data_app = File.GetData(path_app);
 
-
-        if(!nw.file.existsSync( folder_vendor )) nw.file.mkdirSync(folder_vendor);
-        if(!nw.file.existsSync( folder_dst ))    nw.file.mkdirSync(folder_dst);
-
         if(data.libs){
-            Functions.CopyFolder(folder_src, folder_dst);
+            if(data.libs.css){
+                for (var i = 0; i < data.libs.css.length; i++) {
+                    var css = data.libs.css[i];
 
-            for (var i = 0; i < data.libs.css.length; i++) {
-                var css = data.libs.css[i];
+                    data_css += "\n"+'<link rel="stylesheet" href="vendor/'+data.name+'/'+css+'" />';
+                }
 
-                data_css += "\n"+'<link rel="stylesheet" href="vendor/'+data.name+'/'+css+'" />';
+                if(data.libs.css.length) File.Write(path_include_css, data_css);
             }
 
-            for (var i = 0; i < data.libs.js.length; i++) {
-                var js = data.libs.js[i];
+            if(data.libs.js){
+                for (var i = 0; i < data.libs.js.length; i++) {
+                    var js = data.libs.js[i];
 
-                data_js += "\n"+'<script src="vendor/'+data.name+'/'+js+'"></script>';
+                    data_js += "\n"+'<script src="vendor/'+data.name+'/'+js+'"></script>';
+                }
+
+                if(data.libs.js.length)  File.Write(path_include_js, data_js);
             }
-
-            if(data.libs.css.length) File.Write(path_include_css, data_css);
-            if(data.libs.js.length)  File.Write(path_include_js, data_js);
         }
 
         if(nw.file.existsSync( path_code )){

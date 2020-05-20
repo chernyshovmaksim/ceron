@@ -2,12 +2,13 @@
   "main": "index.html",
   "name": "CERON",
   "description": "",
-  "version": "2.49",
+  "version": "2.63",
   "version_min": 2,
   "node-remote": "*://*/*",
   "window": {
     "icon": "style/img/icon_program.png",
     "show": true,
+    "frame": false,
     "title": "",
     "toolbar": false,
     "width": 1200,
@@ -17,6 +18,7 @@
   },
   "devDependencies": {
     "del": "^3.0.0",
+    "gulp": "^4.0.2",
     "gulp-concat": "^2.6.1",
     "gulp-rename": "^1.2.2"
   },

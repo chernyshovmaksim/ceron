@@ -84,6 +84,10 @@ Ceron.modules.Effects =  function(){
 
             Form.InputDrag(opacity,'',{isFloat: 2, step: 0.02,max: 1, min: 0});
 
+            $('.opacity-apply',self.module).on('click',()=>{
+                Generators.Css.Add('opacity: ' + Form.InputGetValue(opacity));
+            })
+
             
             /** Transition **/
             var transition = $('.transition',self.module);
@@ -101,6 +105,10 @@ Ceron.modules.Effects =  function(){
             });
             
             Form.InputDrag(transition,'',{min: 0});
+
+            $('.transition-apply',self.module).on('click',()=>{
+                Generators.Css.Add('transition: all ' + Form.InputGetValue(transition) + 'ms');
+            })
             
 
             /** Cursor **/
@@ -367,6 +375,6 @@ Ceron.modules.Effects =  function(){
 
         Form.SelectSetValue($('.mix-blend-mode',self.module),blend);
 
-        $('input[name="opacity"]',self.module).val(opacity);
+        $('input[name="opacity"]',self.module).val(opacity || 1);
     }
 }

@@ -2,15 +2,13 @@ Ceron.modules.Mixin = function(){
 	var self = this;
 
     this.Init = function(){
-        return;
-        
         if(!Data.path.mixin) Data.path.mixin = '';
         
         Generators.Module.GetHtml('mixin',function(html){
 
             self.module = $(html);
 
-            var settingsBox = $('.project-settings').eq(1);
+            var settingsBox = $('.project-settings').eq(2);
 
             var settingField = $([
                 '<div class="form-group">',
@@ -19,7 +17,7 @@ Ceron.modules.Mixin = function(){
                         '<div class="form-input mixin">',
                             '<input type="text" name="mixin" value="" readonly placeholder="mixin.sass">',
                         '</div>',
-                        '<span class="help-block m-b-0">Файл с миксинами для чтения.</span>',
+                        '<span class="help-block m-b-0">Файл с миксинами для чтения, более подробно смотрите в <a href="https://docs.ceron.pw/module-mixin" target="_blank" class="external">документации</a>.</span>',
                     '</div>',
                 '</div>',
             ].join(''));
@@ -28,13 +26,13 @@ Ceron.modules.Mixin = function(){
                 var input = $(this);
 
                 File.Choise('fileOpen',function(file){
-                    Data.path.mixin = file;
+                    Data.path.mixin = Functions.NormalPath(Functions.RelativePath('', file));
 
-                    input.val(file)
+                    input.val(Data.path.mixin)
 
                     self.ReadMixin();
 
-                },nw.path.dirname(Data.path.mixin))
+                },nw.path.dirname(Functions.LocalPath(Data.path.mixin)))
             })
 
             settingsBox.append(settingField);
@@ -49,7 +47,7 @@ Ceron.modules.Mixin = function(){
     }
 
     this.Replace = function(result){
-        return result.replace(/:\(/gi,'(');
+        return result.replace(/@include\s(.*?):\((.*?)\)/g,'@include $1($2)');
     }
 
     this.ReadMixin = function(){
@@ -58,7 +56,7 @@ Ceron.modules.Mixin = function(){
         var read = '';
 
         try{
-            read = nw.file.readFileSync(Data.path.mixin, 'utf8');
+            read = nw.file.readFileSync(Functions.LocalPath(Data.path.mixin), 'utf8');
         }
         catch(e){
             Functions.Error('Не удалось открыть файл ('+Data.path.mixin+')')
@@ -75,13 +73,11 @@ Ceron.modules.Mixin = function(){
             })
 
         $.each(matches,function(i,found){
-            var vars = found[2] || '';
-
-                vars = vars.length  > 15 ? vars.substr(0,15)+'...' : vars;
+            var vars = Functions.Substring(found[2] || '', 15);
 
             var item = $([
                 '<li>',
-                    '<div><kbd>'+found[1]+':</kbd> '+(vars ? '<code class="m-l-5">'+vars+'</code>' : '')+'</div>',
+                    '<div>'+found[1]+' '+(vars ? '<code class="m-l-5">'+vars+'</code>' : '')+'</div>',
                 '</li>',
             ].join(''))
 

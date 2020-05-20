@@ -100,14 +100,15 @@ body{
 			bottom: 0;
 			width: 20px;
 			height: 20px;
-			background: url("../blueprint/img/resize.png") no-repeat 80% 80%;
+			background: url("../blueprint/img/resize.svg") no-repeat 80% 80%;
 			pointer-events: all;
 		}
 		&-close{
 			width: 20px;
 			height: 23px;
-			background: url("../blueprint/img/close.png") no-repeat 50% 50%;
-			margin-right: 5px;
+			background: url("../blueprint/img/close.svg") no-repeat 50% 50%;
+			background-size: 11px;
+			margin-right: 2px;
 			cursor: pointer;
 			flex-shrink: 0;
 		}
@@ -166,7 +167,7 @@ body{
 
 		min-width: 140px;
 		border: 1px solid #1d1d1d;
-		border-radius: 4px;
+		border-radius: 3px;
 		box-shadow: 0 0 5px rgba(0,0,0,0.26);
 		padding: 8px;
 		box-shadow: none;
@@ -177,8 +178,8 @@ body{
 		}
 
 		&.active{
-			border-color: #ffa800;
-			box-shadow: 0 0 5px rgba(#f99800,0.6);
+			border-color: #fdbe00;
+			box-shadow: 0 0 0 2px #fdbe00;
 		}
 
 		&-title{
@@ -231,6 +232,10 @@ body{
 			justify-content: space-between;
 
 			.vars{
+				svg{
+					fill: currentColor;
+				}
+
 				> div{
 					display: flex;
 					align-items: center;
@@ -240,19 +245,37 @@ body{
 
 					> i{
 						flex-shrink: 0;
-						background: url("../blueprint/img/var.png") no-repeat 0 0;
 						width: 14px;
 						height: 10px;
-						
+						color: #ddd;
 
-						&.active,
-						&:hover{
-							background-position: -15px 0;
-						}
 
 						&.content{
-							background-image: url("../blueprint/img/node-content.png");
-							
+							&:not(.active){
+								svg{
+									fill: transparent;
+								}
+							}
+
+							&:hover{
+								svg{
+									fill: currentColor;
+								}
+							}
+						}
+
+						&.var{
+							&:not(.active){
+								svg circle{
+									fill: transparent;
+								}
+							}
+
+							&:hover{
+								svg circle{
+									fill: currentColor;
+								}
+							}
 						}
 					}
 
@@ -273,15 +296,6 @@ body{
 
 					i{
 						margin-left: 5px;
-
-						&.content{
-							background-position: 4px 0;
-
-							&.active,
-							&:hover{
-								background-position: 100% 0;
-							}
-						}
 					}
 
 					> div{
@@ -292,12 +306,19 @@ body{
 		}
 
 		&.round{
+			/*
 			border-radius: 50px;
 			padding: 15px;
+			*/
+			/*border-radius: 7px;*/
 
 			.blueprint-node-content,
 			.blueprint-node-vars{
 				margin-top: 0
+			}
+
+			&.css{
+				border-radius: 50px;
 			}
 		}
 
@@ -310,14 +331,13 @@ body{
 		&.join{
 			background: transparent !important;
 			min-width: 10px;
-			padding: 4px;
+			border: 0;
 		}
 
 		&.css{
 			background: transparent !important;
 			padding: 8px;
 			min-width: 80px;
-			box-shadow:  none;
 			background-image: none !important;
 		}
 

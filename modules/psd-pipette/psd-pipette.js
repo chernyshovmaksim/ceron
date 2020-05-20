@@ -293,10 +293,15 @@ Ceron.modules.PsdPipette =  function(){
                     var radius = shape.keyOriginRRectRadii;
 
                     if(radius){
-                        result['border-bottom-left-radius'] = Math.round(radius.bottomLeft)+'px';
-                        result['border-bottom-right-radius'] = Math.round(radius.bottomRight)+'px';
-                        result['border-top-left-radius'] = Math.round(radius.topLeft)+'px';
-                        result['border-top-right-radius'] = Math.round(radius.topRight)+'px';
+                        if([radius.bottomLeft,radius.bottomRight,radius.topLeft,radius.topRight].every( (val, i, arr) => val === arr[0] )){
+                            result['border-radius'] = Math.round(radius.bottomLeft)+'px';
+                        }
+                        else{
+                            result['border-bottom-left-radius'] = Math.round(radius.bottomLeft)+'px';
+                            result['border-bottom-right-radius'] = Math.round(radius.bottomRight)+'px';
+                            result['border-top-left-radius'] = Math.round(radius.topLeft)+'px';
+                            result['border-top-right-radius'] = Math.round(radius.topRight)+'px';
+                        }
                     }
 
                     if(shape.keyOriginType == 5){
@@ -304,21 +309,30 @@ Ceron.modules.PsdPipette =  function(){
 
                         result['border-radius'] = Math.round(bbox.right-bbox.left)+'px';
                     }
-
                 }
+
+                var color;
 
                 if(layer.AGMStrokeStyleInfo && layer.AGMStrokeStyleInfo.strokeEnabled){
                     var border = layer.AGMStrokeStyleInfo,
                         type   = border.strokeStyleLineDashSet && border.strokeStyleLineDashSet.length ? 'dashed' : 'solid';
 
-                    result['border'] = border.strokeStyleLineWidth+'px '+type+' '+'rgba('+Math.round(border.strokeStyleContent.color.red)+','+Math.round(border.strokeStyleContent.color.grain)+','+Math.round(border.strokeStyleContent.color.blue)+','+(border.strokeStyleOpacity/100)+')';
+                    color = 'rgba('+Math.round(border.strokeStyleContent.color.red)+','+Math.round(border.strokeStyleContent.color.grain)+','+Math.round(border.strokeStyleContent.color.blue)+','+(border.strokeStyleOpacity/100)+')';
+                    
+                    color = self._fixedColorOpacity(layer, color);
+                    
+                    result['border'] = border.strokeStyleLineWidth+'px '+type+' '+color;
                 }
 
                 if(layer.layerEffects && layer.layerEffects.frameFX){
                     var border = layer.layerEffects.frameFX;
 
+                    color = 'rgba('+Math.round(border.color.red)+','+Math.round(border.color.grain)+','+Math.round(border.color.blue)+','+(border.opacity/100)+')';
+                    
+                    color = self._fixedColorOpacity(layer, color);
+                    
                     if(border.enabled){
-                        result['border'] = border.size+'px solid '+'rgba('+Math.round(border.color.red)+','+Math.round(border.color.grain)+','+Math.round(border.color.blue)+','+(border.opacity/100)+')';
+                        result['border'] = border.size+'px solid '+color;
                     }
                 }
 
@@ -372,12 +386,23 @@ Ceron.modules.PsdPipette =  function(){
 
             $.each(data,function(i,layer){
 
-                var fillName = layer.textKey ? 'color' : 'background-color';
+                var fillName   = layer.textKey ? 'color' : 'background-color';
+                var adjustment = layer.adjustment ? layer.adjustment[0] : false;
 
-                if(layer.adjustment){
-                    var color = layer.adjustment[0].solidColorLayer.color;
-                    
-                    result[fillName] = 'rgba('+Math.round(color.red)+','+Math.round(color.grain)+','+Math.round(color.blue)+','+(layer.fillOpacity/255).toFixed(2)+')';
+                if(adjustment){
+                    if(adjustment.solidColorLayer){
+                        var color = adjustment.solidColorLayer.color;
+                        
+                        result[fillName] = 'rgba('+Math.round(color.red)+','+Math.round(color.grain)+','+Math.round(color.blue)+','+(layer.fillOpacity/255).toFixed(2)+')';
+                    }
+                    else if(adjustment.gradientLayer){
+                        if(!layer.layerEffects) layer.layerEffects = {};
+
+                        if(!layer.layerEffects.gradientFill){
+                            layer.layerEffects.gradientFill = adjustment.gradientLayer;
+                            layer.layerEffects.gradientFill.enabled = true;
+                        }
+                    }
                 }
 
                 if(layer.layerEffects){
@@ -415,13 +440,16 @@ Ceron.modules.PsdPipette =  function(){
                         if(gradient.type == 'radial') result['background'] = bgc + gradient.type + '-gradient(circle, '+colors.join(',')+')';
                     }
                 }
+
+                if(result['background-color']) result['background-color'] = self._fixedColorOpacity(layer, result['background-color']);
+                if(result['color'])            result['color']            = self._fixedColorOpacity(layer, result['color']);
             })
         
             callback(result)
         })
     }
 
-    this.Font = function(text, callback){
+    this.Font = function(layer, text, callback){
         
         var result   = {};
         var textItem = text.textStyleRange.textStyle;
@@ -442,12 +470,16 @@ Ceron.modules.PsdPipette =  function(){
         //все еше нет? афигеть!
         if(!result['color']) result['color'] = '#000000';
 
+        //ну это, кто ваше ставить прозрачность на текст а?
+        result['color'] = this._fixedColorOpacity(layer, result['color']);
+        
+
         //капут чуваки, просто капут!
         
         var fontSize = 16;
 
         try{
-            fontSize = Math.round(textItem.impliedFontSize || textItem.size);
+            fontSize = Math.round(textItem.impliedFontSize || textItem.size || base.impliedFontSize || base.size || fontSize);
         }
         catch(e){}
 
@@ -531,6 +563,19 @@ Ceron.modules.PsdPipette =  function(){
         })  
     }
 
+    this._fixedColorOpacity = function(layer, color){
+        if(layer.opacity !== undefined){
+            if(layer.opacity !== 255){
+                if(color[0] == '#') color = Color.HexToRgba(color, Math.round(layer.opacity / 255 * 100));
+                else{
+                    color = Color.ToRgba(Color.ToRgbaComponent(color), (layer.opacity / 255).toFixed(2));
+                }
+            }
+        }
+
+        return color;
+    }
+
     this._convertShadow = function(deg, diameter) {
         var rad = Math.PI * deg / 180;
         var r   = (diameter + 1) / 2;
@@ -566,7 +611,7 @@ Ceron.modules.PsdPipette =  function(){
                         if(textrange && rangeWorkedOut.indexOf(worked) == -1){
                             rangeWorkedOut.push(worked);
 
-                            self.Font(text,function(font){
+                            self.Font(layer, text, function(font){
                                 self._add_box('Font', font, 'font', {helper: '<span>('+(textrange.length > 20 ? textrange.slice(0,20) + '...' : textrange)+')</span>'});
                             })
                         }

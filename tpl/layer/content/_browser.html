@@ -1,42 +1,123 @@
 <div class="tabs-content active" id="frame-result">
 
     <div class="layer-iframe-container">
-        <div class="layer-iframe-adress">
-            <div class="form-input">
-                <input type="text" value="" id="iframe-url" placeholder="http://localhost:3000">
+        <div class="layer-iframe-head">
+            <div class="layer-iframe-adress">
+                <div class="form-input">
+                    <input type="text" value="" id="iframe-url" placeholder="http://localhost:3000">
+                </div>
+
+                <div class="layer-iframe-history">
+                    <ul></ul>
+                </div>
+
+                <div class="layer-iframe-getaddresses" onclick="File.GetUrls()" data-toggle="tooltip" title="Получить список адресов"></div>
             </div>
 
-            <div class="layer-iframe-history">
-                <ul></ul>
-            </div>
-
-            <div class="layer-iframe-getaddresses" onclick="File.GetUrls()" data-toggle="tooltip" title="Получить список адресов"></div>
-        </div>
-        <div class="layer-iframe pc">
-            <div class="layer-iframe-grid">
-                <div class="layer-iframe-window" type="sourceView">
-                
-                    <iframe src="" id="raid" name="raid" class="iframe" nwdisable nwfaketop></iframe> 
-                    
+            <div class="layer-iframe-inputs form-field form-field-half m-l-10">
+                <div>
+                    <div class="form-input sw form-input-image form-input-medium">
+                        <input type="text" value="1920" name="width" placeholder="">
+                        <div>
+                            <img src="style/img/icons-panel/s-w.png" alt="">
+                        </div>
+                    </div>
                 </div>
-                <div id="iframe-watermarked" class="layer-iframe-watermarked">
-                    <canvas></canvas>
-                </div>
-                <ul class="tools-iframe" id="tools-iframe" style="display: none"> 
-                    <li onclick="Iframe.Reload();"><img src="style/img/icons-panel/reload.png" /></li>  
-                    <li onclick="Iframe.FullScreen('.layer-iframe');"><img src="style/img/icons-panel/full-screen.png" /></li>
-                </ul>
-                <div class="layer-iframe-resize"></div>
-                <div class="layer-iframe-none"></div>
-                <div class="layer-iframe-size">0px</div>
-                <div class="layer-iframe-media select-media-preview orange pulsar"><span>Больше 768px</span></div>
-                <div class="layer-iframe-media-match">
-                    <div class="title">
-                        Выбранный медиа не подходят к экрану
+                <div>
+                    <div class="form-input sh form-input-image form-input-medium">
+                        <input type="text" value="1080" name="height" placeholder="">
+                        <div>
+                            <img src="style/img/icons-panel/s-h.png" alt="">
+                        </div>
                     </div>
                 </div>
 
             </div>
+
+            <div class="layer-iframe-device m-l-10">
+                Редактор
+            </div>
+
+        </div>
+
+        <div class="layer-iframe-body">
+
+            <div class="layer-iframe pc" style="-webkit-app-region: no-drag">
+                <div class="layer-iframe-grid">
+                    <div class="layer-iframe-window" type="sourceView">
+                        
+                        
+                        <div class="layer-browser-mobile brw-mobile">
+                            <div class="layer-browser-mobile-top">
+                                <div>
+                                    11:36
+                                </div>
+                                <div>
+                                    <img src="style/img/icons/browser/bat.png" alt="">
+                                </div>
+                            </div>
+
+                            <div class="layer-browser-mobile-name">
+                                site-name.com
+                            </div>
+                        </div>
+
+                        <div class="layer-browser-mobile brw-tap">
+                            <div class="layer-browser-mobile-top">
+                                <div>
+                                    11:36
+                                </div>
+                                <div>
+                                    <img src="style/img/icons/browser/bat.png" alt="">
+                                </div>
+                            </div>
+
+                            <div class="layer-browser-mobile-bottom">
+                                <div class="layer-browser-mobile-icons">
+                                    <img src="style/img/icons/browser/back.png" alt="">
+                                    <img src="style/img/icons/browser/next.png" alt="">
+                                    <img src="style/img/icons/browser/up.png" alt="">
+                                </div>
+
+                                <div class="layer-browser-mobile-name">
+                                    site-name.com
+                                </div>
+
+                                <div class="layer-browser-mobile-icons">
+                                    <img src="style/img/icons/browser/book.png" alt="">
+                                    <img src="style/img/icons/browser/copy.png" alt="">
+                                    <img src="style/img/icons/browser/add.png" alt="">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="layer-browser-chrome brw-pc"></div>
+
+
+                        <iframe src="" id="raid" name="raid" class="iframe" nwdisable nwfaketop></iframe> 
+                        
+                    </div>
+                    <div id="iframe-watermarked" class="layer-iframe-watermarked">
+                        <canvas></canvas>
+                    </div>
+                    <ul class="tools-iframe" id="tools-iframe" style="display: none"> 
+                        <li onclick="Iframe.Reload();"><img src="style/img/icons-panel/reload.png" /></li>  
+                        <li onclick="Iframe.FullScreen('.layer-iframe');"><img src="style/img/icons-panel/full-screen.png" /></li>
+                    </ul>
+                    <div class="layer-iframe-resize"></div>
+                    <div class="layer-iframe-none"></div>
+                    <div class="layer-iframe-size">0px</div>
+                    <div class="layer-iframe-media select-media-preview orange pulsar"><span>Больше 768px</span></div>
+                    <div class="layer-iframe-media-match">
+                        <div class="title">
+                            Выбранный медиа не подходят к экрану
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
 
         <ul class="layer-iframe-parents tools-parents"></ul>

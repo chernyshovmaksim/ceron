@@ -1,13 +1,15 @@
 <div class="tabs-content active" id="options">
     
-    <ul class="tools-gamepad m-b-20">
-        <li class="back" onclick="Raid.Back()"></li>
-        <li class="start" onclick="Raid.Start()"></li>
-        <li class="next" onclick="Raid.Next()"></li>
-        <li class="up" onclick="Raid.Up()"></li>
-        <li class="down" onclick="Raid.Down()"></li>
-    </ul>
+
+    <div class="layer-controll">
+        <div class="back" onclick="Raid.Back()"></div>
+        <div class="next" onclick="Raid.Next()"></div>
+        <div class="name">Перейти к элементу</div>
+    </div>
     
+
+    <div class="layer-split"></div>
+
     
     <div class="form-group">
         <div class="form-name">Медиа</div>
@@ -26,25 +28,7 @@
         </div>
     </div>
     
-    <!--
-    <div class="form-group" style="display: none">
-        <div class="form-name">Родительский класс</div>
-        <div class="form-content">
-            <div class="form-field form-field-icon">
-                <div>
-                    <img src="style/img/icons-panel/cascade.png" alt="">
-                </div>
-                <div>
-                    <div class="form-input">
-                        <input type="text" value="" name="" placeholder="" class="select-class-parent">
-                    </div>
-                </div>
-            </div>
-            
-        </div>
-    </div>
-    -->
-
+    
 
     <div class="form-group">
         <div class="form-name">Рабочий класс <span class="vtc-css-list-output" id="class-name-doth"></span></div>
@@ -70,6 +54,11 @@
                    
                 </div>
             </div>
+            
+            <div class="form-group-control">
+                <ico id="select-class-add-unic"><img src="style/img/icons-panel/id.png"></ico>
+            </div>
+             
 
             <div class="form-divider form-divider-small" style="display: none"></div>
         </div>
@@ -95,6 +84,10 @@
             
         </div>
     </div>
+
+    
+    <div class="layer-split"></div>
+
 
     <div class="tools-bar">
         

@@ -7,13 +7,14 @@
     <meta name="keywords" content="" />
 
 
-    <link rel="stylesheet" href="style/css/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="style/css/bootstrap.rem.css" type="text/css" />
     <link rel="stylesheet" href="vendor/bootstrap-select/css/bootstrap-select.css" type="text/css" />
-    <link rel="stylesheet" href="vendor/dynatree/skin-vista/ui.dynatree.css" type="text/css" > 
+    <link rel="stylesheet" href="vendor/dynatree/skin-vista/ui.dynatree.rem.css" type="text/css" > 
     <link rel="stylesheet" href="vendor/pickr/pickr.min.css" type="text/css" />
     <link rel="stylesheet" href="vendor/pickr/pickr.min.css" type="text/css" />
+    <link rel="stylesheet" href="vendor/summernote/summernote.css" type="text/css" />
 
-    <link rel="stylesheet" href="style/css/custom.css" type="text/css" />
+    <link rel="stylesheet" href="style/css/custom.rem.css" type="text/css" />
 
     <link rel="stylesheet" href="style/fonts/essential/flaticon.css" type="text/css"> 
     
@@ -32,6 +33,8 @@
     <script src="vendor/ace/ace.js" type="text/javascript" charset="utf-8"></script>
     <script src="vendor/ace/theme-tomorrow_night_eighties.js" type="text/javascript" charset="utf-8"></script>
     <script src="vendor/ace/mode-css.js" type="text/javascript" charset="utf-8"></script>
+    <script src="vendor/ace/mode-html.js" type="text/javascript" charset="utf-8"></script>
+    <script src="vendor/ace/mode-javascript.js" type="text/javascript" charset="utf-8"></script>
 
     <script src="vendor/pixelate/pixelate.js" type="text/javascript" charset="utf-8"></script>
 
@@ -49,9 +52,19 @@
     <script src="vendor/pickr/pickr.es5.min.js"></script>
 
     <script src="vendor/terser/terser.js"></script>
+
+    <script src="vendor/brain/browser.js"></script>
+    
+    <script src="vendor/summernote/summernote.js"></script>
+    <script src="vendor/summernote/lang/summernote-ru-RU.min.js"></script>
+
+    <script src="vendor/react/react.production.min.js"></script>
+    <script src="vendor/react/react-dom.production.min.js"></script>
+    <script src="vendor/react/reactHtmlParser.js"></script>
+    
 </head>
 <script>
-    /** Что-бы все не пропало! **/
+    /** Чтобы все не пропало карл! **/
     process.on('uncaughtException', function (err) {
         try{
             Console.Add(err)
@@ -63,16 +76,34 @@
 
     /** Двигало **/
     var Ceron = {
-        api: 'http://ceron.host/ajax/api/',
+        api: 'https://ceron.pw/ajax/api/',
         classes: {},
         modules: {},
         generators: {},
         package: {},
-        cache: {}
+        cache: {},
+        browser: '#raid',
+        cursor: {
+            x: 0,
+            y: 0
+        }
     };
+
+    /** Прокси если надо **/
+    var http_proxy = '';
+
+    try{
+        http_proxy = nw.file.readFileSync('http_proxy.port', 'utf8');
+    }
+    catch(e){}
+
+    process.env.http_proxy = http_proxy;
+
 
     /** Начальные данные **/
     var Data = {};
+
+    var RaidDuplicete;
 
     /** Ну это, нужное **/
     nw.file    = require('fs');
@@ -114,27 +145,14 @@
     var win = navigator.userAgent.indexOf("WOW64") != -1 || navigator.userAgent.indexOf("Win64") != -1 ? 64 : 32;
 
     if(nw.file.existsSync('engine_'+win+'.bin')) nw.win.evalNWBin(null, 'engine_'+win+'.bin');
+
+    if(!nw.file.existsSync('blueprint-custom-nodes.js')){
+        nw.file.writeFileSync('blueprint-custom-nodes.js', '//Как создать свой собстенный нод, смотрите в документации https://docs.ceron.pw/blueprint-create-node');
+    }
 </script>
 
 <script type="text/javascript" src="blueprint.js"></script>
-
-<script type="text/javascript" src="modules/psd-pipette/psd-pipette.js"></script>
-<script type="text/javascript" src="modules/background/background.js"></script>
-<script type="text/javascript" src="modules/gradient/gradient.js"></script>
-<script type="text/javascript" src="modules/border/border.js"></script>
-<script type="text/javascript" src="modules/display/display.js"></script>
-<script type="text/javascript" src="modules/font/font.js"></script>
-<script type="text/javascript" src="modules/position/position.js"></script>
-<script type="text/javascript" src="modules/shadow/shadow.js"></script>
-<script type="text/javascript" src="modules/size/size.js"></script>
-<script type="text/javascript" src="modules/offset/offset.js"></script>
-<script type="text/javascript" src="modules/effects/effects.js"></script>
-<script type="text/javascript" src="modules/arrow/arrow.js"></script>
-<script type="text/javascript" src="modules/fonticon/fonticon.js"></script>
-<script type="text/javascript" src="modules/content/content.js"></script>
-<script type="text/javascript" src="modules/image-crope/image-crope.js"></script>
-<script type="text/javascript" src="modules/package-manager/package-manager.js"></script>
-<script type="text/javascript" src="modules/perfect-pixel/perfect-pixel.js"></script>
+<script type="text/javascript" src="blueprint-custom-nodes.js"></script>
 
 <div style="display: none">
     <input id="fileOpen" type="file" nwworkingdir="" />
@@ -151,6 +169,14 @@
 	<input type="text" id="color-pickr" value="#ffffff">
 </div>
 
+<div class="highlightme" id="highlightme">
+	<div class="highlightme-flow"></div><div class="highlightme-line"></div>
+</div>
+
+<div class="o_b_s" id="obs"></div>
+
+<div class="layer-overlay"></div>
+
 <div class="layer-welcome">
     <div class="layer-welcome-video">
         <video width="1280" height="720" autoplay id="welcome">
@@ -160,9 +186,9 @@
 </div>
 
 <div class="layer-main">
-    <div class="layer-color p-5 clearfix layer-size-top">
-    <img src="style/img/logo-small.png" class="pull-left m-r-10" style="margin-top: 1px;" />
-    <ul class="layer-menu pull-left">
+    <div class="layer-color layer-top p-5 clearfix layer-size-top" style="-webkit-app-region: drag">
+    <img src="style/img/logo-small.png" class="m-r-10" style="margin-top: 1px;" />
+    <ul class="layer-menu" style="-webkit-app-region: no-drag">
         <li class="layer-project-name" onclick="$('#project-settings').modal('show')">Без названия</li>
         <li>Проект
             <div>
@@ -182,6 +208,10 @@
             </div>
         </li>
 
+        <li class="css-branch-open">Ветки <span style="opacity: 0.5">(<span class="css-branch-selected">Master</span>)</span></li>
+        <li onclick="$('#popup-variables').modal('show')">Переменные</li>
+        <li class="blueprint-triggers-open">Триггеры</li>
+
         <li onclick="Console.Open()">Консоль <span class="label label-danger layer-console-label">0</span></li>
         
         <li onclick="$('#popup-precess').modal('show')">Процесс <span class="label label-danger" id="process-label">1</span></li>
@@ -195,11 +225,12 @@
                 <span class="line"></span>
 
                 <span onclick="Functions.Reload()">Перезагрузить (Ctrl+R)</span>
+                <span><a href="https://docs.ceron.pw" target="_blank">Документация</a></span>
             </div>
         </li>
     </ul>
 
-    <div class="layer-head pull-left">
+    <div class="layer-head">
         <div class="item c-conection">
             <img src="style/img/load.svg"><span class="m-l-5">Подключение к сети ...</span>
         </div>
@@ -209,9 +240,18 @@
         </div>
     </div>
     
-    <ul class="layer-menu pull-right">
+    
+
+    <ul class="layer-menu layer-head-project" style="-webkit-app-region: no-drag">
         <li class="project-opened">Проект: <span></span></li>
     </ul>
+    
+    <ul class="layer-wcontrol" style="-webkit-app-region: no-drag">
+        <li class="cu" id="wn-cu"></li>
+        <li class="ex" id="wn-ex"></li>
+        <li class="cl" id="wn-cl"></li>
+    </ul>
+
 </div>
 
     <div class="layer-line-x layer-line-h"></div>
@@ -220,6 +260,7 @@
     	<div class="layer-content-tools">
     <ul class="tools-left">
         <li data-toggle="tooltip" title="Перезагрузить браузер" onclick="Iframe.Reload()"><img src="style/img/icons-panel/reload-2.png" /></li>
+        <li data-toggle="tooltip" title="Отдельное окно браузера" onclick="Iframe.Duplicate()"><img src="style/img/icons-panel/win-popup.png" /></li>
         <li data-toggle="tooltip" title="На весь экран" onclick="Iframe.FullScreen('.layer-iframe')"><img src="style/img/icons-panel/full-screen-2.png" /></li>
         <li data-toggle="tooltip" title="Повторно компилировать" onclick="Raid.Bind()"><img src="style/img/icons-panel/raid-build-2.png" /></li>
         <li data-toggle="tooltip" title="Спрятать выделение" onclick="Raid.Disable()"><img src="style/img/icons-panel/raid-disable.png" /></li>
@@ -229,12 +270,13 @@
 </div>
         
         <div class="layer-content-center">
-            <div class="tabs-container">
+            <div class="tabs-container" id="interf">
 				<ul class="tabs-menu" id="programm-tabs">
-    <li tab="frame-result" class="select-screen-size active shortcut-toogle" size="pc"><img src="style/img/icons-panel/pc.png" alt=""></li>
-    <li tab="frame-result" class="select-screen-size" size="ipad"><img src="style/img/icons-panel/ipad.png" alt=""></li>
-    <li tab="frame-result" class="select-screen-size" size="iphone"><img src="style/img/icons-panel/iphone.png" alt=""></li>
-    <li tab="frame-result" class="select-screen-size" size="responsive"><img src="style/img/icons-panel/pc-size.png" alt=""></li>
+
+    <li tab="frame-result" data-interf="true" data-iname="browser" class="select-screen-size active shortcut-toogle" size="pc"><img src="style/img/icons-panel/devices/net.png" alt=""></li>
+    <li tab="frame-result" data-interf="true" data-iname="browser" class="select-screen-size" size="ipad"><img src="style/img/icons-panel/devices/pad.png" alt=""></li>
+    <li tab="frame-result" data-interf="true" data-iname="browser" class="select-screen-size" size="iphone"><img src="style/img/icons-panel/devices/mobile.png" alt=""></li>
+    <li tab="frame-result" data-interf="true" data-iname="browser" class="select-screen-size" size="responsive"><img src="style/img/icons-panel/devices/responsive.png" alt=""></li>
     
     <li class="sep"></li>
     
@@ -244,57 +286,143 @@
 
     <li class="sep"></li>
     
-    <li tab="tpl" class="icon shortcut-toogle vtc-cascade-hide" id="vtc-tab-activate"><img src="style/img/icons-panel/vtc-2.png" alt=""> vtc</li>
-    <li tab="tpl" class="icon shortcut-toogle vtc-cascade-show"><img src="style/img/icons-panel/cascade-2.png" alt=""> cascade</li>
+    <li tab="tpl" data-interf="true" data-iname="vtc" class="icon shortcut-toogle vtc-cascade-hide" id="vtc-tab-activate"><img src="style/img/icons-panel/vtc-2.png" alt=""> vtc</li>
+    <li tab="tpl" data-interf="true" data-iname="cascade" class="icon shortcut-toogle vtc-cascade-show" id="scss-tab-activate"><img src="style/img/icons-panel/cascade-2.png" alt=""> cascade</li>
 
-    <li tab="css" class="icon" onclick="ECSS.ToSelect()" id="ecss-tab"><img src="style/img/icons-panel/css.png" alt=""> css</li>
+    <li tab="css" data-interf="true" data-iname="css" class="icon" onclick="ECSS.ToSelect()" id="ecss-tab"><img src="style/img/icons-panel/css.png" alt=""> css</li>
 
     <li tab="blueprint" class="icon"><img src="style/img/icons-panel/blueprint.png" alt=""> blueprint</li>
 
     <li tab="media" class="icon"><img src="style/img/icons-panel/media.png" alt=""> media</li>
 
     <li tab="psd" class="icon" id="psd-tab"><img src="style/img/icons-panel/ps-2.png" alt=""> макеты</li>
+
+
+    <li class="icon end interf-toggle"><img src="style/img/icons-panel/panel-layers.png" alt=""> <span>Разделить</span> <drop></drop></li>
+
+    <li id="interf-resize-event" data-toggle="tooltip" title="Колесико мыши для изменения"><img src="style/img/icons-panel/panel-resize.png" alt=""></li>
 </ul>
 
 				<div class="tabs-content active" id="frame-result">
 
     <div class="layer-iframe-container">
-        <div class="layer-iframe-adress">
-            <div class="form-input">
-                <input type="text" value="" id="iframe-url" placeholder="http://localhost:3000">
+        <div class="layer-iframe-head">
+            <div class="layer-iframe-adress">
+                <div class="form-input">
+                    <input type="text" value="" id="iframe-url" placeholder="http://localhost:3000">
+                </div>
+
+                <div class="layer-iframe-history">
+                    <ul></ul>
+                </div>
+
+                <div class="layer-iframe-getaddresses" onclick="File.GetUrls()" data-toggle="tooltip" title="Получить список адресов"></div>
             </div>
 
-            <div class="layer-iframe-history">
-                <ul></ul>
-            </div>
-
-            <div class="layer-iframe-getaddresses" onclick="File.GetUrls()" data-toggle="tooltip" title="Получить список адресов"></div>
-        </div>
-        <div class="layer-iframe pc">
-            <div class="layer-iframe-grid">
-                <div class="layer-iframe-window" type="sourceView">
-                
-                    <iframe src="" id="raid" name="raid" class="iframe" nwdisable nwfaketop></iframe> 
-                    
+            <div class="layer-iframe-inputs form-field form-field-half m-l-10">
+                <div>
+                    <div class="form-input sw form-input-image form-input-medium">
+                        <input type="text" value="1920" name="width" placeholder="">
+                        <div>
+                            <img src="style/img/icons-panel/s-w.png" alt="">
+                        </div>
+                    </div>
                 </div>
-                <div id="iframe-watermarked" class="layer-iframe-watermarked">
-                    <canvas></canvas>
-                </div>
-                <ul class="tools-iframe" id="tools-iframe" style="display: none"> 
-                    <li onclick="Iframe.Reload();"><img src="style/img/icons-panel/reload.png" /></li>  
-                    <li onclick="Iframe.FullScreen('.layer-iframe');"><img src="style/img/icons-panel/full-screen.png" /></li>
-                </ul>
-                <div class="layer-iframe-resize"></div>
-                <div class="layer-iframe-none"></div>
-                <div class="layer-iframe-size">0px</div>
-                <div class="layer-iframe-media select-media-preview orange pulsar"><span>Больше 768px</span></div>
-                <div class="layer-iframe-media-match">
-                    <div class="title">
-                        Выбранный медиа не подходят к экрану
+                <div>
+                    <div class="form-input sh form-input-image form-input-medium">
+                        <input type="text" value="1080" name="height" placeholder="">
+                        <div>
+                            <img src="style/img/icons-panel/s-h.png" alt="">
+                        </div>
                     </div>
                 </div>
 
             </div>
+
+            <div class="layer-iframe-device m-l-10">
+                Редактор
+            </div>
+
+        </div>
+
+        <div class="layer-iframe-body">
+
+            <div class="layer-iframe pc" style="-webkit-app-region: no-drag">
+                <div class="layer-iframe-grid">
+                    <div class="layer-iframe-window" type="sourceView">
+                        
+                        
+                        <div class="layer-browser-mobile brw-mobile">
+                            <div class="layer-browser-mobile-top">
+                                <div>
+                                    11:36
+                                </div>
+                                <div>
+                                    <img src="style/img/icons/browser/bat.png" alt="">
+                                </div>
+                            </div>
+
+                            <div class="layer-browser-mobile-name">
+                                site-name.com
+                            </div>
+                        </div>
+
+                        <div class="layer-browser-mobile brw-tap">
+                            <div class="layer-browser-mobile-top">
+                                <div>
+                                    11:36
+                                </div>
+                                <div>
+                                    <img src="style/img/icons/browser/bat.png" alt="">
+                                </div>
+                            </div>
+
+                            <div class="layer-browser-mobile-bottom">
+                                <div class="layer-browser-mobile-icons">
+                                    <img src="style/img/icons/browser/back.png" alt="">
+                                    <img src="style/img/icons/browser/next.png" alt="">
+                                    <img src="style/img/icons/browser/up.png" alt="">
+                                </div>
+
+                                <div class="layer-browser-mobile-name">
+                                    site-name.com
+                                </div>
+
+                                <div class="layer-browser-mobile-icons">
+                                    <img src="style/img/icons/browser/book.png" alt="">
+                                    <img src="style/img/icons/browser/copy.png" alt="">
+                                    <img src="style/img/icons/browser/add.png" alt="">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="layer-browser-chrome brw-pc"></div>
+
+
+                        <iframe src="" id="raid" name="raid" class="iframe" nwdisable nwfaketop></iframe> 
+                        
+                    </div>
+                    <div id="iframe-watermarked" class="layer-iframe-watermarked">
+                        <canvas></canvas>
+                    </div>
+                    <ul class="tools-iframe" id="tools-iframe" style="display: none"> 
+                        <li onclick="Iframe.Reload();"><img src="style/img/icons-panel/reload.png" /></li>  
+                        <li onclick="Iframe.FullScreen('.layer-iframe');"><img src="style/img/icons-panel/full-screen.png" /></li>
+                    </ul>
+                    <div class="layer-iframe-resize"></div>
+                    <div class="layer-iframe-none"></div>
+                    <div class="layer-iframe-size">0px</div>
+                    <div class="layer-iframe-media select-media-preview orange pulsar"><span>Больше 768px</span></div>
+                    <div class="layer-iframe-media-match">
+                        <div class="title">
+                            Выбранный медиа не подходят к экрану
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
 
         <ul class="layer-iframe-parents tools-parents"></ul>
@@ -327,7 +455,7 @@
             <div class="layer-ecss-edit-top">
                 <div class="form-btn" id="ecss-save"><img src="style/img/icons/ok.png">Сохранить изменения</div>
             </div>
-            <div class="layer-ecss-edit-textbox" id="ecss-editor"></div>
+            <div class="layer-ecss-edit-textbox nobbcode" id="ecss-editor"></div>
         </div>
     </div>
 
@@ -474,6 +602,8 @@
                                         <div class="form-input">
                                             <textarea rows="6" id="psd-layer-css-value"></textarea>
                                         </div>
+
+                                        <div class="form-btn m-t-5" id="psd-layer-css-pip">Применить к рабочему классу</div>
                                     </div>
                                 </div>
                                 
@@ -509,6 +639,14 @@
                                             </div>
                                             <div id="psd-info-size"></div>  
                                         </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="form-name">Стили в классы</div>
+                                    <div class="form-content">
+                                        <p><small>Стили для текстов будут преобразованы в название классов. Перед тем как применить, настройте базовые стили и шрифты.</small></p>
+                                        <div class="form-btn" id="psd-info-parse-styles">Применить</div>
                                     </div>
                                 </div>
 
@@ -583,8 +721,9 @@
         <div class="vtc-left">
     <div class="tabs-container">
         <ul class="tabs-menu">
-            <li class="active" data-show="" tab="vtc-css-list"><img src="style/img/icons-panel/childrens.png" alt=""></li>
-            <li class="info"><span class="p-r-10">Создано правил: <span id="vtc-rules-total">0</span></span></li>
+            <li tab="vtc-css-list" data-show="" class="active vieport-update-draw"><img src="style/img/icons-panel/childrens.png" alt=""></li>
+            <li tab="vtc-css-categorys" data-show="" class="icon vieport-update-draw"><img src="style/img/icons-panel/folder.png" alt=""> <span class="vtc-categorys-select">Все</span></li>
+            <li class="info"><span class="p-r-10">Правил: <span id="vtc-rules-total">0</span></span></li>
         </ul>
         <div class="tabs-content active vtc-tab-content" id="vtc-css-list">
             <div class="vtc-css-create form-field form-field-grow-one">
@@ -593,8 +732,16 @@
                         <input type="text" value="" name="" id="vtc-css-search" placeholder="Искать ...">
                     </div>
                 </div>
-                <div>
-                    <div class="form-btn" id="vtc-css-add-folder"><img src="style/img/icons/pluse.png">Создать</div> 
+                <div class="form-field">
+                    <div>
+                        <div class="form-btn form-btn-icon vtc-categorys-choise" data-toggle="tooltip" title="Выбрать категорию"><img src="style/img/icons-panel/childrens.png"></div>
+                    </div>
+                    <div class="m-l-5">
+                        <div class="form-btn form-btn-icon" id="vtc-create-typography" data-toggle="tooltip" title="Создать типографию"><img src="style/img/icons-panel/auto.png"></div>
+                    </div>
+                    <div class="m-l-5">
+                        <div class="form-btn form-btn-icon" id="vtc-css-add-folder" data-toggle="tooltip" title="Создать правило"><img src="style/img/icons/pluse.png"></div>
+                    </div>
                 </div>
             </div>
 
@@ -605,8 +752,12 @@
 
         </div>
         
-        <div class="tabs-content" id="vtc-css-settings">
+        <div class="tabs-content" id="vtc-css-categorys">
+            <div class="form-btn m-b-10 vtc-categorys-add">Создать категорию</div>
+
+            <ul class="list list-folders vtc-categorys-list">
             
+            </ul>
         </div>
     </div>
 </div>
@@ -622,6 +773,12 @@
         <iframe src="live.html" id="vtc-live"></iframe>
     </div>
 
+    <div class="vtc-content-live" id="vtc-live-html">
+        <div id="vtc-live-html-editor" class="nobbcode" style="height: 100%"></div>
+    </div>
+
+   
+
     <ul class="tools-iframe tools-vtc">
         <li id="vtc-viewport-auto-join" data-toggle="tooltip" title="Автоматически создавать классы" ><img src="style/img/icons-panel/auto-join.png"></li> 
         <li id="vtc-viewport-draw-line" data-toggle="tooltip" title="Показать-Скрыть линии" ><img src="style/img/icons-panel/line.png"></li> 
@@ -629,24 +786,44 @@
         <li id="vtc-viewport-showhide-psd" data-toggle="tooltip" title="Сделать макет прозрачным" ><img src="style/img/icons-panel/show.png"></li>  
 
         <li class="sep"></li>
-        <li id="vtc-viewport-create-tpl" data-toggle="tooltip" title="Сделать новый шаблон" ><img src="style/img/icons-panel/vtc-new-tpl.png"></li>
-        <li id="vtc-viewport-join-add" data-toggle="tooltip" title="Создать классы для выделенных элементов" >
+        
+        <li id="vtc-viewport-create-screen" data-toggle="tooltip" title="Сделать снимок шаблона" ><img src="style/img/icons-panel/photo-2.png"></li> 
+        
+        <li id="vtc-viewport-zoom-reset" data-toggle="tooltip" title="Сбить до 100%" ><img src="style/img/icons-panel/vtc-zoom.png"></li> 
+
+        
+        <li id="vtc-viewport-join-add" class="hide" data-toggle="tooltip" title="Создать классы для выделенных элементов" >
             <img src="style/img/icons-panel/auto-join-add.png">
         </li>
-        <li id="vtc-viewport-join-nodes" data-toggle="tooltip" title="Объединить выделенные ноды в один" >
+
+        
+
+        <li id="vtc-viewport-create-tpl" class="hide" data-toggle="tooltip" title="Сделать новый шаблон"><img src="style/img/icons-panel/vtc-new-tpl.png"></li>
+        
+        <li> 
+            <img src="style/img/icons-panel/magnet-node-outer.png" class="vtc-magnet" data-name="1">
+            <ul>
+                <li class="vtc-magnet" data-name="0"><img src="style/img/icons-panel/magnet-node.png"></li> 
+            </ul>
+        </li> 
+
+        
+        <li id="vtc-viewport-join-nodes" class="hide" data-toggle="tooltip" title="Объединить выделенные ноды в один" >
             <img src="style/img/icons-panel/join-nodes.png">
         </li>
-        <li id="vtc-viewport-group-nodes" data-toggle="tooltip" title="Создать наружный нод" >
+        <li id="vtc-viewport-group-nodes" class="hide" data-toggle="tooltip" title="Создать наружный нод" >
             <img src="style/img/icons-panel/group-nodes.png">
         </li>
-        <li id="vtc-viewport-select-childrens" data-toggle="tooltip" title="Выделить детей" >
+        <li id="vtc-viewport-select-childrens" class="hide" data-toggle="tooltip" title="Выделить детей" >
             <img src="style/img/icons-panel/vtc-get-childrens.png">
         </li>
-        <li id="vtc-viewport-create-vars" data-toggle="tooltip" title="Создать переменные" >
+
+        <li id="vtc-viewport-create-vars" class="hide" data-toggle="tooltip" title="Создать переменные" >
             <img src="style/img/icons-panel/var.png">
         </li>
+        
 
-        <li id="vtc-viewport-draw-rule" data-toggle="tooltip" title="Расчитать отступы между двумя элементами" >
+        <li id="vtc-viewport-draw-rule" class="hide" data-toggle="tooltip" title="Расчитать отступы между двумя элементами" >
             <img src="style/img/icons-panel/rule.png">
         </li>
 
@@ -687,8 +864,14 @@
         </li>
 
         <li class="sep"></li>
-        <li id="vtc-viewport-enable-live" data-toggle="tooltip" title="Живой просмотр" ><img src="style/img/icons-panel/vtc-live.png"></li> 
+
+        <li id="vtc-viewport-enable-live" data-toggle="tooltip" title="Живой просмотр"><img src="style/img/icons-panel/vtc-live.png"></li> 
+        <li id="vtc-viewport-enable-live-html" data-toggle="tooltip" title="Просмотр HTML"><img src="style/img/icons-panel/html.png"></li> 
     </ul>
+
+    <div class="vtc-modeler-toggle" id="modeler-toogle"><img src="style/img/icons-panel/modeler.png" alt=""></div>
+
+    <div class="vtc-zoom" id="vtc-viewport-zoom"><img src="style/img/icons-panel/search.png" alt=""><span>100%</span></div>
     
     <div class="vtc-scss-display main" id="vtc-scss-display-main">
         <div class="vtc-scss-display items" id="vtc-scss-display-items">
@@ -727,10 +910,57 @@
             </div>
         </div>
     </div>
+
+
+    <div class="vtc-smart-params-popup" id="vtc-smart-params-popup">
+        <div class="vtc-smart-params-head" id="vtc-smart-params-head">Текст</div>
+        <div class="vtc-smart-params-body">
+            <table class="vtc-smart-params-table" id="vtc-smart-params-table">
+                <tr>
+                    <td>Тип текста</td>
+                    <td>
+                        <ul class="form-radio text-align">
+                            <li name="left"><img src="style/img/icons/font-alight-1.png" alt=""></li>
+                            <li name="center"><img src="style/img/icons/font-alight-2.png" alt=""></li>
+                            <li name="right"><img src="style/img/icons/font-alight-3.png" alt=""></li>
+                            <li name="justify"><img src="style/img/icons/font-alight-4.png" alt=""></li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Классы</td>
+                    <td>
+                        <ul class="form-radio text-overflow">
+                            <li name="inherit"><img src="style/img/icons/none.png" alt=""></li>
+                            <li name="clip"><img src="style/img/icons/font-overflow-clip.png" alt=""></li>
+                            <li name="ellipsis"><img src="style/img/icons/font-overflow-ellipsis.png" alt=""></li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+
+</div>
+		<div class="vtc-modeler" id="modeler-module">
+	<div class="vtc-modeler-header">
+		<span>Modeler</span> - <span class="vtc-modeler-header-select" id="modeler-template"></span>
+	</div>
+	<div class="vtc-modeler-content" id="modeler-content">
+
+
+	</div>
+	<div class="vtc-modeler-footer">
+		<ul class="tabs-menu">
+		    <li id="modeler-open" data-toggle="tooltip" title="Редактировать шаблон"><img src="style/img/icons-panel/edit-template.png" alt=""></li>
+		    <li id="modeler-add-patern" data-toggle="tooltip" title="Добавить патерн"><img src="style/img/icons-panel/add-patern.png" alt=""></li>
+		</ul>
+	</div>
 </div>
 		<div class="vtc-right">
     <div class="tabs-container">
-         <ul class="tabs-menu">
+         <ul class="tabs-menu" id="tabs-rmenu-vtc">
     <li class="active" tab="vtc-tpl-list"><img src="style/img/icons-panel/childrens.png" alt=""></li>
     <li tab="vtc-tpl-node"><img src="style/img/icons-panel/node-vtc.png" alt=""></li>
     <li tab="vtc-tpl-settings"><img src="style/img/icons-panel/settings.png" alt=""></li>
@@ -877,7 +1107,7 @@
         <div class="tabs-content" id="vtc-tpl-settings">
 
     <div class="form-group">
-        <div class="form-name">Сетка</div>
+        <div class="form-name">Колонки</div>
         <div class="form-content padding" id="vtc-tpl-settings-grid">
             <div class="form-field form-field-half">
                 <div>
@@ -1044,7 +1274,7 @@
 
         <div class="layer-content-options">
             <div class="tabs-container">
-                <ul class="tabs-menu">
+                <ul class="tabs-menu" id="tabs-rmenu-frame">
     <li class="active" tab="options" id="option-tab"><img src="style/img/icons-panel/pencel.png" alt=""></li>
     <li tab="class-info" id="class-info-tab"><img src="style/img/icons-panel/info.png" alt=""></li>
     <li tab="childrens" id="childrens-tab"><img src="style/img/icons-panel/childrens.png" alt=""></li>
@@ -1054,14 +1284,16 @@
 
                 <div class="tabs-content active" id="options">
     
-    <ul class="tools-gamepad m-b-20">
-        <li class="back" onclick="Raid.Back()"></li>
-        <li class="start" onclick="Raid.Start()"></li>
-        <li class="next" onclick="Raid.Next()"></li>
-        <li class="up" onclick="Raid.Up()"></li>
-        <li class="down" onclick="Raid.Down()"></li>
-    </ul>
+
+    <div class="layer-controll">
+        <div class="back" onclick="Raid.Back()"></div>
+        <div class="next" onclick="Raid.Next()"></div>
+        <div class="name">Перейти к элементу</div>
+    </div>
     
+
+    <div class="layer-split"></div>
+
     
     <div class="form-group">
         <div class="form-name">Медиа</div>
@@ -1080,25 +1312,7 @@
         </div>
     </div>
     
-    <!--
-    <div class="form-group" style="display: none">
-        <div class="form-name">Родительский класс</div>
-        <div class="form-content">
-            <div class="form-field form-field-icon">
-                <div>
-                    <img src="style/img/icons-panel/cascade.png" alt="">
-                </div>
-                <div>
-                    <div class="form-input">
-                        <input type="text" value="" name="" placeholder="" class="select-class-parent">
-                    </div>
-                </div>
-            </div>
-            
-        </div>
-    </div>
-    -->
-
+    
 
     <div class="form-group">
         <div class="form-name">Рабочий класс <span class="vtc-css-list-output" id="class-name-doth"></span></div>
@@ -1124,6 +1338,11 @@
                    
                 </div>
             </div>
+            
+            <div class="form-group-control">
+                <ico id="select-class-add-unic"><img src="style/img/icons-panel/id.png"></ico>
+            </div>
+             
 
             <div class="form-divider form-divider-small" style="display: none"></div>
         </div>
@@ -1150,6 +1369,10 @@
         </div>
     </div>
 
+    
+    <div class="layer-split"></div>
+
+
     <div class="tools-bar">
         
     </div>
@@ -1160,7 +1383,7 @@
     <div class="form-field form-field-grow-one m-b-30">
         <div>
             <div class="form-input">
-                <input type="text" id="class-info-name">
+                <input type="text" id="class-info-name" readonly="">
             </div>
         </div>
         <div class="m-l-5">
@@ -1257,7 +1480,7 @@
 
     <div class="layer-line-x layer-line-h"></div>
 	
-	<div class="layer-color clearfix layer-size-copyright">
+	<div class="layer-color clearfix layer-size-copyright layer-footer">
     <div class="pull-left layer-info layer-noti-info"></div>
     <div class="pull-left layer-info layer-noti-error"></div>
     <div class="pull-right layer-copyright">CERON © 2019 Версия <span class="ceron-version">-</span></div></div>
@@ -1294,6 +1517,7 @@
                 <label>Color</label>
                 <div class="form-color-input select-color">
                     <input type="text" name="" value="" placeholder="" />
+                    <ul class="drop"><li class="inherit">In</li></ul>
                 </div>
             </div>
             <div class="form-color-opacity">
@@ -1333,6 +1557,8 @@
 		<li class="b" data-tag="b"></li>
 		<li class="i" data-tag="i"></li>
 		<li class="u" data-tag="u"></li>
+		<li class="up" data-tag="up"></li>
+		<li class="lw" data-tag="lw"></li>
 	</ul>
 </div>
 
@@ -1350,75 +1576,73 @@
                     <div class="tabs-container">
                         <ul class="tabs-menu">
                             <li tab="settings-common" class="active">Общие</li>
+                            <li tab="settings-prexis">Префиксы</li>
                             <li tab="settings-css">Стили</li>
                             <li tab="settings-css-default">CSS по дефолту</li>
                             <li tab="settings-css-fonts">Шрифты</li>
                         </ul>
                         
                         <div class="tabs-content active p-5 p-t-20 project-settings" id="settings-common">
-                            <div class="form-group">
-                                <div class="form-name">Название проекта</div>
-                                <div class="form-content">
-                                    <div class="form-input projectName">
-                                        <input type="text" name="projectName" value="" placeholder="">
+
+                            <div class="form-field form-field-half m-b-10">
+                                <div>
+                                    <div class="p-r-5">
+                                        <div class="form-group">
+                                            <div class="form-name">Название проекта</div>
+                                            <div class="form-content">
+                                                <div class="form-input projectName">
+                                                    <input type="text" name="projectName" value="" placeholder="">
+                                                </div>
+                                                <span class="help-block m-b-0">Укажите как называется ваш проект</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span class="help-block m-b-0">Укажите как называется ваш проект</span>
+                                </div>
+                                <div>
+                                    <div class="p-l-5">
+                                        <div class="form-group">
+                                            <div class="form-name">Единицы измерения</div>
+                                            <div class="form-content">
+                                                <select class="form-select units" name="units">
+                                                    <option value="px">PX</option>
+                                                    <option value="em">EM</option>
+                                                    <option value="rem">REM</option>
+                                                </select>
+
+                                                <span class="help-block m-b-0">Укажите тип единиц измерения по дефолту</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                            
 
                             
-                            <div class="form-group">
-                                <div class="form-name">Единицы измерения</div>
-                                <div class="form-content">
-                                    <select class="form-select units" name="units">
-                                        <option value="px">PX</option>
-                                        <option value="em">EM</option>
-                                        <option value="rem">REM</option>
-                                    </select>
-
-                                    <span class="help-block m-b-0">Укажите тип единиц измерения по дефолту</span>
-                                </div>
-                            </div>
+                            
 
                             <div class="form-group">
                                 <div class="form-name">Объединить</div>
                                 <div class="form-content">
-                                    <div class="form-input join">
-                                        <input type="text" name="join" value="" placeholder="-">
-                                    </div>
-                                    <span class="help-block m-b-0">Укажите каким знаком объединить названия и префикс.</span>
-                                </div>
-                            </div>
 
-                            <div class="form-group">
-                                <div class="form-name">Префиксы</div>
-                                <div class="form-content">
+                                    <div class="form-field form-field-half">
+                                        <div>
+                                            <div class="form-input join">
+                                                <input type="text" name="join" value="" placeholder="__">
+                                            </div>
+                                            <span class="help-block m-b-0">Укажите каким знаком объединить названия и префикс.</span>
+                                        </div>
+                                        <div>
+                                            <div class="form-input join_style">
+                                                <input type="text" name="join_style" value="" placeholder="_">
+                                            </div>
+                                            <span class="help-block m-b-0">Объединить для модификатора.</span>
+                                        </div>
+                                    </div>
                                     
-                                    <div class="form-field form-field-space">
-                                        <div style="width: 32%">
-                                            <div class="form-input prefixs-section">
-                                                <input type="text" name="" value="" placeholder="s_">
-                                            </div>
-                                            <span class="help-block m-b-0">Префикс для секции</span>
-                                        </div>
-                                        <div style="width: 32%">
-                                            <div class="form-input prefixs-block">
-                                                <input type="text" name="" value="" placeholder="b_">
-                                            </div>
-                                            <span class="help-block m-b-0">Префикс для блоков</span>
-                                        </div>
-                                        <div style="width: 32%">
-                                            <div class="form-input prefixs-elem">
-                                                <input type="text" name="" value="" placeholder="e_">
-                                            </div>
-                                            <span class="help-block m-b-0">Префикс для элементов</span>
-                                        </div>
-                                    </div>
-
                                 </div>
                             </div>
 
-
+                            
 
                             <div class="form-group">
                                 <div class="form-name">Относительный путь к файлам</div>
@@ -1449,33 +1673,208 @@
                                     <div class="form-input autoprefixer">
                                         <input type="text" name="autoprefixer" value="" placeholder="">
                                     </div>
-                                    <span class="help-block m-b-0">Autoprefixer будет использовать данные на основе текущей популярности браузера и поддержки свойств, чтобы применять префиксы. <a url="https://github.com/postcss/autoprefixer" target="_blank">Подробно про autoprefixer</a></span>
+                                    <span class="help-block m-b-0">Autoprefixer будет использовать данные на основе текущей популярности браузера и поддержки свойств, чтобы применять префиксы. <a href="https://github.com/postcss/autoprefixer" target="_blank" class="external">Подробно про autoprefixer</a></span>
+
+                                    <div class="form-field form-field-icon m-t-10">
+                                        <div>
+                                            <div class="form-checkbox">
+                                                <input type="checkbox" id="st-enable-autoprefixer">
+                                                <label for="st-enable-autoprefixer"></label>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span class="help-block m-b-0 m-t-0">Включить autoprefixer</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                             <div class="form-field form-field-half m-b-10">
+                                <div>
+                                    <div class="p-r-5">
+                                        <div class="form-group">
+                                            <div class="form-name">Игнорировать классы</div>
+                                            <div class="form-content">
+                                                <div class="form-input ignoreClasses">
+                                                    <input type="text" name="ignoreClasses" value="" placeholder="col-*,row,wow">
+                                                </div>
+                                                <span class="help-block m-b-0">Классы которые будут игнорироваться при выделение</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="p-l-5">
+                                         <div class="form-group">
+                                            <div class="form-name">Переменные</div>
+                                            <div class="form-content">
+                                                <div class="form-input vars">
+                                                    <input type="text" name="vars" value="" readonly placeholder="_vars.var">
+                                                </div>
+                                                <span class="help-block m-b-0">Файл в котором заданы параметры цветов, отступов, шрифтов и тд.</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            
+
+                           
+
+                            <div class="form-group">
+                                <div class="form-name">Дополнительно</div>
+                                <div class="form-content">
+                                    <div class="form-field form-field-icon m-b-10">
+                                        <div>
+                                            <div class="form-checkbox">
+                                                <input type="checkbox" id="st-add-helps">
+                                                <label for="st-add-helps"></label>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span class="help-block m-b-0 m-t-0">Показывать подсказки в HTML коде</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-field form-field-icon">
+                                        <div>
+                                            <div class="form-checkbox">
+                                                <input type="checkbox" id="st-play-sounds">
+                                                <label for="st-play-sounds"></label>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span class="help-block m-b-0 m-t-0">Включить звуковые уведомления</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> 
+
+                            <div class="form-group">
+                                <div class="form-name">Масштаб интерфейса</div>
+                                <div class="form-content">
+                                    <ul class="layer-interf-sizes" id="layer-interf-sizes">
+                                        <li data-size="100">100%</li>
+                                        <li data-size="105">105%</li>
+                                        <li data-size="110">110%</li>
+                                        <li data-size="115">115%</li>
+                                        <li data-size="120">120%</li>
+                                        <li data-size="125">125%</li>
+                                        <li data-size="130">130%</li>
+                                        <li data-size="140">140%</li>
+                                        <li data-size="150">150%</li>
+                                        <li data-size="200">200%</li>
+                                    </ul>
+                                </div>
+                            </div> 
+
+                        </div>
+
+                        <div class="tabs-content p-5 p-t-20 project-settings" id="settings-prexis">
+                            
+                            <div class="form-group">
+                                <div class="form-name">Элементы</div>
+                                <div class="form-content">
+                                    
+                                    <div class="form-field form-field-space">
+                                        <div style="width: 32%">
+                                            <div class="form-input prefixs-section">
+                                                <input type="text" name="" value="" placeholder="s_">
+                                            </div>
+                                            <span class="help-block m-b-0">Префикс для секции</span>
+                                        </div>
+                                        <div style="width: 32%">
+                                            <div class="form-input prefixs-block">
+                                                <input type="text" name="" value="" placeholder="b_">
+                                            </div>
+                                            <span class="help-block m-b-0">Префикс для блоков</span>
+                                        </div>
+                                        <div style="width: 32%">
+                                            <div class="form-input prefixs-elem">
+                                                <input type="text" name="" value="" placeholder="e_">
+                                            </div>
+                                            <span class="help-block m-b-0">Префикс для элементов</span>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <div class="form-name">Игнорировать классы</div>
+                                <div class="form-name">Типография</div>
                                 <div class="form-content">
-                                    <div class="form-input ignoreClasses">
-                                        <input type="text" name="ignoreClasses" value="" placeholder="col-*,row,wow">
+                                    <div class="form-input prefix-typo-typo">
+                                        <input type="text" name="" value="" placeholder="">
                                     </div>
-                                    <span class="help-block m-b-0">Классы которые будут игнорироваться при выделение</span>
+                                    <span class="help-block m-b-0">Основной класс, в котором будут созданы текста в виде типографии.</span>
+                                    
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-name">Текст</div>
+                                <div class="form-content">
+                                    
+                                    <div class="form-field form-field-space m-b-15">
+                                        <div style="width: 32%">
+                                            <div class="form-input prefix-typo-color">
+                                                <input type="text" name="" value="" placeholder="">
+                                            </div>
+                                            <span class="help-block m-b-0">Цвет</span>
+                                        </div>
+                                        <div style="width: 32%">
+                                            <div class="form-input prefix-typo-size">
+                                                <input type="text" name="" value="" placeholder="">
+                                            </div>
+                                            <span class="help-block m-b-0">Размер</span>
+                                        </div>
+                                        <div style="width: 32%">
+                                            <div class="form-input prefix-typo-weight">
+                                                <input type="text" name="" value="" placeholder="">
+                                            </div>
+                                            <span class="help-block m-b-0">Жирность</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-field form-field-space">
+                                        <div style="width: 32%">
+                                            <div class="form-input prefix-typo-font">
+                                                <input type="text" name="" value="" placeholder="">
+                                            </div>
+                                            <span class="help-block m-b-0">Название шрифта</span>
+                                        </div>
+                                        <div style="width: 32%">
+                                            <div class="form-input prefix-typo-style">
+                                                <input type="text" name="" value="" placeholder="">
+                                            </div>
+                                            <span class="help-block m-b-0">Стиль текста</span>
+                                        </div>
+                                        <div style="width: 32%">
+                                            <div class="form-input prefix-typo-lineheight">
+                                                <input type="text" name="" value="" placeholder="">
+                                            </div>
+                                            <span class="help-block m-b-0">Высота линии</span>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-name">Список классов</div>
+                                <div class="form-content">
+                                    <div class="form-input classes_list">
+                                        <textarea name="classes_list" rows="8" class="" placeholder="name fluid cont ..."></textarea>
+                                    </div>
+                                    <span class="help-block m-b-0">Название классов для автоматического названия, укажите через пробел.</span>
                                 </div>
                             </div>
 
                         </div>
 
                         <div class="tabs-content p-5 p-t-20 project-settings" id="settings-css">
-                            <div class="form-group">
-                                <div class="form-name">SASS переменные</div>
-                                <div class="form-content">
-                                    <div class="form-input vars">
-                                        <input type="text" name="vars" value="" readonly placeholder="_vars.sass">
-                                    </div>
-                                    <span class="help-block m-b-0">Sass файл в котором заданы параметры цветов, отступов, шрифтов и тд.</span>
-                                </div>
-                            </div>
-
+                            
                             <div class="form-group">
                                 <div class="form-name">CASCADE паттерны</div>
                                 <div class="form-content">
@@ -1489,7 +1888,7 @@
 
                         <div class="tabs-content p-5 p-t-20 project-settings" id="settings-css-default">
                             <div class="form-group">
-                                <div class="form-name">CSS Переменный по дефолту</div>
+                                <div class="form-name">CSS Переменные по дефолту</div>
                                 <div class="form-content">
                                     <div class="form-input">
                                         <textarea name="base" rows="6" class="base"></textarea>
@@ -1509,12 +1908,9 @@
                                 </div>
                             </div>
                         </div>
-
+                        
 
                     </div>
-
-
-                    
                 </form>
             </div>
         </div>
@@ -2042,7 +2438,7 @@
                         <div class="form-input token">
                             <input type="text" name="token" value="" placeholder="">
                         </div>
-                        <span class="help-block m-b-0">Как получить ключ, подробнее <a href="https://www.figma.com/developers/docs#access-tokens" class="external" target="_blank">здесь.</a></span>
+                        <span class="help-block m-b-0">Как получить ключ, подробнее <a href="https://docs.ceron.pw/inspect-figma" class="external" target="_blank">здесь.</a></span>
                     </div>
                 </div>
                 <div class="form-group">
@@ -2181,6 +2577,155 @@
     
     </div>
 </div>
+<div id="popup-css-branch" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-md">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">CSS Ветки (<span class="css-branch-selected">Master</span>)</h4>
+            </div>
+            <div class="modal-body">
+                
+                <div class="form-field form-field-grow-one">
+                    <div>
+                        <p class="m-b-30">Отслеживает все изменения выбранной ветки в CSS для дальнейшего экспорта.</p>
+                    </div>
+                    <div>
+                        <div class="form-btn form-btn-big css-branch-create"><img src="style/img/icons/pluse.png">Создать ветку</div>
+                    </div>
+                </div>
+
+                <ul class="list list-branch css-branch-list">
+                    <li class="master css-branch-master">
+                        <div>
+                            <h4>Master</h4>
+                            <p>Основная ветка, учитывает все изменения</p>
+                        </div>
+                        <div></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    
+    </div>
+</div>
+<div id="new-project-window" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width: 53.75rem">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Новый проект</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="layer-psd-items fluid" id="new-stock-select">
+                    <div class="layer-psd-item static" data-stock="">
+                        <div class="layer-psd-item-image">
+                            <img src="style/img/projects/a1.png">
+                        </div>
+                        <div class="layer-psd-item-bottom">
+                            <h3>Пустой</h3>
+                            <p>Без настроек</p>
+                        </div>
+                    </div>
+                    <div class="layer-psd-item static" data-stock="page">
+                        <div class="layer-psd-item-image">
+                            <img src="style/img/projects/a2.png">
+                        </div>
+                        <div class="layer-psd-item-bottom">
+                            <h3>Страница</h3>
+                            <p>Базовые настройки</p>
+                        </div>
+                    </div>
+                    <div class="layer-psd-item static" data-stock="landing">
+                        <div class="layer-psd-item-image">
+                            <img src="style/img/projects/a3.png">
+                        </div>
+                        <div class="layer-psd-item-bottom">
+                            <h3>Лендинг</h3>
+                            <p>С настройками для лендинга</p>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    
+    </div>
+</div>
+<div id="popup-blueprint-triggers" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-md">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Триггеры</h4>
+            </div>
+            <div class="modal-body">
+                
+                <ul class="list list-triggers" id="blueprint-triggers-list">
+                    
+                </ul>
+            </div>
+        </div>
+    
+    </div>
+</div>
+<div id="popup-variables" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-md">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Переменные</h4>
+            </div>
+            <div class="modal-body">
+                
+                <div class="form-field form-field-grow-one">
+                    <div>
+                        <p class="m-b-20">Переменные с информацией которые можно использовать в BLUEPRINT</p>
+                    </div>
+                    <div>
+                        <div class="form-btn form-btn-big" id="variables-create"><img src="style/img/icons/pluse.png">Создать</div>
+                    </div>
+                </div>
+                
+                <div id="variables-list">
+                    
+                </div>
+            </div>
+        </div>
+    
+    </div>
+</div>
+<div id="window-summernote" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Wysiwyg</h4>
+            </div>
+            <div class="modal-body modal-body-wide">
+                <div id="summernote"></div>                
+            </div>
+        </div>
+    
+    </div>
+</div>
+
+<div class="ringMenu" id="rmenu-smart">
+    <div class="ringMenu-background"></div>
+	<div class="ringMenu-inner">
+		<div class="ringMenu-center"></div>
+		<div class="ringMenu-items">
+			
+		</div>
+	</div>
+</div>
 
 
 <div class="layer-side">
@@ -2188,69 +2733,6 @@
 		
 	</div>
 </div>
-<!--
-<div class="ringMenu" id="vtc-smart-menu">
-	<div class="ringMenu-inner">
-		<div class="ringMenu-background"></div>
-		<div class="ringMenu-center"></div>
-		<div>
-			<div class="ringMenu-elem">
-				<div class="ringMenu-button" data-method="modeNormal">
-					<div class="ringMenu-button-inner"><img src="style/img/icons/b-c.png"><span class="ringMenu-text">Обычный</span></div>
-				</div>
-			</div>
-			<div class="ringMenu-elem">
-				<div class="ringMenu-button" data-method="modeText">
-					<div class="ringMenu-button-inner"><img src="style/img/icons/aa.png"><span class="ringMenu-text">Текста</span></div>
-				</div>
-			</div>
-			<div class="ringMenu-elem">
-				<div class="ringMenu-button" data-method="modeTextSplit">
-					<div class="ringMenu-button-inner"><img src="style/img/icons/aa.png"><span class="ringMenu-text">Разбить текст</span></div>
-				</div>
-			</div>
-			<div class="ringMenu-elem">
-				<div class="ringMenu-button" data-method="modeList">
-					<div class="ringMenu-button-inner"><img src="style/img/icons-panel/childrens.png"><span class="ringMenu-text">Ul список</span></div>
-				</div>
-			</div>
-			<div class="ringMenu-elem">
-				<div class="ringMenu-button" data-method="modeMenu">
-					<div class="ringMenu-button-inner"><img src="style/img/icons-panel/menu.png"><span class="ringMenu-text">Меню</span></div>
-				</div>
-			</div>
-			<div class="ringMenu-elem">
-				<div class="ringMenu-button" data-method="modeColumnsTwo">
-					<div class="ringMenu-button-inner"><img src="style/img/icons-panel/fully-colum.png"><span class="ringMenu-text">Колонки 2</span></div>
-				</div>
-			</div>
-			<div class="ringMenu-elem">
-				<div class="ringMenu-button" data-method="modeColumnsThree">
-					<div class="ringMenu-button-inner"><img src="style/img/icons-panel/fully-colum.png"><span class="ringMenu-text">Колонки 3</span></div>
-				</div>
-			</div>
-			<div class="ringMenu-elem">
-				<div class="ringMenu-button" data-method="modeIconHorisontal">
-					<div class="ringMenu-button-inner"><img src="style/img/icons/flex-dir-row.png"><span class="ringMenu-text">IconBox Horisontal</span></div>
-				</div>
-			</div>
-			<div class="ringMenu-elem">
-				<div class="ringMenu-button" data-method="modeIconVertical">
-					<div class="ringMenu-button-inner"><img src="style/img/icons/flex-dir-col.png"><span class="ringMenu-text">IconBox Vertical</span></div>
-				</div>
-			</div>
-			<div class="ringMenu-elem">
-				<div class="ringMenu-button" data-method="modeSection">
-					<div class="ringMenu-button-inner"><img src="style/img/icons/flex-dir-col.png"><span class="ringMenu-text">Section</span></div>
-				</div>
-			</div>
-			
-		</div>
-	</div>
-</div>
--->
-
-
 <div class="boxMenu" id="vtc-smart-menu">
 	<div class="boxMenu-inner">
 		<h3 class="boxMenu-head text-center">Режимы создания</h3>
@@ -2267,189 +2749,239 @@
 					<p style="opacity: 0.5;">Для работы с инструментами, необходима активная подписка Ceron.</p>
 				</div>
 			</div>
-
-			<div class="boxMenu-items">
-				<div class="boxMenu-item active" data-method="modeNormal">
-					<div class="boxMenu-item-ico">
-						<img src="style/img/vtc/icons-create/default.png">
-					</div>
-					<div class="boxMenu-item-body">
-						<h4>Обычный</h4>
-						<p>Создание обычного DIV элемента.</p>
-					</div>
-				</div>
-
-				<div class="boxMenu-item" data-method="modeTemplateSection">
-					<div class="boxMenu-item-ico">
-						<img src="style/img/vtc/icons-create/section.png">
-					</div>
-					<div class="boxMenu-item-body">
-						<h4>Шаблон с секцией</h4>
-						<p>Создает шаблон в котором создается секция.</p>
-					</div>
-				</div>
-
-				<div class="boxMenu-item" data-method="modeSection">
-					<div class="boxMenu-item-ico">
-						<img src="style/img/vtc/icons-create/section.png">
-					</div>
-					<div class="boxMenu-item-body">
-						<h4>Секция</h4>
-						<p>SECTION элемент с контейнером внутри.</p>
-					</div>
-				</div>
-
-				
-
-				<div class="boxMenu-item" data-method="modeText">
-					<div class="boxMenu-item-ico">
-						<img src="style/img/vtc/icons-create/text.png">
-					</div>
-					<div class="boxMenu-item-body">
-						<h4>Текста</h4>
-						<p>Работа с текстами, создает и парсит текст.</p>
-					</div>
-				</div>
-
-
-				<div class="boxMenu-item" data-method="modeList">
-					<div class="boxMenu-item-ico">
-						<img src="style/img/vtc/icons-create/list.png">
-					</div>
-					<div class="boxMenu-item-body">
-						<h4>Список</h4>
-						<p>UL список с LI элементами.</p>
-					</div>
-				</div>
-
-				<div class="boxMenu-item" data-method="modeMenu">
-					<div class="boxMenu-item-ico">
-						<img src="style/img/vtc/icons-create/menu.png">
-					</div>
-					<div class="boxMenu-item-body">
-						<h4>Меню</h4>
-						<p>Вертикальное или горизонтальное меню.</p>
-					</div>
-				</div>
-
-				
-
-				<div class="boxMenu-item" data-method="modeButton">
-					<div class="boxMenu-item-ico">
-						<img src="style/img/vtc/icons-create/button.png">
-					</div>
-					<div class="boxMenu-item-body">
-						<h4>Кнопка</h4>
-						<p>Создает кнопку с текстом и эффектами.</p>
-					</div>
-				</div>
-
-				<div class="boxMenu-item" data-method="modeInput">
-					<div class="boxMenu-item-ico">
-						<img src="style/img/vtc/icons-create/input.png">
-					</div>
-					<div class="boxMenu-item-body">
-						<h4>Input</h4>
-						<p>Создает поле ввода с эффектами.</p>
-					</div>
-				</div>
-
-				<div class="boxMenu-item" data-method="modeTextarea">
-					<div class="boxMenu-item-ico">
-						<img src="style/img/vtc/icons-create/textarea.png">
-					</div>
-					<div class="boxMenu-item-body">
-						<h4>Textarea</h4>
-						<p>Создает текстовое поле с эффектами.</p>
-					</div> 
-				</div>
-
-				<div class="boxMenu-item" data-method="modeColumns">
-					<div class="boxMenu-item-ico">
-						<img src="style/img/vtc/icons-create/colum-three.png">
-					</div>
-					<div class="boxMenu-item-body">
-						<h4>Колонки</h4>
-						<p>Bootstrap колонки.</p>
-					</div>
-				</div>
-
-				<div class="boxMenu-item" data-method="modeForm">
-					<div class="boxMenu-item-ico">
-						<img src="style/img/vtc/icons-create/form.png">
-					</div>
-					<div class="boxMenu-item-body">
-						<h4>Форма</h4>
-						<p>Создает поля, кнопки и текста.</p>
-					</div> 
-				</div>
-
-				<div class="boxMenu-item" data-method="modeIcon">
-					<div class="boxMenu-item-ico">
-						<img src="style/img/vtc/icons-create/icon.png">
-					</div>
-					<div class="boxMenu-item-body">
-						<h4>Иконка</h4>
-						<p>Создает DIV с фоновой картинкой.</p>
-					</div> 
-				</div>
-
-				<!--
-					<div class="boxMenu-item" data-method="modeTemplate">
+			
+			<div class="boxMenu-main">
+				<div class="boxMenu-items">
+					<div class="boxMenu-item active" data-method="modeNormal">
 						<div class="boxMenu-item-ico">
-							<img src="style/img/vtc/icons-create/template.png">
+							<img src="style/img/vtc/icons-create/default.png">
 						</div>
 						<div class="boxMenu-item-body">
-							<h4>Шаблон</h4>
-							<p>Создает из выделенных элементов шаблон.</p>
+							<h4>Обычный</h4>
+							<p>Создание обычного DIV элемента.</p>
+						</div>
+					</div>
+
+					<div class="boxMenu-item" data-method="modeToTemplate">
+						<div class="boxMenu-item-ico">
+							<img src="style/img/vtc/icons-create/to-template.png">
+						</div>
+						<div class="boxMenu-item-body">
+							<h4>В Шаблон</h4>
+							<p>Переводит выделенные элементы в шаблон.</p>
 						</div> 
 					</div>
-				-->
 
-				<div class="boxMenu-item" data-method="modeToTemplate">
-					<div class="boxMenu-item-ico">
-						<img src="style/img/vtc/icons-create/template.png">
+					<div class="boxMenu-item" data-method="modeCreateTemplate">
+						<div class="boxMenu-item-ico">
+							<img src="style/img/vtc/icons-create/section-template.png">
+						</div>
+						<div class="boxMenu-item-body">
+							<h4>Создать шаблон</h4>
+							<p>Переводит в шаблон и создает классы.</p>
+						</div>
 					</div>
-					<div class="boxMenu-item-body">
-						<h4>В Шаблон</h4>
-						<p>Переводит выделенные элементы в шаблон.</p>
-					</div> 
-				</div>
 
-				
+					
 
-				
 
-				<div class="boxMenu-item" data-method="modeIconHorisontal">
-					<div class="boxMenu-item-ico">
-						<img src="style/img/vtc/icons-create/icon-box-h.png">
-					</div>
-					<div class="boxMenu-item-body">
-						<h4>IconBox Horisontal</h4>
-						<p>FLEX элемент с иконкой и текстом внутри.</p>
-					</div>
-				</div>
+					<div class="boxMenu-spliter">Текста</div>
 
-				<div class="boxMenu-item" data-method="modeIconVertical">
-					<div class="boxMenu-item-ico">
-						<img src="style/img/vtc/icons-create/icon-box-v.png">
+					<div class="boxMenu-group">
+						<div class="boxMenu-item" data-method="modeText">
+							<div class="boxMenu-item-ico">
+								<img src="style/img/vtc/icons-create/text.png">
+							</div>
+							<div class="boxMenu-item-body">
+								<h4>Текста</h4>
+								<p>Работа с текстами, создает и парсит текст.</p>
+							</div>
+						</div>
+						<div class="boxMenu-drop">
+							<div class="boxMenu-item" data-method="modeTextStyle">
+								<div class="boxMenu-item-ico">
+									<img src="style/img/vtc/icons-create/text.png">
+								</div>
+								<div class="boxMenu-item-body">
+									<h4>Текста cтили</h4>
+									<p>Создает контейнер со стилями текста.</p>
+								</div>
+							</div>
+						</div>
 					</div>
-					<div class="boxMenu-item-body">
-						<h4>IconBox Vertical</h4>
-						<p>FLEX элемент с иконкой и текстом внутри.</p>
-					</div>
-				</div>
 
-				<div class="boxMenu-item" data-method="modeElement">
-					<div class="boxMenu-item-ico">
-						<img src="style/img/vtc/icons-create/element.png">
+
+					<div class="boxMenu-group">
+						<div class="boxMenu-item" data-method="modeList">
+							<div class="boxMenu-item-ico">
+								<img src="style/img/vtc/icons-create/list.png">
+							</div>
+							<div class="boxMenu-item-body">
+								<h4>Список</h4>
+								<p>UL список с LI элементами.</p>
+							</div>
+						</div>
+
+						<div class="boxMenu-drop">
+							<div class="boxMenu-item" data-method="modeListIcon">
+								<div class="boxMenu-item-ico">
+									<img src="style/img/vtc/icons-create/list-and-icon.png">
+								</div>
+								<div class="boxMenu-item-body">
+									<h4>Список с иконками</h4>
+									<p>UL список с LI элементами.</p>
+								</div>
+							</div>
+						</div>
 					</div>
-					<div class="boxMenu-item-body">
-						<h4>Элемент</h4>
-						<p>Создает DIV элемент с эффектами.</p>
+
+					
+
+					
+
+					<div class="boxMenu-item" data-method="modeMenu">
+						<div class="boxMenu-item-ico">
+							<img src="style/img/vtc/icons-create/menu-2.png">
+						</div>
+						<div class="boxMenu-item-body">
+							<h4>Меню</h4>
+							<p>Вертикальное или горизонтальное меню.</p>
+						</div>
 					</div>
+
+
+					<div class="boxMenu-spliter">Форма</div>
+					
+					<!--
+					<div class="boxMenu-item" data-method="modeForm">
+						<div class="boxMenu-item-ico">
+							<img src="style/img/vtc/icons-create/form.png">
+						</div>
+						<div class="boxMenu-item-body">
+							<h4>Форма</h4>
+							<p>Создает поля, кнопки и текста.</p>
+						</div> 
+					</div>-->
+
+					<div class="boxMenu-item" data-method="modeButton">
+						<div class="boxMenu-item-ico">
+							<img src="style/img/vtc/icons-create/button.png">
+						</div>
+						<div class="boxMenu-item-body">
+							<h4>Кнопка</h4>
+							<p>Создает кнопку с текстом.</p>
+						</div>
+					</div>
+					
+					<div class="boxMenu-item" data-method="modeInput">
+						<div class="boxMenu-item-ico">
+							<img src="style/img/vtc/icons-create/input.png">
+						</div>
+						<div class="boxMenu-item-body">
+							<h4>Поле</h4>
+							<p>Создает поле ввода.</p>
+						</div>
+					</div>
+
+					<div class="boxMenu-item" data-method="modeTextarea">
+						<div class="boxMenu-item-ico">
+							<img src="style/img/vtc/icons-create/textarea.png">
+						</div>
+						<div class="boxMenu-item-body">
+							<h4>Текстовое поле</h4>
+							<p>Создает текстовое поле.</p>
+						</div> 
+					</div>
+
+
+					<div class="boxMenu-spliter">Документ</div>
+
+					
+
+					
+					<div class="boxMenu-group">
+						<div class="boxMenu-item" data-method="modeColumns">
+							<div class="boxMenu-item-ico">
+								<img src="style/img/vtc/icons-create/colum-three.png">
+							</div>
+							<div class="boxMenu-item-body">
+								<h4>Колонки</h4>
+								<p>Bootstrap колонки.</p>
+							</div>
+						</div>
+
+						<div class="boxMenu-drop">
+							<div class="boxMenu-item" data-method="modeAutoColumns">
+								<div class="boxMenu-item-ico">
+									<img src="style/img/vtc/icons-create/colum-three.png">
+								</div>
+								<div class="boxMenu-item-body">
+									<h4>Авто-колонки</h4>
+									<p>Создает Bootstrap колонки исходя из размеров элемента.</p>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="boxMenu-item" data-method="modeIcon">
+						<div class="boxMenu-item-ico">
+							<img src="style/img/vtc/icons-create/icon.png">
+						</div>
+						<div class="boxMenu-item-body">
+							<h4>Иконка</h4>
+							<p>Создает DIV с фоновой картинкой.</p>
+						</div> 
+					</div>
+
+					<div class="boxMenu-item" data-method="modeElement">
+						<div class="boxMenu-item-ico">
+							<img src="style/img/vtc/icons-create/element.png">
+						</div>
+						<div class="boxMenu-item-body">
+							<h4>Элемент</h4>
+							<p>Создает DIV элемент с эффектами.</p>
+						</div>
+					</div>
+					
+
+					<div class="boxMenu-spliter">Другое</div>
+
+					
+					<div class="boxMenu-item" data-method="modeArticle">
+						<div class="boxMenu-item-ico">
+							<img src="style/img/vtc/icons-create/article.png">
+						</div>
+						<div class="boxMenu-item-body">
+							<h4>Запись</h4>
+							<p>Элемент с иконкой и текстом внутри.</p>
+						</div>
+					</div>
+
+					<div class="boxMenu-item" data-method="modeTiles">
+						<div class="boxMenu-item-ico">
+							<img src="style/img/vtc/icons-create/struct.png">
+						</div>
+						<div class="boxMenu-item-body">
+							<h4>Плитка</h4>
+							<p>Создает ноды по размерам элементов.</p>
+						</div>
+					</div>
+					<!--
+					<div class="boxMenu-item" data-method="modeExtract">
+						<div class="boxMenu-item-ico">
+							<img src="style/img/vtc/icons-create/struct.png">
+						</div>
+						<div class="boxMenu-item-body">
+							<h4>Extract</h4>
+							<p>Создает ноды по размерам элементов.</p>
+						</div>
+					</div>
+					-->
+					
 				</div>
 			</div>
+
+			
 
 		</div>
 	</div>
@@ -2500,7 +3032,6 @@
         <p class="layer-crash-text">Не удалось запустить программу, возможно открыта консоль, закройте программу и запустите заново.</p>
     </div>
 </div>
-
 
 <script type="text/javascript" src="style/js/ready.js"></script>
 

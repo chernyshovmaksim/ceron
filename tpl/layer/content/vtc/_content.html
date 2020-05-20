@@ -10,6 +10,12 @@
         <iframe src="live.html" id="vtc-live"></iframe>
     </div>
 
+    <div class="vtc-content-live" id="vtc-live-html">
+        <div id="vtc-live-html-editor" class="nobbcode" style="height: 100%"></div>
+    </div>
+
+   
+
     <ul class="tools-iframe tools-vtc">
         <li id="vtc-viewport-auto-join" data-toggle="tooltip" title="Автоматически создавать классы" ><img src="style/img/icons-panel/auto-join.png"></li> 
         <li id="vtc-viewport-draw-line" data-toggle="tooltip" title="Показать-Скрыть линии" ><img src="style/img/icons-panel/line.png"></li> 
@@ -17,24 +23,44 @@
         <li id="vtc-viewport-showhide-psd" data-toggle="tooltip" title="Сделать макет прозрачным" ><img src="style/img/icons-panel/show.png"></li>  
 
         <li class="sep"></li>
-        <li id="vtc-viewport-create-tpl" data-toggle="tooltip" title="Сделать новый шаблон" ><img src="style/img/icons-panel/vtc-new-tpl.png"></li>
-        <li id="vtc-viewport-join-add" data-toggle="tooltip" title="Создать классы для выделенных элементов" >
+        
+        <li id="vtc-viewport-create-screen" data-toggle="tooltip" title="Сделать снимок шаблона" ><img src="style/img/icons-panel/photo-2.png"></li> 
+        
+        <li id="vtc-viewport-zoom-reset" data-toggle="tooltip" title="Сбить до 100%" ><img src="style/img/icons-panel/vtc-zoom.png"></li> 
+
+        
+        <li id="vtc-viewport-join-add" class="hide" data-toggle="tooltip" title="Создать классы для выделенных элементов" >
             <img src="style/img/icons-panel/auto-join-add.png">
         </li>
-        <li id="vtc-viewport-join-nodes" data-toggle="tooltip" title="Объединить выделенные ноды в один" >
+
+        
+
+        <li id="vtc-viewport-create-tpl" class="hide" data-toggle="tooltip" title="Сделать новый шаблон"><img src="style/img/icons-panel/vtc-new-tpl.png"></li>
+        
+        <li> 
+            <img src="style/img/icons-panel/magnet-node-outer.png" class="vtc-magnet" data-name="1">
+            <ul>
+                <li class="vtc-magnet" data-name="0"><img src="style/img/icons-panel/magnet-node.png"></li> 
+            </ul>
+        </li> 
+
+        
+        <li id="vtc-viewport-join-nodes" class="hide" data-toggle="tooltip" title="Объединить выделенные ноды в один" >
             <img src="style/img/icons-panel/join-nodes.png">
         </li>
-        <li id="vtc-viewport-group-nodes" data-toggle="tooltip" title="Создать наружный нод" >
+        <li id="vtc-viewport-group-nodes" class="hide" data-toggle="tooltip" title="Создать наружный нод" >
             <img src="style/img/icons-panel/group-nodes.png">
         </li>
-        <li id="vtc-viewport-select-childrens" data-toggle="tooltip" title="Выделить детей" >
+        <li id="vtc-viewport-select-childrens" class="hide" data-toggle="tooltip" title="Выделить детей" >
             <img src="style/img/icons-panel/vtc-get-childrens.png">
         </li>
-        <li id="vtc-viewport-create-vars" data-toggle="tooltip" title="Создать переменные" >
+
+        <li id="vtc-viewport-create-vars" class="hide" data-toggle="tooltip" title="Создать переменные" >
             <img src="style/img/icons-panel/var.png">
         </li>
+        
 
-        <li id="vtc-viewport-draw-rule" data-toggle="tooltip" title="Расчитать отступы между двумя элементами" >
+        <li id="vtc-viewport-draw-rule" class="hide" data-toggle="tooltip" title="Расчитать отступы между двумя элементами" >
             <img src="style/img/icons-panel/rule.png">
         </li>
 
@@ -75,8 +101,14 @@
         </li>
 
         <li class="sep"></li>
-        <li id="vtc-viewport-enable-live" data-toggle="tooltip" title="Живой просмотр" ><img src="style/img/icons-panel/vtc-live.png"></li> 
+
+        <li id="vtc-viewport-enable-live" data-toggle="tooltip" title="Живой просмотр"><img src="style/img/icons-panel/vtc-live.png"></li> 
+        <li id="vtc-viewport-enable-live-html" data-toggle="tooltip" title="Просмотр HTML"><img src="style/img/icons-panel/html.png"></li> 
     </ul>
+
+    <div class="vtc-modeler-toggle" id="modeler-toogle"><img src="style/img/icons-panel/modeler.png" alt=""></div>
+
+    <div class="vtc-zoom" id="vtc-viewport-zoom"><img src="style/img/icons-panel/search.png" alt=""><span>100%</span></div>
     
     <div class="vtc-scss-display main" id="vtc-scss-display-main">
         <div class="vtc-scss-display items" id="vtc-scss-display-items">
@@ -115,4 +147,36 @@
             </div>
         </div>
     </div>
+
+
+    <div class="vtc-smart-params-popup" id="vtc-smart-params-popup">
+        <div class="vtc-smart-params-head" id="vtc-smart-params-head">Текст</div>
+        <div class="vtc-smart-params-body">
+            <table class="vtc-smart-params-table" id="vtc-smart-params-table">
+                <tr>
+                    <td>Тип текста</td>
+                    <td>
+                        <ul class="form-radio text-align">
+                            <li name="left"><img src="style/img/icons/font-alight-1.png" alt=""></li>
+                            <li name="center"><img src="style/img/icons/font-alight-2.png" alt=""></li>
+                            <li name="right"><img src="style/img/icons/font-alight-3.png" alt=""></li>
+                            <li name="justify"><img src="style/img/icons/font-alight-4.png" alt=""></li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Классы</td>
+                    <td>
+                        <ul class="form-radio text-overflow">
+                            <li name="inherit"><img src="style/img/icons/none.png" alt=""></li>
+                            <li name="clip"><img src="style/img/icons/font-overflow-clip.png" alt=""></li>
+                            <li name="ellipsis"><img src="style/img/icons/font-overflow-ellipsis.png" alt=""></li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+
 </div>

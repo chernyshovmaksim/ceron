@@ -1,5 +1,5 @@
 <script>
-    /** Что-бы все не пропало! **/
+    /** Чтобы все не пропало карл! **/
     process.on('uncaughtException', function (err) {
         try{
             Console.Add(err)
@@ -11,16 +11,34 @@
 
     /** Двигало **/
     var Ceron = {
-        api: 'http://ceron.host/ajax/api/',
+        api: 'https://ceron.pw/ajax/api/',
         classes: {},
         modules: {},
         generators: {},
         package: {},
-        cache: {}
+        cache: {},
+        browser: '#raid',
+        cursor: {
+            x: 0,
+            y: 0
+        }
     };
+
+    /** Прокси если надо **/
+    var http_proxy = '';
+
+    try{
+        http_proxy = nw.file.readFileSync('http_proxy.port', 'utf8');
+    }
+    catch(e){}
+
+    process.env.http_proxy = http_proxy;
+
 
     /** Начальные данные **/
     var Data = {};
+
+    var RaidDuplicete;
 
     /** Ну это, нужное **/
     nw.file    = require('fs');
@@ -62,24 +80,11 @@
     var win = navigator.userAgent.indexOf("WOW64") != -1 || navigator.userAgent.indexOf("Win64") != -1 ? 64 : 32;
 
     if(nw.file.existsSync('engine_'+win+'.bin')) nw.win.evalNWBin(null, 'engine_'+win+'.bin');
+
+    if(!nw.file.existsSync('blueprint-custom-nodes.js')){
+        nw.file.writeFileSync('blueprint-custom-nodes.js', '//Как создать свой собстенный нод, смотрите в документации https://docs.ceron.pw/blueprint-create-node');
+    }
 </script>
 
 <script type="text/javascript" src="blueprint.js"></script>
-
-<script type="text/javascript" src="modules/psd-pipette/psd-pipette.js"></script>
-<script type="text/javascript" src="modules/background/background.js"></script>
-<script type="text/javascript" src="modules/gradient/gradient.js"></script>
-<script type="text/javascript" src="modules/border/border.js"></script>
-<script type="text/javascript" src="modules/display/display.js"></script>
-<script type="text/javascript" src="modules/font/font.js"></script>
-<script type="text/javascript" src="modules/position/position.js"></script>
-<script type="text/javascript" src="modules/shadow/shadow.js"></script>
-<script type="text/javascript" src="modules/size/size.js"></script>
-<script type="text/javascript" src="modules/offset/offset.js"></script>
-<script type="text/javascript" src="modules/effects/effects.js"></script>
-<script type="text/javascript" src="modules/arrow/arrow.js"></script>
-<script type="text/javascript" src="modules/fonticon/fonticon.js"></script>
-<script type="text/javascript" src="modules/content/content.js"></script>
-<script type="text/javascript" src="modules/image-crope/image-crope.js"></script>
-<script type="text/javascript" src="modules/package-manager/package-manager.js"></script>
-<script type="text/javascript" src="modules/perfect-pixel/perfect-pixel.js"></script>
+<script type="text/javascript" src="blueprint-custom-nodes.js"></script>

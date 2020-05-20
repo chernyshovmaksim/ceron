@@ -13,13 +13,7 @@ Ceron.modules.Font = function(){
 
             Form.Select($('.font-family',self.module),'$font-family');
 
-            /*
-            Form.SelectChangeEvent($('.font-family',self.module),function(name,val){
-                if(!/\$/.test(val)) Generators.Css.Add(name+": '"+val+"'");
-            },function(){
-                
-            });
-            */
+            Form.SelectChange($('.vertical-align',self.module));
 
             Form.Select($('.font-weight',self.module),'$font-weight');
 
@@ -56,5 +50,7 @@ Ceron.modules.Font = function(){
         Form.InputSelect($('.form-input',self.module))
 
         Form.SelectSelect($('.form-select',self.module))
+
+        Form.SelectSetValue($('.vertical-align',self.module), Generators.Css.Get('vertical-align'))
     }
 }

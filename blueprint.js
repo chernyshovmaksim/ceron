@@ -1,7 +1,17 @@
 var Blueprint = {
 	classes: {},
 	cache: {},
-	seed: 0
+	seed: 0,
+	icons: {
+		var: '<svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="5" cy="5" r="4.5" stroke="currentColor"/><path d="M14 5L8 1C8 1 10 2.5 10 5C10 7.5 8 9 8 9L14 5Z" /></svg>',
+		content: '<svg width="12" height="10" viewBox="0 0 12 10" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 9.5H7.65454L11.3524 5.15104L7.64487 0.5H0.5V9.5Z" stroke="currentColor" /></svg>',
+	}
+};
+
+Blueprint.Unclosed = function(){};
+
+Blueprint.Close    = function(){
+	Blueprint.Render.close();
 };
 
 Blueprint.Initialization = {
@@ -15,8 +25,10 @@ Blueprint.Initialization = {
 		Blueprint.Selection = new Blueprint.classes.Selection();
 
 		var selectNode, drag, has_focus, presed, dragCopy;
-		var cursor = {x: 0, y: 0};
-		var buffer = [];
+
+		var cursor   = {x: 0, y: 0};
+		var buffer   = [];
+		var unclosed = 0;
 
 		//drag and drop
 
@@ -25,6 +37,7 @@ Blueprint.Initialization = {
 			selectNode = false;
 
 			Blueprint.Render.sticking = Blueprint.Utility.getSticking();
+			Blueprint.Render.stick    = false;
 
 			//если зажата одна из клавиш
 			//то показывме мыделение
@@ -164,6 +177,8 @@ Blueprint.Initialization = {
 
 		//перестали таскать
 		Blueprint.Drag.addEventListener('stop',function(event){
+			Blueprint.Render.stick = false;
+
 			if(selectNode){
 				cursor.x = event.drag.move.x;
 				cursor.y = event.drag.move.y;
@@ -209,6 +224,10 @@ Blueprint.Initialization = {
 
 		Blueprint.Shortcut.add('Ctrl+F',function(){
 			parent.Shortcut.Fire('Ctrl+F');
+		})
+
+		Blueprint.Shortcut.add('Ctrl+P',function(){
+			parent.Shortcut.Fire('Ctrl+P');
 		})
 
 		Blueprint.Shortcut.add('Ctrl+C',function(){
@@ -339,6 +358,12 @@ Blueprint.Initialization = {
 		Blueprint.Render.addEventListener('addNode',function(e){
 			var node = e.node;
 
+			if(node.params.unclosed){
+				unclosed += 1;
+
+				Blueprint.Unclosed(unclosed);
+			}
+
 			//вешаем эвенты на сам нод
 
 			//эвент удаления
@@ -348,6 +373,12 @@ Blueprint.Initialization = {
 				Blueprint.Selection.remove(node);
 
 				Blueprint.Callback.Program.dispatchEvent({type: 'nodeRemove', node: node});
+
+				if(node.params.unclosed){
+					unclosed -= 1;
+					
+					Blueprint.Unclosed(unclosed);
+				} 
 			})
 
 			//начали тянуть линию
@@ -377,25 +408,38 @@ Blueprint.Initialization = {
 			node.addEventListener('input',function(event){
 				if(selectNode !== this && selectNode && event.entrance !== selectNode.selectEntrance){
 					var selectVar = selectNode.selectVar;
+					var compare   = true;
 
 					if(event.entrance !== 'input'){
-						selectNode.data.parents.push({
-							uid: this.data.uid,
-							output: event.name,
-							input: selectVar
-						})
+						compare = Blueprint.Utility.compareVarialbe(node, selectNode, event.name, selectVar);
+						compare = Blueprint.Utility.maxConnections(compare, selectNode, selectVar);
+
+						if(compare){
+							selectNode.data.parents.push({
+								uid: this.data.uid,
+								output: event.name,
+								input: selectVar
+							})
+						}
 					}
 					else{
-						this.data.parents.push({
-							uid: selectNode.data.uid,
-							output: selectVar,
-							input: event.name
-						})
+						compare = Blueprint.Utility.compareVarialbe(selectNode, node, selectVar, event.name);
+						compare = Blueprint.Utility.maxConnections(compare, node, event.name);
+
+						if(compare){
+							this.data.parents.push({
+								uid: selectNode.data.uid,
+								output: selectVar,
+								input: event.name
+							})
+						}
 					}
 
-					Blueprint.Callback.Program.fireChangeEvent({type: 'input'});
-					
-					Blueprint.Render.update();
+					if(compare){
+						Blueprint.Callback.Program.fireChangeEvent({type: 'input'});
+						
+						Blueprint.Render.update();
+					}
 				}
 
 				selectNode = false;
@@ -491,11 +535,15 @@ Blueprint.Initialization = {
 				}
 
 				if(first){
-					node.data.parents.push({
-						uid: selectNode.data.uid,
-						output: selectNode.selectVar,
-						input: first
-					})
+					var compare = Blueprint.Utility.compareVarialbe(selectNode, node, selectNode.selectVar, first);
+
+					if(compare){
+						node.data.parents.push({
+							uid: selectNode.data.uid,
+							output: selectNode.selectVar,
+							input: first
+						})
+					}
 				}
 
 				Blueprint.Render.update();
@@ -531,20 +579,34 @@ Blueprint.Initialization = {
 				Blueprint.Callback.Program.dispatchEvent({type: 'helperRemove', helper: helper});
 			})
 
+			var nodes_move = [];
+
 			//если нод двигают
 			helper.addEventListener('drag',function(event){
 				var h_size = helper.data.size;
 				var h_posi = helper.data.position;
 
-				this.group_drag = true;
+				nodes_move = [];
 
 				for (var i = 0; i < Blueprint.Render.nodes.length; i++) {
 					var n_node = Blueprint.Render.nodes[i],
 						n_posi = n_node.data.position;
 
 					if(n_posi.x > h_posi.x && n_posi.x < h_posi.x + h_size.width  &&  n_posi.y > h_posi.y && n_posi.y < h_posi.y + h_size.height){
-						n_node.dragStart(true);
+						nodes_move.push({node:n_node, start: {x: n_posi.x, y: n_posi.y}});
 					}
+				}
+			})
+
+			//двигаем попутно ноды что внутри
+			helper.addEventListener('position',function(event){
+				for (var i = 0; i < nodes_move.length; i++) {
+					var nn = nodes_move[i];
+
+					nn.node.data.position.x = nn.start.x - (helper.position.x - helper.data.position.x);
+					nn.node.data.position.y = nn.start.y - (helper.position.y - helper.data.position.y);
+
+					nn.node.setPosition();
 				}
 			})
 
@@ -762,6 +824,8 @@ Object.assign( Blueprint.classes.Blueprint.prototype, EventDispatcher.prototype,
 
 	 	this.tab = $('<li class="active '+(this.uid == 'main' ? 'main' : '')+'" uid="'+this.uid+'"><span>'+this.data.name+'</span>'+(this.uid == 'main' ? '' : '<a></a>')+'</li>'); 
 
+	 	this.closer = $('a',this.tab);
+
 		this.tab.on('click',function(e){
 			if($( e.target ).closest($('a',self.tab)).length){
 				self.close();
@@ -772,15 +836,29 @@ Object.assign( Blueprint.classes.Blueprint.prototype, EventDispatcher.prototype,
 			
 		}).click()
 
-		this.tabs.append(this.tab)
+		this.tabs.append(this.tab);
 	},
 
 	initViewport: function(){
+		this.contentBlueprint.Triggers = BlueprintTriggers;
+		this.contentBlueprint.Unclosed = this.unclosed.bind(this);
 		this.contentBlueprint.Callback = Blueprint; //втуливаем ссылку тудой
 		this.contentBlueprint.Initialization.viewport();
+		this.contentBlueprint.Viewport.setScale(Config.config.interf_size / 100);
 		this.contentBlueprint.Data.set(Blueprint.Program.nodeData(this.uid))
 		this.contentBlueprint.Initialization.nodes();
 		this.contentBlueprint.Initialization.helpers();
+	},
+
+	unclosed: function(uclosed){
+		if(this.uid !== 'main'){
+			if(uclosed){
+				this.closer.hide();
+			}
+			else{
+				this.closer.show();
+			}
+		}
 	},
 
 	initWindow: function(){
@@ -791,44 +869,52 @@ Object.assign( Blueprint.classes.Blueprint.prototype, EventDispatcher.prototype,
 		this.blueprint = $('<iframe src="blueprint.html" class="active" id="'+this.uid+'"></iframe>')
 
 		this.blueprint.on('load',function(){
-			self.contents         = self.blueprint.contents()
+			self.contents         = self.blueprint.contents();
 
-			self.contentBlueprint = document.getElementById(self.uid).contentWindow.Blueprint; //не знаю, зато млин так работает, маджик!
+			self.contentBlueprint = $('#blueprint-blueprints #' + self.uid)[0].contentWindow.Blueprint; //не знаю, зато млин так работает, маджик!
 
 			self.initViewport();
 		})
 
-		this.blueprints.append(this.blueprint)
+		this.blueprints.append(this.blueprint);
 	},
 
 	close: function(){
+		this.contentBlueprint.Close();
+
 		this.tab.remove();
+
 		this.blueprint.remove();
 
-		this.dispatchEvent({type: 'close'})
+		this.dispatchEvent({type: 'close'});
 	},
 
 	remove: function(){
+		this.contentBlueprint.Close();
+
 		this.tab.remove();
+
 		this.blueprint.remove();
 
-		this.dispatchEvent({type: 'remove'})
+		this.dispatchEvent({type: 'remove'});
 	},
 
 	active: function(){
-		$('li',this.tabs).removeClass('active')
-		$('iframe',this.blueprints).removeClass('active')
+		$('li',this.tabs).removeClass('active');
 
-		$(this.tab).addClass('active')
-		$(this.blueprint).addClass('active')
+		$('iframe',this.blueprints).removeClass('active');
 
-		this.dispatchEvent({type: 'active'})
+		$(this.tab).addClass('active');
+
+		$(this.blueprint).addClass('active');
+
+		this.dispatchEvent({type: 'active'});
 	},
 
 	change: function(){
-		$('#blueprint-tabs li[uid="'+this.uid+'"] span').text(this.data.name)
+		$('#blueprint-tabs li[uid="'+this.uid+'"] span').text(this.data.name);
 
-		this.dispatchEvent({type: 'change'})
+		this.dispatchEvent({type: 'change'});
 	}	
 })
 Blueprint.Build = function(){
@@ -958,6 +1044,7 @@ Object.assign( Blueprint.classes.Drag.prototype, EventDispatcher.prototype, {
 	},
 	stop: function(e){
 		this.drag.active = false;
+		this.drag.node   = false;
 
 		this.callbacks = [];
 		this.sticking  = [];
@@ -1041,21 +1128,50 @@ Object.assign( Blueprint.classes.Helper.prototype, EventDispatcher.prototype, {
 		})
 
 
-		$('.blueprint-helper-title',this.node).dblclick(function(){
-			var new_title = prompt('Описание хелпера', self.data.title);
-
-			if(new_title){
-				self.data.title = new_title;
-
-				$(this).text(new_title);
-			}
-		})
-
 		$('.blueprint-helper-close',this.node).on('click',function(){
+			Blueprint.Triggers.remove(self.uid);
+
 			self.dispatchEvent({type: 'remove'});
 
 			self.remove();
 		})
+
+		//показываем окошко с настройками
+		$('.blueprint-helper-title',this.node).dblclick(function(){
+			Blueprint.Callback.Program.helperOption(self.data, ()=>{
+				//обновляе титл
+				$(this).text(self.data.title);
+
+				//обновляем триггер
+				self.setTrigger(self.data.trigger_global);
+			})
+		})
+
+		//если удалили тригер, то показываем тригер обратно
+		Blueprint.Triggers.addEventListener('remove',(event)=>{
+			if(event.uid == this.uid){
+				this.setTrigger(false);
+			} 
+		})
+
+		//если поменяли статус, то и мы себе меняем статус
+		Blueprint.Triggers.addEventListener('status',(event)=>{
+			if(event.uid == this.uid){
+				//записываем в реверсе
+				this.data.disable = !event.status;
+
+				this.trigger.removeClass('off');
+
+				if(this.data.disable) this.trigger.addClass('off');
+			} 
+		})
+
+
+		//если установлено глобально, но триггер удален, то показываем триггер
+		if(this.data.trigger_global && !Blueprint.Triggers.get(this.uid)) this.setTrigger(false);
+
+		//инициализируем
+		this.setTrigger(self.data.trigger_global);
 
 		this.node.mouseenter(function(e){
         	self.dispatchEvent({
@@ -1068,12 +1184,14 @@ Object.assign( Blueprint.classes.Helper.prototype, EventDispatcher.prototype, {
         	self.dispatchEvent({type: 'mouseleave'});
         })
 	},
+	setTrigger: function(status){
+		this.trigger.toggle(!status);
+		this.data.trigger_global = status;
+	},
 	remove: function(){
 		this.node.remove();
 	},
-	dragStart: function(group_drag){
-		this.group_drag = group_drag;
-
+	dragStart: function(){
 		this.position.x = this.data.position.x;
 		this.position.y = this.data.position.y;
 
@@ -1090,12 +1208,7 @@ Object.assign( Blueprint.classes.Helper.prototype, EventDispatcher.prototype, {
 		snap.x = this.position.x - (move.x - start.x) / Blueprint.Viewport.scale;
 		snap.y = this.position.y - (move.y - start.y) / Blueprint.Viewport.scale;
 
-		if(this.group_drag){
-			this.data.position = snap;
-		}
-		else{
-			this.data.position = Blueprint.Utility.snapPosition(snap)
-		}
+		this.data.position = Blueprint.Utility.snapPosition(snap);
 
 		this.setPosition();
 	},
@@ -1115,8 +1228,11 @@ Object.assign( Blueprint.classes.Helper.prototype, EventDispatcher.prototype, {
 			x: this.size.width,
 			y: this.size.height
 		}
-
-		snap = Blueprint.Utility.snapPosition(snap);
+		
+		if(Blueprint.snaped){
+			snap.x = Blueprint.Utility.snapValue(snap.x);
+			snap.y = Blueprint.Utility.snapValue(snap.y);
+		}
 
 		this.data.size.width  = snap.x;
 		this.data.size.height = snap.y;
@@ -1386,8 +1502,8 @@ Blueprint.classes.Menu = function(){
 		blueprints: 'Blueprints',
 		blueprint: 'Blueprint',
 		function: 'Function',
-		vtc: 'Vtc',
-		css: 'Css',
+		vtc: 'VTC',
+		css: 'CSS',
 		file: 'File',
 		all: 'All'
 	}
@@ -1469,9 +1585,9 @@ Object.assign( Blueprint.classes.Menu.prototype, EventDispatcher.prototype, {
 
 			if(params.params.category == 'none') return;
 
-			//var node = $('<li><span>'+params.params.name+'<br><small>'+Functions.Substring(params.params.description || '', 50)+'</small></span></li>'),
-			var node = $('<li><span>'+params.params.name+'</span></li>'),
-				cat  = cats[params.params.category];
+			var node = $('<li><span><replace><name>'+params.params.name+'</name></replace><br><small>'+Functions.Substring(params.params.description || '', 50)+'</small></span></li>'),
+			//var node = $('<li><span>'+params.params.name+'</span></li>'),
+				cat  = cats[params.params.category]; 
 
 			node.on('click',function(){
 				Blueprint.Menu.select(name)
@@ -1504,13 +1620,13 @@ Object.assign( Blueprint.classes.Menu.prototype, EventDispatcher.prototype, {
 			inner.each(function(){
 				li = $(this)
 
-				txt = $('span',li).html().replace(self.highlightRep,'$1');
+				txt = ($('name',li).html() || '').replace(self.highlightRep,'$1');
 
 		        if(term !== ''){
 			        txt = txt.replace(new RegExp('(' + term + ')', 'gi'), self.highlightAdd);
 			    }
 		          
-		        li.html('<span>'+txt+'</span>'); 
+		        $('replace',li).html('<name>'+txt+'</name>'); 
 
 		        li.show();
 
@@ -1627,17 +1743,18 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 
 			var use_color = params.color 
 
-			
-
 			var variable, select,
 				is_content = name == 'input' || name == 'output';
 
 			var type      = is_content && !params.varType ? 'content' : params.varType || '',
 				className = 'var var-' + entrance + '-' + name + ' ' + type;
 
+			var ico = type == 'content' ? 'content' : 'var';
+			var svg = Blueprint.icons[ico];
+
 			
 			variable = $('<div><span>'+(params.name || '')+'<span class="display-var display-'+entrance+'-'+name+'">'+(params.display ? '('+self.getValue(entrance, name)+')' : '')+'</span></span></div>');
-			select   = $('<i class="'+className+'"></i>');
+			select   = $('<i class="'+className+'">'+svg+'</i>');
 
 			if(params.colorText) variable.css('color',params.colorText);
 
@@ -1657,13 +1774,15 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 			}
 			
 			if(use_color){
-				var img = type == 'content' ? 'node-content' : 'var';
+				select.css({color: use_color});
 
+				/*
 				Blueprint.Image.color('style/blueprint/img/'+img+'.png',use_color,function(base){
 					select.css({
 						backgroundImage: 'url('+base+')'
 					})
 				})
+				*/
 			}
 
 			select.on('mousedown',function(event){
@@ -1804,6 +1923,8 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 
 		this.dragCall = this.drag.bind(this);
 
+		Blueprint.Drag.drag.node = this;
+		
 		Blueprint.Drag.add(this.dragCall);
 	},
 	dragRemove: function(){
@@ -2211,7 +2332,7 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 			            	event.target.setValue(entrance, name, file);
 
 			                input.val(file)
-			            },nw.path.dirname(Functions.LocalPath(path)))
+			            },path ? nw.path.dirname(Functions.LocalPath(path)) : '');
 			        });
 
 			        $('.clear',html).on('click',function(){
@@ -2221,15 +2342,21 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 			        })
 				}
 				else{
+					var bent = '<input type="'+(params.inputType || 'text')+'" name="'+name+'" value="" autocomplete="new-password" placeholder="'+(params.placeholder || (params.name || name))+'" />';
+
+					if(params.type == 'textarea'){
+						bent = '<textarea name="'+name+'" autocomplete="new-password" placeholder="'+(params.placeholder || (params.name || name))+'"></textarea>';
+					}
+
 					html = $([
 						'<div class="m-b-5">',
 	                        '<div class="form-input">',
-	                            '<input type="'+(params.inputType || 'text')+'" name="'+name+'" value="" autocomplete="new-password" placeholder="'+(params.placeholder || (params.name || name))+'" />',
+	                            bent,
 	                        '</div>',
 		                '</div>',
 					].join(''));
 
-					$('input',html).val(event.target.getValue(entrance, name));
+					$('input,textarea',html).val(event.target.getValue(entrance, name));
 
 					var change = function(inputName, inputValue){
 						if(inputValue == undefined) inputValue= '';
@@ -2283,6 +2410,69 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 
 		$('#blueprint-node-option').empty().append(options);
 		
+	},
+
+	/**
+	 * Опции для хелпера
+	 * @param  {Object}   data
+	 * @param  {Function} callback
+	 */
+	helperOption: function(data, callback){
+		var checkUid = Functions.Uid();
+
+		var content = $([
+			'<div>',
+				'<div class="form-group">',
+	                '<div class="form-name">Описание</div>',
+	                '<div class="form-content">',
+	                    '<div class="form-input descrip">',
+                            '<input type="text" name="title" value="" placeholder="">',
+                        '</div>',
+	                '</div>',
+	           '</div>',
+			
+				'<div class="form-group">',
+	                '<div class="form-name">Триггер</div>',
+	                '<div class="form-content">',
+	                	'<div class="form-btn trigger">',
+	                        'Сделать глобальным',
+	                    '</div>',
+			            '<span class="help-block m-b-0 text-center">Триггер будет доступен в окне триггеров.</span>',
+	                '</div>',
+	           '</div>',
+			'</div>'
+		].join(''));
+
+		var descrip = $('.descrip',content);
+		var trigger = $('.trigger',content);
+
+		trigger.on('click',function(){
+			data.trigger_global = true;
+
+			BlueprintTriggers.create(data.uid, data.title);
+
+			BlueprintTriggers.set(data.uid, 'status', !data.disable);
+
+			Functions.Notify('Добавлено');
+
+			callback();
+    	});
+
+    	Form.InputSetValue(descrip, data.title);
+
+    	Form.InputChangeEventSimple(descrip,(name, value)=>{
+    		data.title = value;
+
+    		BlueprintTriggers.set(data.uid, 'name', data.title)
+
+    		callback();
+    	});
+
+    	Form.InputEnter(descrip,function(){
+    		Popup.Hide();
+    	});
+
+		Popup.Window('Настройки',content,{size: 'sm'});
 	},
 
 	_processStart: function(){
@@ -2384,6 +2574,12 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 		$.each(needSave,function(i,uid){
 			var node = self.data[uid];
 
+			if(!node){
+				Arrays.remove(Data.blueprint.opened, uid);
+
+				return; //чет там не то, либо блюпринт был удален
+			} 
+
 			var change = JSON.stringify(node).length;
 			
 			//if(change !== node.change){
@@ -2395,7 +2591,7 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 		})
 
 
-		//удаляем то что осталось лервое
+		//удаляем то что осталось левое
 		var _uidsDelete = $(this._uidsSaved).not(uidsNow).get();
 
 		for(var i = _uidsDelete.length; i--;){
@@ -2420,7 +2616,7 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 		try{
 			this._processComplite(uid);
 			
-			Blueprint.Worker.build(uid, this.data[uid].data.nodes, this.data[uid].data.helpers);
+			if(this.data[uid]) Blueprint.Worker.build(uid, this.data[uid].data.nodes, this.data[uid].data.helpers);
 		}
 		catch(err){
 			Console.Add(err)
@@ -2632,6 +2828,72 @@ Object.assign( Blueprint.classes.Render.prototype, EventDispatcher.prototype, {
 		for(var i = 0; i < this.lines.length; i++){
 			this.lines[i].draw(this.ctx);
 		}
+
+		//this.drawCord();
+
+		/* degug
+		for (var i = 0; i < this.sticking.length; i++) {
+			var st = this.sticking[i];
+			var pt = st.node.data.position;
+			var nd = {
+				sticked: st,
+				point: {
+					x: st.pos,
+					y: st.pos
+				}
+			}
+
+			this.drawSticking(nd,'rgba(249, 10, 201, 0.1803921568627451)');
+		}
+		*/
+
+		if(this.stick) this.drawSticking(this.stick);
+	},
+	drawCord: function(){
+		this.ctx.beginPath();
+
+		this.ctx.lineWidth   = 1;
+		this.ctx.strokeStyle = '#4affff';
+		this.ctx.fillStyle   = '#4affff';
+
+		var cord = Blueprint.Utility.getDataPointToScreen({x:0,y:0});
+			cord.x = Math.round(cord.x) - 2 + 0.5;
+			cord.y = Math.round(cord.y) - 2 + 0.5;
+
+		this.ctx.moveTo(0, cord.y);
+		this.ctx.lineTo(this.can.width, cord.y);
+
+		this.ctx.moveTo(cord.x, 0);
+		this.ctx.lineTo(cord.x, this.can.height);
+
+		this.ctx.stroke();
+
+		this.ctx.font = "12px Arial";
+		this.ctx.fillText("0", cord.x - 12, cord.y - 6);
+	},
+	drawSticking: function(stick, color){
+		this.ctx.beginPath();
+
+		var point = Blueprint.Utility.getDataPointToScreen(stick.point);
+		var posit = 0;
+
+		if(stick.sticked.dir == 'x'){
+			posit = Math.round(point.y) + 0.5;
+
+			this.ctx.moveTo(0, posit);
+			this.ctx.lineTo(this.can.width, posit);
+		}
+		else{
+			posit = Math.round(point.x) + 0.5;
+
+			this.ctx.moveTo(posit, 0);
+			this.ctx.lineTo(posit, this.can.height);
+		}
+
+		this.ctx.lineWidth   = 1;
+		this.ctx.strokeStyle = color || '#ff4aff';
+
+		this.ctx.stroke();
 	},
 	searchNode: function(uid){
 		for(var i = 0; i < this.nodes.length; i++){
@@ -2668,6 +2930,8 @@ Object.assign( Blueprint.classes.Render.prototype, EventDispatcher.prototype, {
 
         this.dispatchEvent({type: 'newNode', node: node})
 
+        this.stick = false;
+
         this.update();
 	},
 	newHelper: function(option){
@@ -2691,6 +2955,8 @@ Object.assign( Blueprint.classes.Render.prototype, EventDispatcher.prototype, {
 
         this.dispatchEvent({type: 'newHelper', helper: helper})
 
+        this.stick = false;
+        
         this.update();
 	},
 	addNode: function(uid){
@@ -2728,6 +2994,11 @@ Object.assign( Blueprint.classes.Render.prototype, EventDispatcher.prototype, {
 		this.update()
 
 		this.dispatchEvent({type: 'removeHelper', helper: helper})
+	},
+	close: function(){
+		$.each(this.nodes,function(i,node){
+			node.fire('close');
+		})
 	}
 })
 Blueprint.classes.Selection = function(){
@@ -2901,10 +3172,14 @@ Blueprint.Utility = {
             if(stick.sticked){
                 position.x = stick.point.x;
                 position.y = stick.point.y;
+
+                Blueprint.Render.stick = stick;
             }
             else{
                 position.x = Blueprint.Utility.snapValue(position.x)
                 position.y = Blueprint.Utility.snapValue(position.y)
+
+                Blueprint.Render.stick = false;
             }
         }
 
@@ -2942,6 +3217,13 @@ Blueprint.Utility = {
         }
     },
 
+    getDataPointToScreen: function(position){
+        return {
+            x: (position.x + Blueprint.Viewport.position.x) * Blueprint.Viewport.scale,
+            y: (position.y + Blueprint.Viewport.position.y) * Blueprint.Viewport.scale
+        }
+    },
+
     getStickingNodes: function(select, start){
         var diff = {};
 
@@ -2973,15 +3255,21 @@ Blueprint.Utility = {
         //дальше самое интресное
         var sticking = [];
 
-        var node, point;
+        var node, point, height, width;
+
+        var all = [].concat(Blueprint.Render.nodes, Blueprint.Render.helpers);
 
         //надо найти линии 
-        for (var i = 0; i < Blueprint.Render.nodes.length; i++) {
-            node = Blueprint.Render.nodes[i];
+        for (var i = 0; i < all.length; i++) {
 
-            point = node.data.position;
+            node   = all[i];
+            point  = node.data.position;
+
+            height = node.node.outerHeight();
+            width  = node.node.outerWidth();
 
             //добовляем линии
+            
             //линия |
             sticking.push({
                 pos: point.x - dif.x, 
@@ -2989,14 +3277,7 @@ Blueprint.Utility = {
                 node: node, 
                 dif: dif
             });
-            //линия | + width
-            sticking.push({
-                pos: point.x + node.node.outerWidth() - dif.x, 
-                dir: 'y',
-                node: node, 
-                dif: dif
-            });
-
+            
             //линия --
             sticking.push({
                 pos: point.y - dif.y, 
@@ -3005,22 +3286,61 @@ Blueprint.Utility = {
                 dif: dif
             });
 
-            //линия -- + height
-            sticking.push({
-                pos: point.y + node.node.outerHeight() - dif.y, 
-                dir: 'x',
-                node: node, 
-                dif: dif
-            });
+            
+            if(Blueprint.Drag.drag.node){
+                var in_height = Blueprint.Drag.drag.node.node.outerHeight(),
+                    in_width  = Blueprint.Drag.drag.node.node.outerWidth()
 
-            //линия -- + height / 2
-            sticking.push({
-                pos: point.y + node.node.outerHeight() / 2 - dif.y, 
-                dir: 'x',
-                node: node, 
-                dif: dif
-            });
+                if(height == in_height){
+                    sticking.push({
+                        pos: point.y + height - dif.y, 
+                        dir: 'x',
+                        node: node, 
+                        dif: dif
+                    });
+                }
+                else{
+                    sticking.push({
+                        pos: point.y + (height - in_height) - dif.y, 
+                        dir: 'x',
+                        node: node, 
+                        dif: dif
+                    });
+
+                    sticking.push({
+                        pos: point.y + (height / 2 - in_height / 2) - dif.y, 
+                        dir: 'x',
+                        node: node, 
+                        dif: dif
+                    });
+                }
+
+                if(width == in_width){
+                    sticking.push({
+                        pos: point.x + width - dif.x, 
+                        dir: 'y',
+                        node: node, 
+                        dif: dif
+                    });
+                }
+                else{
+                    sticking.push({
+                        pos: point.x + (width - in_width) - dif.x, 
+                        dir: 'y',
+                        node: node, 
+                        dif: dif
+                    });
+
+                    sticking.push({
+                        pos: point.x + (width / 2 - in_width / 2) - dif.x, 
+                        dir: 'y',
+                        node: node, 
+                        dif: dif
+                    });
+                }
+            }
         }
+
 
         return sticking;
     },
@@ -3131,6 +3451,47 @@ Blueprint.Utility = {
     },
     intersectPoint: function(box, point){
         return point.x > box.left && point.x < box.left + box.width && point.y > box.top && point.y < box.top + box.height;
+    },
+    compareVarialbe: function(from, to, from_var, to_var){
+        var entrance_from = from.params.vars.output[from_var];
+        var entrance_to   = to.params.vars.input[to_var];
+
+        //если это тунель, то велком
+        if(entrance_from.tunnel || entrance_to.tunnel){
+            return true;
+        }
+        //если (В) нету не каких разрешений
+        else if(!entrance_to.allowed){
+            //но (ИЗ) стоят разрешения
+            if(entrance_from.allowed){
+                //если (ИЗ) есть разрешение (строка) то все гуд
+                if(entrance_from.allowed.indexOf('string') !== -1) return true;
+            }
+            else return true;
+        }
+        //если (ИЗ) нету разрешений но есть разрешения (В)
+        else if(!entrance_from.allowed){
+            //если (В) есть разрешение (строка) то все гуд
+            if(entrance_to.allowed.indexOf('string') !== -1) return true;
+        }
+        //если у обоих есть разрешения
+        else{
+            //то проверяем есть ли обшие разрешение у обоих входа
+            if(entrance_to.allowed.filter(element => entrance_from.allowed.includes(element)).length) return true;
+        }
+
+        return false;
+    },
+    maxConnections: function(compare, node, variable){
+        var max = node.params.vars.input[variable].maxConnections;
+
+        if(max){
+            var count = node.data.parents.filter(elem => elem.input == variable);
+
+            if(count.length >= max) return false;
+        }
+
+        return compare;
     }
 }
 
@@ -3165,6 +3526,8 @@ Blueprint.classes.Viewport = function(){
 		y: 0
 	}
 
+    this.timer_resize;
+
 	this.zoom = $('.blueprint-zoom');
 	this.wrap = $('.blueprint-wrap');
 	this.body = $('body');
@@ -3191,10 +3554,9 @@ Object.assign( Blueprint.classes.Viewport.prototype, EventDispatcher.prototype, 
             delta *= 0.120;
 
 
-        var zoom = (1.1 - (delta < 0 ? 0.2 : 0));
+        var zoom = 1.1 - (delta < 0 ? 0.2 : 0);
             
-        var newscale = this.scale * zoom;
-            newscale = newscale > 1 ? 1 : newscale;
+        var newscale = Math.max(0.1,Math.min(2,this.scale * zoom));
 
         var mx = -this.cursor.x;
         var my = -this.cursor.y;
@@ -3213,6 +3575,16 @@ Object.assign( Blueprint.classes.Viewport.prototype, EventDispatcher.prototype, 
 
         this.dispatchEvent({type: 'zoom'})
     },
+    setScale: function(scale){
+        this.scale = scale;
+
+        this.zoom.css({
+            transform: 'scale('+this.scale+')',
+            transformOrigin: '0 0'
+        })
+
+        this.dispatchEvent({type: 'zoom'})
+    },
     drag: function(dif){
         this.position.x -= dif.x / this.scale;
         this.position.y -= dif.y / this.scale;
@@ -3222,9 +3594,31 @@ Object.assign( Blueprint.classes.Viewport.prototype, EventDispatcher.prototype, 
             top: this.position.y + 'px'
         })
 
-        this.body.css({
-            backgroundPosition: this.position.x + 'px ' + this.position.y + 'px'
+        /** 
+         * Магия чуваки!
+         * После движения, все блюрится, но!
+         * Если потом сделать заново зум, то все отлично.
+        **/
+
+        clearTimeout(this.timer_resize)
+
+        this.zoom.css({
+            transform: 'scale('+(this.scale * 0.99999)+')',
+            transformOrigin: '0 0'
         })
+
+        this.timer_resize = setTimeout(()=>{
+            this.zoom.css({
+                transform: 'scale('+this.scale+')',
+                transformOrigin: '0 0'
+            })
+        },100)
+
+        /*
+        this.body.css({
+            backgroundPosition: Math.round(this.position.x) + 'px ' + Math.round(this.position.y) + 'px'
+        })
+        */
 
         this.dispatchEvent({type: 'drag'})
     }
@@ -3287,15 +3681,19 @@ Object.assign( Blueprint.classes.Worker.prototype, EventDispatcher.prototype, {
 		if(helpers){
 			for(var i in helpers){
 				var help = helpers[i];
+				var trig = BlueprintTriggers.get(help.uid);
 
-				if(help.disable){
+				if(trig){
+					if(!trig.status) areas.push(help);
+				}
+				else if(help.disable){
 					areas.push(help);
 				}
 			}
 		}
 
 		var node,assign,working,disable;
-
+		
 		for(var uid in nodes){
 			node = nodes[uid];
 
@@ -3321,7 +3719,7 @@ Object.assign( Blueprint.classes.Worker.prototype, EventDispatcher.prototype, {
             
             for(var i = 0; i < work.parents.length; i++) countParents(work.parents[i]);
         }
-        
+
         for(var i = workers.length; i--;) workers[i].init();
         for(var i = workers.length; i--;) countParents(workers[i]);
         
@@ -3352,6 +3750,33 @@ Blueprint.Worker.add('blueprint',{
 		vars: {
 			input: {
 				input: {},
+				cycle: {
+					name: 'cycle',
+					color: '#ddd',
+					value: 'false',
+					disableVisible: true,
+					type: function(entrance, group, fieldname, params, event){
+						var field = $([
+							'<div class="form-field form-field-space form-field-align-center">',
+								'<div>Использовать как цикл:</div>',
+								'<div>',
+									'<ul class="form-radio">',
+                                        '<li name="false"><img src="style/img/icons/none.png" alt=""></li>',
+                                        '<li name="true"><img src="style/img/icons/ok.png" alt=""></li>',
+                                    '</ul>',
+								'</div>',
+							'</div>'
+						].join(''));
+
+						Form.RadioChangeEvent($('.form-radio',field),function(value){
+							event.target.setValue(entrance, fieldname, value);
+						});
+
+						Form.RadioSetValue($('.form-radio',field),event.target.getValue(entrance, fieldname));
+
+						return field;
+					}
+				},
 			},
 			output: {
 				output: {}
@@ -3369,10 +3794,12 @@ Blueprint.Worker.add('blueprint',{
 		init: function(event){
 			var blueprint = parent.Blueprint.Program.data[event.data.blueprintUid];
 
-			if(blueprint) $('.display-subtitle',event.target.node).text('('+blueprint.name+')')
+			if(blueprint) $('.display-subtitle',event.target.node).text('('+blueprint.name+')');
 		},
 		blueprintChangeParams: function(event){
-			$('.display-title',event.target.node).text('Blueprint Content ('+event.add.name+')')
+			$('.display-subtitle',event.target.node).text('('+event.add.name+')');
+
+			Blueprint.Render.draw();
 		}
 	},
 	working: {
@@ -3380,14 +3807,35 @@ Blueprint.Worker.add('blueprint',{
 			
 		},
 		build: function(){
-			//устанавливаем глобальные значения
-			Blueprint.Vars.set(this.data.userData.blueprintUid, 'input', this.getValue('input'));
-			
-			//выполняем воркер
-			Blueprint.Program.blueprintBuild(this.data.userData.blueprintUid);
-			
-			//записываем результат
-			this.setValue('output', Blueprint.Vars.get(this.data.userData.blueprintUid, 'output'));
+			var cycle = this.getValue('cycle',true).join('') == 'true';
+
+			if(cycle){
+				var input_data  = this.getValue('input');
+				var output_data = [];
+
+				for (var i = 0; i < input_data.length; i++) {
+					var input = input_data[i];
+
+					Blueprint.Vars.set(this.data.userData.blueprintUid, 'input', input);
+				
+					//выполняем воркер
+					Blueprint.Program.blueprintBuild(this.data.userData.blueprintUid);
+					
+					output_data.push(Blueprint.Vars.get(this.data.userData.blueprintUid, 'output'))
+				}
+
+				this.setValue('output', output_data);
+			}
+			else{
+				//устанавливаем глобальные значения
+				Blueprint.Vars.set(this.data.userData.blueprintUid, 'input', this.getValue('input'));
+				
+				//выполняем воркер
+				Blueprint.Program.blueprintBuild(this.data.userData.blueprintUid);
+				
+				//записываем результат
+				this.setValue('output', Blueprint.Vars.get(this.data.userData.blueprintUid, 'output'));
+			}
 		}
 	}
 });
@@ -3518,7 +3966,11 @@ Blueprint.Worker.add('css_autoprefixer',{
 				result = nw.postcss([nw.autoprefixer({ browsers: version.split(',') })]).process(result).css;
 			}
 			catch(e){
-				Console.Add({message: 'Autoprefixer: ' + e.message, stack: e.stack});
+				Functions.AutoprefixerPrintError({
+					result: result,
+					message: e.message,
+					title: 'Blueprint - (autoprefixer) error: '
+				});
 			}
 			
 			this.setValue('output',result);
@@ -3979,6 +4431,51 @@ Blueprint.Worker.add('css_result',{
 					color: '#fdbe00',
 					disableChange: true
 				},
+				branch: {
+					name: 'branch',
+					color: '#fdbe00',
+					//displayInTitle: true,
+					disableVisible: true,
+					type: function(entrance, group, name, params, event){
+						var input = $([
+							'<div class="form-btn"><img src="style/img/branch/mini.png"> <span>Master</span></div>',
+						].join(''))
+
+						var selected = event.target.getValue(entrance, name);
+						var branch   = Data.branches[selected];
+
+						if(branch) $('span',input).text(branch.name);
+
+						input.on('click', function(){
+							var ul = $([
+			                    '<ul class="list-select">',
+			                        '<li data-id="">Master</li>',
+			                    '</ul>'
+			                ].join(''));
+
+			                for(var i in Data.branches){
+			                	ul.append('<li data-id="'+i+'">'+Data.branches[i].name+'</li>');
+			                }
+
+			                $('li',ul).on('click',function(){
+			                	var branch_id   = $(this).data('id');
+			                	var branch_name = branch_id ? Data.branches[branch_id].name : 'Master';
+
+			                	$('span',input).text(branch_name);
+
+			                	event.target.data.userData.branch_name = branch_name;
+
+			                	event.target.setValue(entrance, name, branch_id);
+
+			                	Popup.Hide();
+			                })
+
+							Popup.Box(input, ul);
+						})
+
+						return input;
+					}
+				},
 			},
 			output: {
 				output: {
@@ -4014,6 +4511,19 @@ Blueprint.Worker.add('css_result',{
 		},
 		remove: function(){
 
+		},
+		init: function(event){
+			var name = event.target.getValue('input','branch') ? event.target.data.userData.branch_name : 'Master';
+
+			event.target.setDisplayInTitle(name);
+			
+			event.target.addEventListener('setValue',function(e){
+				if(e.name == 'branch'){
+					this.setDisplayInTitle(e.value ? this.data.userData.branch_name : 'Master');
+
+					Blueprint.Render.draw();
+				}
+			});
 		}
 	},
 	working: {
@@ -4022,12 +4532,13 @@ Blueprint.Worker.add('css_result',{
 		},
 		
 		build: function(){
-			var lis = this.getValue('list');
-			var any = this.isAnyTrue(lis);
+			var custom_list = this.getValue('list');
+			var any_changes = this.isAnyTrue(custom_list);
 			
 			var css = Generators.Build.Css(true,{
 				toObject: true,
-				list: any ? lis : false
+				list: any_changes ? custom_list : false,
+				branch: this.getValue('branch',true).join('')
 			});
 
 			this.setValue('main', css.main);
@@ -4091,6 +4602,7 @@ Blueprint.Worker.add('dir_watch',{
 		saturation: 'hsl(53, 28%, 57%)',
 		alpha: 0.4,
 		category: 'file',
+		unclosed: true,
 		vars: {
 			input: {
 				path: {
@@ -4372,6 +4884,7 @@ Blueprint.Worker.add('file_watch',{
 		saturation: 'hsl(53, 28%, 57%)',
 		alpha: 0.4,
 		category: 'file',
+		unclosed: true,
 		vars: {
 			input: {
 				path: {
@@ -4466,6 +4979,7 @@ Blueprint.Worker.add('ftpsync',{
 		saturation: 'hsl(0, 89%, 72%)',
 		alpha: 0.98,
 		category: 'file',
+		unclosed: true,
 		titleColor: '#883232',
 		vars: {
 			input: {
@@ -4496,6 +5010,28 @@ Blueprint.Worker.add('ftpsync',{
 					color: '#ddd',
 					type: 'fileDir'
 				},
+				exclude: {
+					name: 'exclude',
+					color: '#ddd',
+					type: function(entrance, group, name, params, event){
+						var input = $([
+							'<p class="m-t-20">Исключить папки или файлы, например исключить загрузку папки <code>psd</code> или файла <code>css/style.css</code></p>',
+							'<div class="form-input m-b-5">',
+								'<textarea rows="6" name="'+name+'" placeholder="Перечислите пути с новой строки" />',
+                            '</div>',
+						].join(''))
+
+						Form.InputChangeEvent(input,function(name,value){
+							event.target.setValue(entrance, name, value);
+						},function(name,value){
+							event.target.setValue(entrance, name, '');
+						})
+
+						input.find('textarea').val(event.target.getValue(entrance, name) || '');
+
+						return input;
+					}
+				},
 				full: {
 					disableVisible: true,
 					type: function(entrance, group, name, params, event){
@@ -4506,12 +5042,13 @@ Blueprint.Worker.add('ftpsync',{
 						field.on('click', function(){
 							event.data.userData.lastTime = '01.01.0001 0:00:00';
 
-							Functions.Notify('Дата очишина');
+							Functions.Notify('Дата очищина');
 						})
 
 						return field;
 					}
-				}
+				},
+				
 			},
 			output: {
 
@@ -4535,6 +5072,8 @@ Blueprint.Worker.add('ftpsync',{
 			
 		},
 		build: function(){
+			if(!Blueprint.Program._start_save) return;
+
 			var ftpuid = this.data.uid;
 			var change = Blueprint.Utility.onChange(this.getValue('change',true));
 
@@ -4546,13 +5085,21 @@ Blueprint.Worker.add('ftpsync',{
 				var name     = this.getValue('name').join('');
 				var execFile = require('child_process').execFile;
 
+				var exclude = this.getValue('exclude'),
+					exclude_default = this.getDefault('input','exclude');
+
+				var local_folder  = Functions.LocalPath(this.getValue('local_folder',true).join(''));
+				var exclude_paths = exclude.length ? exclude : exclude_default.split("\n");
+
+
 				var config = {
 					IP:           this.getValue('ip',true).join(''),
 					Login:        this.getValue('login',true).join(''),
 					Passwd:       this.getValue('password',true).join(''),
 					FtpFolder:    this.getValue('ftp_folder',true).join(''),
-					LocalFolder:  Functions.LocalPath(this.getValue('local_folder',true).join('')),
-					LastSyncGood: this.data.userData.lastTime
+					LocalFolder:  local_folder,
+					LastSyncGood: this.data.userData.lastTime,
+					Exclude:      exclude_paths.join(',')
 				}
 
 				if(config.Passwd){
@@ -4582,7 +5129,7 @@ Blueprint.Worker.add('ftpsync',{
 				var base = btoa(json);
 
 				var proces = Process.Add();
-					proces.name('ftpsync');
+					proces.name('ftpsync - ' + config.IP);
 					proces.work('Начало загрузки');
 
 		        var spawn = require('child_process').spawn;
@@ -4617,6 +5164,11 @@ Blueprint.Worker.add('ftpsync',{
 						if(json.data.errorMsg){
 							errors.push(json.data.errorMsg);
 						}
+
+						proces.progress(true, 0);
+					}
+					else if(method == 'progressUploadFile'){
+						proces.progress(true, json.data.percent);
 					}
 					else if(method == 'uploadStat'){
 						total = json.data;
@@ -4809,7 +5361,11 @@ Blueprint.Worker.add('html_diff',{
 			var input  = this.getValue('input').join('');
 			var change = this.isAnyTrue(this.getValue('change'));
 
-			if(change) Raid.ReplaceBody(input);
+			if(change){
+				Raid.ReplaceBody(input);
+
+				if(RaidDuplicete) RaidDuplicete.ReplaceBody(input);
+			} 
 
 			this.setValue('change',change);
 		}
@@ -4854,9 +5410,9 @@ Blueprint.Worker.add('html_unminify',{
 		},
 		build: function(){
 			var value = this.getValue('input').join("\n");
-
+				
 				value = nw.beautify_html(value, { indent_size: 4, space_in_empty_paren: true });
-			
+
 			this.setValue('output',value);
 		}
 	}
@@ -4919,14 +5475,16 @@ Blueprint.Worker.add('join',{
 				input: {
 					disableChange: true,
 					varType: 'round',
-					color: '#ddd'
+					color: '#ddd',
+					//tunnel: true
 				},
 			},
 			output: {
 				output: {
 					disableChange: true,
 					varType: 'round',
-					color: '#ddd'
+					color: '#ddd',
+					//tunnel: true
 				},
 			}
 		},
@@ -5897,44 +6455,79 @@ Blueprint.Worker.add('scss_input',{
 	},
 	on: {
 		create: function(event){
-			
+			parent.Blueprint.Worker.get('scss_input').working.create(event.target.uid);
 		},
 		remove: function(event){
-			
+			parent.Blueprint.Worker.get('scss_input').working.remove(event.target.uid);
 		},
 		init: function(event){
-			var data = event.target.data.userData;
+			var data    = event.target.data.userData;
+			var working = parent.Blueprint.Worker.get('scss_input').working;
 
 			event.target.node.dblclick(function(){
-				var input = prompt('Название входа', data.name || '');
 
-				if(input){
-					data.name = input;
-
+				working.rename({
+					type: 'input',
+					data: data,
+					uid:  event.target.uid
+				}, ()=>{
 					event.target.setDisplayTitle('<i class="flaticon-layers" style="font-size: 15px; margin-right: 5px"></i>Input ('+(data.name || '...')+')');
 
 					Blueprint.Render.draw();
-				}
+				});
+				
 			})
 
 			event.target.setDisplayTitle('<i class="flaticon-layers" style="font-size: 15px; margin-right: 5px"></i>Input ('+(data.name || '...')+')');
 		}
 	},
 	working: {
-		create: function(uid, data){
-			
+		create: function(uid){
+			Data.vtc.scssInputs[uid] = '';
 		},
 		remove: function(uid){
-			
+			delete Data.vtc.scssInputs[uid];
+		},
+		rename: function(params, call){
+			swal("Название", {
+				content: {
+					element: "input",
+					attributes: {
+						value: params.data.name || '',
+					}
+				}
+            }).then((new_name) => {
+                params.data.name = new_name;
+
+                if(Data.vtc.scssEnters[params.data.name] == undefined){
+                	Data.vtc.scssEnters[params.data.name] = {};
+                }
+
+                if(params.type == 'input'){
+                	Data.vtc.scssInputs[params.uid] = new_name;
+                }
+
+                call(new_name);
+
+                Ceron.VTCGlobal.scss.build();
+
+                Generators.Build.Css();
+            })
 		},
 		start: function(){
 			
 		},
 		build: function(){
 			var data  = this.data.userData;
-			var input = Data.vtc.scssEnters[data.name];
+			var input = Data.vtc.scssEnters[data.name] || {};
 
-			this.setValue('output', input == undefined ? '' : input);
+			var lines = [];
+
+			for(var a in input){
+				lines.push(input[a]);
+			}
+
+			this.setValue('output', lines);
 		}
 	}
 });
@@ -6034,17 +6627,18 @@ Blueprint.Worker.add('scss_output',{
 		},
 		init: function(event){
 			var data = event.target.data.userData;
+			var working = parent.Blueprint.Worker.get('scss_input').working;
 
 			event.target.node.dblclick(function(){
-				var input = prompt('Название выхода', data.name || '');
-
-				if(input){
-					data.name = input;
-
+				working.rename({
+					type: 'output',
+					data: data,
+					uid:  event.target.uid
+				}, ()=>{
 					event.target.setDisplayTitle('<i class="flaticon-layers" style="font-size: 15px; margin-right: 5px"></i>Output ('+(data.name || '...')+')');
 
 					Blueprint.Render.draw();
-				}
+				});
 			})
 
 			event.target.setDisplayTitle('<i class="flaticon-layers" style="font-size: 15px; margin-right: 5px"></i>Output ('+(data.name || '...')+')');
@@ -6062,10 +6656,19 @@ Blueprint.Worker.add('scss_output',{
 		},
 		build: function(){
 			var data   = this.data.userData;
+			var uid    = this.data.uid;
 			var input  = this.getValue('input',true);
 
 			if(data.name !== undefined){
-				Data.vtc.scssEnters[data.name] = input.join('');
+				if(Data.vtc.scssEnters[data.name] == undefined) {
+					Data.vtc.scssEnters[data.name] = {};
+				}
+
+				if(Data.vtc.scssEnters[data.name][uid] == undefined) {
+					Data.vtc.scssEnters[data.name][uid] = [];
+				}
+
+				Data.vtc.scssEnters[data.name][uid] = input; 
 			}
 		}
 	}
@@ -6283,7 +6886,7 @@ Blueprint.Worker.add('string',{
 			
 		},
 		build: function(){
-			var input  = this.getValue('input',true);
+			var input  = this.getValue('input',true).join('');
 			var output = this.getDefault('output', 'output')
 
 				output = input ? input + output : output;
@@ -6295,7 +6898,7 @@ Blueprint.Worker.add('string',{
 Blueprint.Worker.add('string_change',{
 	params: {
 		name: 'String change',
-		description: 'Проверяет изменилась ли строки',
+		description: 'Проверяет изменилась ли строка',
 		saturation: 'hsl(197, 98%, 83%)',
 		alpha: 0.42,
 		category: 'function',
@@ -6434,6 +7037,102 @@ Blueprint.Worker.add('switch',{
 		}
 	}
 });
+Blueprint.Worker.add('url_to_browser',{
+	params: {
+		name: 'Add link to browser',
+		description: 'Добовляет сылку в адресную строку браузера',
+		saturation: 'hsl(197, 98%, 83%)',
+		alpha: 0.42,
+		category: 'all',
+		type: 'round',
+		vars: {
+			input: {
+				input: {
+					enableChange: true,
+					varType: 'round',
+					color: '#ddd'
+				},
+			},
+			output: {
+				
+			}
+		},
+	},
+	on: {
+		create: function(){
+			
+		},
+		remove: function(){
+
+		}
+	},
+	working: {
+		start: function(){
+			
+		},
+		build: function(){
+			var url  = this.getValue('input',true).join('');
+			
+			if(Data.lastUrls.indexOf(url) == -1){
+				Arrays.insert(Data.lastUrls, 0, url);
+
+				File.DrawUrls();
+			}
+			
+		}
+	}
+});
+Blueprint.Worker.add('variable',{
+	params: {
+		name: 'Variable',
+		description: 'Переменная',
+		saturation: 'hsl(197, 98%, 83%)',
+		alpha: 0.42,
+		category: 'all',
+		type: 'round',
+		vars: {
+			input: {
+				input: {
+					enableChange: true,
+					varType: 'round',
+					color: '#ddd',
+				},
+			},
+			output: {
+				output: {
+					name: '',
+					enableChange: true,
+					displayInTitle: true,
+					varType: 'round',
+					color: '#ddd',
+				},
+			}
+		},
+	},
+	on: {
+		create: function(){
+			
+		},
+		remove: function(){
+
+		},
+		close: function(){
+			
+		}
+	},
+	working: {
+		start: function(){
+			
+		},
+		build: function(){
+			var input  = this.getValue('input',true).join('');
+			var output = this.getDefault('output', 'output')
+			var name   = input ? input + output : output;
+
+			this.setValue('output', Variables.Get(name));
+		}
+	}
+});
 Blueprint.Worker.add('vtc_clear',{
 	params: {
 		name: 'VTC Clear',
@@ -6477,6 +7176,175 @@ Blueprint.Worker.add('vtc_clear',{
 				value = value.replace(new RegExp(' data-vcid=\"[^\"]+\"', 'gi'), '');
 			
 			this.setValue('output',value);
+		}
+	}
+});
+Blueprint.Worker.add('vtc_find',{
+	params: {
+		name: 'VTC Find',
+		description: 'Найти VTC нод',
+		saturation: 'hsl(197, 98%, 83%)',
+		alpha: 0.42,
+		category: 'none',
+		deprecated: true,
+		vars: {
+			input: {
+				id: {
+					name: 'find',
+					color: '#ff7d63',
+					disableChange: true,
+					allowed: ['vtc_find'],
+					maxConnections: 1
+				},
+				custom: {
+					name: 'custom',
+					color: '#ddd',
+					displayInTitle: true,
+					disableVisible: true,
+					placeholder: 'UID нода'
+				}
+			},
+			output: {
+				output: {
+					name: '',
+					varType: 'round',
+					color: '#ff7d63',
+					allowed: ['vtc_find']
+				}
+			}
+		},
+	},
+	on: {
+		create: function(){
+			
+		},
+		remove: function(){
+
+		},
+		init: function(event){
+			
+		}
+	},
+	working: {
+		start: function(){
+			
+		},
+		build: function(e){
+			var id     = this.getValue('id');
+			var custom = this.getValue('custom',true).join('');
+			
+			var find = [];
+
+			if(id.length) find.push(id);
+			if(custom)    find.push({find: custom});
+
+			this.setValue('output', find);
+		}
+	}
+});
+Blueprint.Worker.add('vtc_folder_list',{
+	params: {
+		name: 'VTC Folder List',
+		description: 'Выводит название шаблонов из указанной папки VTC Templates',
+		saturation: 'hsl(197, 98%, 83%)',
+		alpha: 0.42,
+		category: 'vtc',
+		vars: {
+			input: {
+				folder: {
+					name: 'folder',
+					color: '#ddd',
+					placeholder: 'Название папки'
+				},
+			},
+			output: {
+				output: {
+
+				}
+			}
+		},
+	},
+	on: {
+		create: function(){
+			
+		},
+		remove: function(){
+
+		}
+	},
+	working: {
+		start: function(){
+			
+		},
+		build: function(){
+			var folder    = this.getValue('folder',true).join('');
+			var templates = [];
+
+			if(folder){
+				var search = Functions.SeachTPL('title',folder);
+
+				if(search && search.childList){
+					search.childList.map(function(a){
+						templates.push(a.data.title);
+					})
+				}
+
+				this.setValue('output', templates);
+			}
+		}
+	}
+});
+Blueprint.Worker.add('vtc_instruction',{
+	params: {
+		name: 'VTC Instruction',
+		description: 'Создать инструкцию',
+		saturation: 'hsl(93, 93%, 54%)',
+		alpha: 0.62,
+		category: 'none',
+		unclosed: true,
+		deprecated: true,
+		vars: {
+			input: {
+				perform: {
+					name: 'perform',
+					color: '#7bda15',
+					disableChange: true,
+					allowed: ['vtc_perform']
+				},
+			},
+			output: {
+				
+			}
+		},
+	},
+	on: {
+		create: function(event){
+			var uid = Blueprint.Utility.uid();
+
+			event.target.data.userData.uid = uid;
+		},
+		remove: function(event){
+			parent.Blueprint.Worker.get('vtc_instruction').working.remove(event.target.data.userData.uid);
+		},
+		close: function(event){
+			parent.Blueprint.Worker.get('vtc_instruction').working.remove(event.target.data.userData.uid);
+		},
+		init: function(){
+			
+		}
+	},
+	working: {
+		start: function(){
+			
+		},
+		remove: function(uid){
+			delete Data.vtc.instructions[uid];
+		},
+		build: function(){
+			var uid     = this.data.userData.uid;
+			var perform = this.getValue('perform');
+
+			Data.vtc.instructions[uid] = Arrays.clone(perform);
 		}
 	}
 });
@@ -6533,6 +7401,125 @@ Blueprint.Worker.add('vtc_live',{
 			if(VTC.Live){
 				VTC.Live.includeHtml(html, change);
 			}
+		}
+	}
+});
+Blueprint.Worker.add('vtc_perform',{
+	params: {
+		name: 'VTC Perform',
+		description: 'Выполнить действие',
+		saturation: 'hsl(212, 100%, 65%)',
+		alpha: 0.58,
+		category: 'none',
+		deprecated: true,
+		vars: {
+			input: {
+				from: {
+					name: 'from',
+					color: '#ff7d63',
+					disableChange: true,
+					allowed: ['vtc_find'],
+					maxConnections: 1
+				},
+				to: {
+					name: 'to',
+					color: '#ddd',
+					disableChange: true,
+					allowed: ['vtc_template','string'],
+					///maxConnections: 1
+				},
+				perform: {
+					name: 'perform',
+					color: '#ddd',
+					disableVisible: true,
+					value: 'add_after',
+					type: function(entrance, group, name, params, event){
+						var input = $([
+							'<div class="form-btn"><span></span></div>',
+						].join(''))
+
+						var selected = event.target.getValue(entrance, name);
+						
+						$('span',input).text(event.target.data.userData.perform_name || 'Add After');
+
+						input.on('click', function(){
+							var ul = $([
+			                    '<ul class="list-select">',
+			                        '<li data-perform="remove">Remove</li>',
+			                        '<li data-perform="replace">Replace</li>',
+			                        '<li data-perform="add_before">Add before</li>',
+			                        '<li data-perform="add_after">Add after</li>',
+			                        '<li data-perform="inside_before">Inside before</li>',
+			                        '<li data-perform="inside_after">Inside after</li>',
+			                    '</ul>'
+			                ].join(''));
+
+			                
+			                $('li',ul).on('click',function(){
+			                	var perform   = $(this).data('perform');
+			                	var perform_name = $(this).text();
+
+			                	$('span',input).text(perform_name);
+
+			                	event.target.data.userData.perform_name = perform_name;
+
+			                	event.target.setValue(entrance, name, perform);
+
+			                	Popup.Hide();
+			                })
+
+							Popup.Box(input, ul);
+						})
+
+						return input;
+					}
+				},
+			},
+			output: {
+				output: {
+					name: 'perform',
+					varType: 'round',
+					color: '#7bda15',
+					allowed: ['vtc_perform']
+				}
+			}
+		},
+	},
+	on: {
+		create: function(){
+			
+		},
+		remove: function(){
+
+		},
+		init: function(event){
+			event.target.setDisplayInTitle(event.target.data.userData.perform_name || 'Add after');
+			
+			event.target.addEventListener('setValue',function(e){
+				if(e.name == 'perform'){
+					this.setDisplayInTitle(event.target.data.userData.perform_name);
+
+					Blueprint.Render.draw();
+				}
+			});
+		}
+	},
+	working: {
+		start: function(){
+			
+		},
+		build: function(){
+			var find   = this.getValue('from');
+			var to     = this.getValue('to');
+			var method = this.getValue('perform',true).join('');
+
+			var perform = {
+				find: find,
+				method: method,
+				to: to
+			}
+
+			this.setValue('output', perform);
 		}
 	}
 });
@@ -6598,6 +7585,8 @@ Blueprint.Worker.add('vtc_render',{
 			}
 
 			if(template){
+				VTC.Build.startInstruction();
+
 				data = VTC.Build.template(template, match.data.key);
 			}
 			else{
@@ -6608,6 +7597,7 @@ Blueprint.Worker.add('vtc_render',{
 				var variable = vars[i];
 
 				if(Arrays.isObject(variable)){
+					data = data.replace(new RegExp('{@'+name+'~.*?}',"g"), variable.value);
 					data = data.replace(new RegExp('{@'+variable.name+'}',"g"), variable.value);
 				}
 			}
@@ -6626,10 +7616,64 @@ Blueprint.Worker.add('vtc_render',{
 				Ceron.cache.vtc_render[cache_name] = data_hash;
 			}
 
-			data = data.replace(new RegExp('{@(.*?)}',"g"),''); //затираем лишнии переменные
+			data = Functions.AttachHtmlFiles(data);
+			data = Functions.ClearHtmlVars(data);
+
+			//data = data.replace(new RegExp('{@.*?~(.*?)}',"g"),'$1'); //оставляем дефолтные значения
+			//data = data.replace(new RegExp('{@(.*?)}',"g"),''); //затираем лишнии переменные
 
 			this.setValue('output', data);
 			this.setValue('change', change);
+		}
+	}
+});
+Blueprint.Worker.add('vtc_template',{
+	params: {
+		name: 'VTC Template',
+		description: 'Найти шаблон по его названию',
+		saturation: 'hsl(197, 98%, 83%)',
+		alpha: 0.42,
+		category: 'none',
+		deprecated: true,
+		vars: {
+			input: {
+				template: {
+					name: 'template',
+					color: '#ddd',
+					displayInTitle: true,
+					allowed: ['string'],
+					placeholder: 'Название шаблона'
+				}
+			},
+			output: {
+				output: {
+					name: '',
+					varType: 'round',
+					color: '#ddd',
+					allowed: ['vtc_template'],
+				}
+			}
+		},
+	},
+	on: {
+		create: function(){
+			
+		},
+		remove: function(){
+
+		},
+		init: function(event){
+			
+		}
+	},
+	working: {
+		start: function(){
+			
+		},
+		build: function(e){
+			var name = this.getValue('template',true).join('');
+
+			this.setValue('output', {template: name});
 		}
 	}
 });

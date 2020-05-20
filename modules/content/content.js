@@ -27,6 +27,29 @@ Ceron.modules.Content = function(){
                 });
             })
 
+            $('.preset',self.module).on('click', function(){
+                var preset = $(this).data('preset');
+
+                if(preset == 'a'){
+                    Generators.Css.Add(`content: ''`);
+                    Generators.Css.Add(`display: block`);
+                }
+                if(preset == 'b'){
+                    Generators.Css.Add(`content: ''`);
+                    Generators.Css.Add(`display: block`);
+                    Generators.Css.Add(`position: absolute`);
+                }
+                if(preset == 'c'){
+                    Generators.Css.Add(`content: ''`);
+                    Generators.Css.Add(`display: block`);
+                    Generators.Css.Add(`position: absolute`);
+                    Generators.Css.Add(`left: 0`);
+                    Generators.Css.Add(`bottom: 0`);
+                    Generators.Css.Add(`right: 0`);
+                    Generators.Css.Add(`top: 0`);
+                }
+            })
+
             Generators.Module.AddToTool(self.module);
         })
     }

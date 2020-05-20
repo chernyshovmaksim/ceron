@@ -1,8 +1,9 @@
 <div class="vtc-left">
     <div class="tabs-container">
         <ul class="tabs-menu">
-            <li class="active" data-show="" tab="vtc-css-list"><img src="style/img/icons-panel/childrens.png" alt=""></li>
-            <li class="info"><span class="p-r-10">Создано правил: <span id="vtc-rules-total">0</span></span></li>
+            <li tab="vtc-css-list" data-show="" class="active vieport-update-draw"><img src="style/img/icons-panel/childrens.png" alt=""></li>
+            <li tab="vtc-css-categorys" data-show="" class="icon vieport-update-draw"><img src="style/img/icons-panel/folder.png" alt=""> <span class="vtc-categorys-select">Все</span></li>
+            <li class="info"><span class="p-r-10">Правил: <span id="vtc-rules-total">0</span></span></li>
         </ul>
         <div class="tabs-content active vtc-tab-content" id="vtc-css-list">
             <div class="vtc-css-create form-field form-field-grow-one">
@@ -11,8 +12,16 @@
                         <input type="text" value="" name="" id="vtc-css-search" placeholder="Искать ...">
                     </div>
                 </div>
-                <div>
-                    <div class="form-btn" id="vtc-css-add-folder"><img src="style/img/icons/pluse.png">Создать</div> 
+                <div class="form-field">
+                    <div>
+                        <div class="form-btn form-btn-icon vtc-categorys-choise" data-toggle="tooltip" title="Выбрать категорию"><img src="style/img/icons-panel/childrens.png"></div>
+                    </div>
+                    <div class="m-l-5">
+                        <div class="form-btn form-btn-icon" id="vtc-create-typography" data-toggle="tooltip" title="Создать типографию"><img src="style/img/icons-panel/auto.png"></div>
+                    </div>
+                    <div class="m-l-5">
+                        <div class="form-btn form-btn-icon" id="vtc-css-add-folder" data-toggle="tooltip" title="Создать правило"><img src="style/img/icons/pluse.png"></div>
+                    </div>
                 </div>
             </div>
 
@@ -23,8 +32,12 @@
 
         </div>
         
-        <div class="tabs-content" id="vtc-css-settings">
+        <div class="tabs-content" id="vtc-css-categorys">
+            <div class="form-btn m-b-10 vtc-categorys-add">Создать категорию</div>
+
+            <ul class="list list-folders vtc-categorys-list">
             
+            </ul>
         </div>
     </div>
 </div>

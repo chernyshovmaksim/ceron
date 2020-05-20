@@ -157,11 +157,16 @@ Ceron.modules.PerfectPixel = function(){
 
 
             PsdViewer.addEventListener('addItem',self.AddPsd.bind(self));
+            PsdViewer.addEventListener('removeItem',self.RemovePsd.bind(self));
 
             Generators.Module.AddToTool(self.module);
 
             Layer.InitTooltipe();
         })
+    }
+
+    this.RemovePsd = function(e){
+        $('[data-id="'+e.psd.id+'"]',$('#perfect-last-content',self.module)).remove();
     }
 
     this.AddPsd = function(e){
@@ -172,13 +177,12 @@ Ceron.modules.PerfectPixel = function(){
         var item = $([
             '<div class="vtc-psd" data-id="'+psd.id+'">',
                 '<div class="vtc-psd-image">',
-                    '<img class="vtc-psd-img" src="'+Functions.CheckImageSrc(Functions.LocalPath(psd.preview))+'?a'+psd.hash+'" />',
+                    '<img class="vtc-psd-img" src="'+Functions.CheckImageSrc(Functions.LocalPath(psd.preview_crop))+'?a'+psd.hash+'" />',
                     '<div class="vtc-psd-layer cursor-pointer"></div>',
                 '</div>',
 
                 '<ul class="vtc-psd-info selected">',
-                    '<li><span class="name">Имя:</span><span>'+psd.name+'</span></li>',
-                    '<li><span class="name">Файл:</span><span>'+Functions.NormalPath(psd.path)+'</span></li>',
+                    '<li class="text-center"><span>'+psd.name+' - '+psd.size.w+' x '+psd.size.h+'</span></li>',
                 '</ul>',
             '</div>',
         ].join(''));
@@ -426,5 +430,6 @@ Ceron.modules.PerfectPixel = function(){
 
         Raid.PerfectShowLayout();
         Raid.PerfectShowBaseline();
+
     }
 }
