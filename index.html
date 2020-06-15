@@ -230,7 +230,7 @@
         </li>
     </ul>
 
-    <div class="layer-head">
+    <div class="layer-head" style="-webkit-app-region: no-drag">
         <div class="item c-conection">
             <img src="style/img/load.svg"><span class="m-l-5">Подключение к сети ...</span>
         </div>
@@ -801,11 +801,25 @@
         <li id="vtc-viewport-create-tpl" class="hide" data-toggle="tooltip" title="Сделать новый шаблон"><img src="style/img/icons-panel/vtc-new-tpl.png"></li>
         
         <li> 
-            <img src="style/img/icons-panel/magnet-node-outer.png" class="vtc-magnet" data-name="1">
+            <div class="brush-type-select" data-name="none">
+                <img src="style/img/icons-panel/brush-none.png">
+            </div>
+            <ul>
+                <li class="brush-type-select active" data-name="paint"><img src="style/img/icons-panel/brush-paint.png"></li> 
+                <li class="brush-type-select" data-name="click"><img src="style/img/icons-panel/brush-click.png"></li> 
+            </ul>
+        </li> 
+        
+        <li> 
+            <div class="active vtc-magnet" data-name="1">
+                <img src="style/img/icons-panel/magnet-node-outer.png">
+            </div>
             <ul>
                 <li class="vtc-magnet" data-name="0"><img src="style/img/icons-panel/magnet-node.png"></li> 
             </ul>
         </li> 
+
+        
 
         
         <li id="vtc-viewport-join-nodes" class="hide" data-toggle="tooltip" title="Объединить выделенные ноды в один" >
@@ -1795,6 +1809,34 @@
                                                 <input type="text" name="" value="" placeholder="e_">
                                             </div>
                                             <span class="help-block m-b-0">Префикс для элементов</span>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                             <div class="form-group">
+                                <div class="form-name">Форма</div>
+                                <div class="form-content">
+                                    
+                                    <div class="form-field form-field-space">
+                                        <div style="width: 32%">
+                                            <div class="form-input prefix-button">
+                                                <input type="text" name="" value="" placeholder="button">
+                                            </div>
+                                            <span class="help-block m-b-0">Префикс для кнопки</span>
+                                        </div>
+                                        <div style="width: 32%">
+                                            <div class="form-input prefix-input">
+                                                <input type="text" name="" value="" placeholder="input">
+                                            </div>
+                                            <span class="help-block m-b-0">Префикс для поля ввода</span>
+                                        </div>
+                                        <div style="width: 32%">
+                                            <div class="form-input prefix-shape">
+                                                <input type="text" name="" value="" placeholder="shape">
+                                            </div>
+                                            <span class="help-block m-b-0">Префикс элементов</span>
                                         </div>
                                     </div>
 
@@ -2803,8 +2845,17 @@
 									<img src="style/img/vtc/icons-create/text.png">
 								</div>
 								<div class="boxMenu-item-body">
-									<h4>Текста cтили</h4>
+									<h4>Текста - cтили</h4>
 									<p>Создает контейнер со стилями текста.</p>
+								</div>
+							</div>
+							<div class="boxMenu-item" data-method="modeTextArticle">
+								<div class="boxMenu-item-ico">
+									<img src="style/img/vtc/icons-create/text.png">
+								</div>
+								<div class="boxMenu-item-body">
+									<h4>Текста - типография</h4>
+									<p>Создает контейнер с классом .text</p>
 								</div>
 							</div>
 						</div>

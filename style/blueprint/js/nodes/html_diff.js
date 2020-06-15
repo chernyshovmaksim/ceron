@@ -43,7 +43,11 @@ Blueprint.Worker.add('html_diff',{
 			var input  = this.getValue('input').join('');
 			var change = this.isAnyTrue(this.getValue('change'));
 
-			if(change) Raid.ReplaceBody(input);
+			if(change){
+				Raid.ReplaceBody(input);
+
+				if(RaidDuplicete) RaidDuplicete.ReplaceBody(input);
+			} 
 
 			this.setValue('change',change);
 		}

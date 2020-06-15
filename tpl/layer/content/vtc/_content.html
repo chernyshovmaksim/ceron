@@ -38,11 +38,25 @@
         <li id="vtc-viewport-create-tpl" class="hide" data-toggle="tooltip" title="Сделать новый шаблон"><img src="style/img/icons-panel/vtc-new-tpl.png"></li>
         
         <li> 
-            <img src="style/img/icons-panel/magnet-node-outer.png" class="vtc-magnet" data-name="1">
+            <div class="brush-type-select" data-name="none">
+                <img src="style/img/icons-panel/brush-none.png">
+            </div>
+            <ul>
+                <li class="brush-type-select active" data-name="paint"><img src="style/img/icons-panel/brush-paint.png"></li> 
+                <li class="brush-type-select" data-name="click"><img src="style/img/icons-panel/brush-click.png"></li> 
+            </ul>
+        </li> 
+        
+        <li> 
+            <div class="active vtc-magnet" data-name="1">
+                <img src="style/img/icons-panel/magnet-node-outer.png">
+            </div>
             <ul>
                 <li class="vtc-magnet" data-name="0"><img src="style/img/icons-panel/magnet-node.png"></li> 
             </ul>
         </li> 
+
+        
 
         
         <li id="vtc-viewport-join-nodes" class="hide" data-toggle="tooltip" title="Объединить выделенные ноды в один" >

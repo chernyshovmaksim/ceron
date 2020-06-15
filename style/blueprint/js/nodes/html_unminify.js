@@ -37,9 +37,9 @@ Blueprint.Worker.add('html_unminify',{
 		},
 		build: function(){
 			var value = this.getValue('input').join("\n");
+				
+				value = nw.beautify_html(value, { indent_size: 4, space_in_empty_paren: true });
 
-				value = nw.beautify_html(value, { indent_size: 4, space_in_empty_paren: true })
-			
 			this.setValue('output',value);
 		}
 	}

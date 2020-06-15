@@ -5,6 +5,7 @@ Blueprint.Worker.add('ftpsync',{
 		saturation: 'hsl(0, 89%, 72%)',
 		alpha: 0.98,
 		category: 'file',
+		unclosed: true,
 		titleColor: '#883232',
 		vars: {
 			input: {
@@ -35,6 +36,28 @@ Blueprint.Worker.add('ftpsync',{
 					color: '#ddd',
 					type: 'fileDir'
 				},
+				exclude: {
+					name: 'exclude',
+					color: '#ddd',
+					type: function(entrance, group, name, params, event){
+						var input = $([
+							'<p class="m-t-20">Исключить папки или файлы, например исключить загрузку папки <code>psd</code> или файла <code>css/style.css</code></p>',
+							'<div class="form-input m-b-5">',
+								'<textarea rows="6" name="'+name+'" placeholder="Перечислите пути с новой строки" />',
+                            '</div>',
+						].join(''))
+
+						Form.InputChangeEvent(input,function(name,value){
+							event.target.setValue(entrance, name, value);
+						},function(name,value){
+							event.target.setValue(entrance, name, '');
+						})
+
+						input.find('textarea').val(event.target.getValue(entrance, name) || '');
+
+						return input;
+					}
+				},
 				full: {
 					disableVisible: true,
 					type: function(entrance, group, name, params, event){
@@ -45,12 +68,13 @@ Blueprint.Worker.add('ftpsync',{
 						field.on('click', function(){
 							event.data.userData.lastTime = '01.01.0001 0:00:00';
 
-							Functions.Notify('Дата очишина');
+							Functions.Notify('Дата очищина');
 						})
 
 						return field;
 					}
-				}
+				},
+				
 			},
 			output: {
 
@@ -74,6 +98,8 @@ Blueprint.Worker.add('ftpsync',{
 			
 		},
 		build: function(){
+			if(!Blueprint.Program._start_save) return;
+
 			var ftpuid = this.data.uid;
 			var change = Blueprint.Utility.onChange(this.getValue('change',true));
 
@@ -85,13 +111,21 @@ Blueprint.Worker.add('ftpsync',{
 				var name     = this.getValue('name').join('');
 				var execFile = require('child_process').execFile;
 
+				var exclude = this.getValue('exclude'),
+					exclude_default = this.getDefault('input','exclude');
+
+				var local_folder  = Functions.LocalPath(this.getValue('local_folder',true).join(''));
+				var exclude_paths = exclude.length ? exclude : exclude_default.split("\n");
+
+
 				var config = {
 					IP:           this.getValue('ip',true).join(''),
 					Login:        this.getValue('login',true).join(''),
 					Passwd:       this.getValue('password',true).join(''),
 					FtpFolder:    this.getValue('ftp_folder',true).join(''),
-					LocalFolder:  Functions.LocalPath(this.getValue('local_folder',true).join('')),
-					LastSyncGood: this.data.userData.lastTime
+					LocalFolder:  local_folder,
+					LastSyncGood: this.data.userData.lastTime,
+					Exclude:      exclude_paths.join(',')
 				}
 
 				if(config.Passwd){
@@ -121,7 +155,7 @@ Blueprint.Worker.add('ftpsync',{
 				var base = btoa(json);
 
 				var proces = Process.Add();
-					proces.name('ftpsync');
+					proces.name('ftpsync - ' + config.IP);
 					proces.work('Начало загрузки');
 
 		        var spawn = require('child_process').spawn;
@@ -156,6 +190,11 @@ Blueprint.Worker.add('ftpsync',{
 						if(json.data.errorMsg){
 							errors.push(json.data.errorMsg);
 						}
+
+						proces.progress(true, 0);
+					}
+					else if(method == 'progressUploadFile'){
+						proces.progress(true, json.data.percent);
 					}
 					else if(method == 'uploadStat'){
 						total = json.data;

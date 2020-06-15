@@ -15,6 +15,8 @@ Object.assign( Blueprint.classes.Blueprint.prototype, EventDispatcher.prototype,
 
 	 	this.tab = $('<li class="active '+(this.uid == 'main' ? 'main' : '')+'" uid="'+this.uid+'"><span>'+this.data.name+'</span>'+(this.uid == 'main' ? '' : '<a></a>')+'</li>'); 
 
+	 	this.closer = $('a',this.tab);
+
 		this.tab.on('click',function(e){
 			if($( e.target ).closest($('a',self.tab)).length){
 				self.close();
@@ -25,15 +27,29 @@ Object.assign( Blueprint.classes.Blueprint.prototype, EventDispatcher.prototype,
 			
 		}).click()
 
-		this.tabs.append(this.tab)
+		this.tabs.append(this.tab);
 	},
 
 	initViewport: function(){
+		this.contentBlueprint.Triggers = BlueprintTriggers;
+		this.contentBlueprint.Unclosed = this.unclosed.bind(this);
 		this.contentBlueprint.Callback = Blueprint; //втуливаем ссылку тудой
 		this.contentBlueprint.Initialization.viewport();
+		this.contentBlueprint.Viewport.setScale(Config.config.interf_size / 100);
 		this.contentBlueprint.Data.set(Blueprint.Program.nodeData(this.uid))
 		this.contentBlueprint.Initialization.nodes();
 		this.contentBlueprint.Initialization.helpers();
+	},
+
+	unclosed: function(uclosed){
+		if(this.uid !== 'main'){
+			if(uclosed){
+				this.closer.hide();
+			}
+			else{
+				this.closer.show();
+			}
+		}
 	},
 
 	initWindow: function(){
@@ -44,43 +60,51 @@ Object.assign( Blueprint.classes.Blueprint.prototype, EventDispatcher.prototype,
 		this.blueprint = $('<iframe src="blueprint.html" class="active" id="'+this.uid+'"></iframe>')
 
 		this.blueprint.on('load',function(){
-			self.contents         = self.blueprint.contents()
+			self.contents         = self.blueprint.contents();
 
-			self.contentBlueprint = document.getElementById(self.uid).contentWindow.Blueprint; //не знаю, зато млин так работает, маджик!
+			self.contentBlueprint = $('#blueprint-blueprints #' + self.uid)[0].contentWindow.Blueprint; //не знаю, зато млин так работает, маджик!
 
 			self.initViewport();
 		})
 
-		this.blueprints.append(this.blueprint)
+		this.blueprints.append(this.blueprint);
 	},
 
 	close: function(){
+		this.contentBlueprint.Close();
+
 		this.tab.remove();
+
 		this.blueprint.remove();
 
-		this.dispatchEvent({type: 'close'})
+		this.dispatchEvent({type: 'close'});
 	},
 
 	remove: function(){
+		this.contentBlueprint.Close();
+
 		this.tab.remove();
+
 		this.blueprint.remove();
 
-		this.dispatchEvent({type: 'remove'})
+		this.dispatchEvent({type: 'remove'});
 	},
 
 	active: function(){
-		$('li',this.tabs).removeClass('active')
-		$('iframe',this.blueprints).removeClass('active')
+		$('li',this.tabs).removeClass('active');
 
-		$(this.tab).addClass('active')
-		$(this.blueprint).addClass('active')
+		$('iframe',this.blueprints).removeClass('active');
 
-		this.dispatchEvent({type: 'active'})
+		$(this.tab).addClass('active');
+
+		$(this.blueprint).addClass('active');
+
+		this.dispatchEvent({type: 'active'});
 	},
 
 	change: function(){
-		$('#blueprint-tabs li[uid="'+this.uid+'"] span').text(this.data.name)
+		$('#blueprint-tabs li[uid="'+this.uid+'"] span').text(this.data.name);
 
-		this.dispatchEvent({type: 'change'})
+		this.dispatchEvent({type: 'change'});
 	}	
 })

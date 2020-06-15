@@ -5,6 +5,7 @@ Blueprint.Worker.add('file_watch',{
 		saturation: 'hsl(53, 28%, 57%)',
 		alpha: 0.4,
 		category: 'file',
+		unclosed: true,
 		vars: {
 			input: {
 				path: {

@@ -182,6 +182,13 @@ Ceron.modules.Ceron = function(){
             } 
         },
         {
+            patern: 'container',
+            color: 'c',
+            name: function(m){
+                return 'container';
+            } 
+        },
+        {
             patern: 'gutter-([a-z])-(\\d+)',
             color: 'c',
             name: function(m){
@@ -588,6 +595,12 @@ Ceron.modules.Ceron = function(){
             })
 
             radio_enable({
+                name: 'use-container',
+                patern: 'container',
+            })
+
+
+            radio_enable({
                 name: 'default-text',
                 patern: 'text',
             })
@@ -628,7 +641,6 @@ Ceron.modules.Ceron = function(){
             select_extract({
                 name: 'flex-order',
                 patern: 'ord-\\d+',
-                media: false,
                 className: (n)=>{
                     return 'ord-'+n;
                 }
@@ -695,7 +707,7 @@ Ceron.modules.Ceron = function(){
 
             var font_input = $('.font-size',self.module);
 
-            Form.InputDrag(font_input,'',{min: 5, max: 40});
+            Form.InputDrag(font_input,'',{min: 5, max: 60});
 
             Form.InputChangeEventSimple(font_input, function(name,val){
                 var i_val  = (parseInt(val || 0) / 1).toFixed() * 1;
@@ -1029,6 +1041,7 @@ Ceron.modules.Ceron = function(){
 
                 this.ExtRadioEnable(cl,'cols-row','cols-row');
                 this.ExtRadioEnable(cl,'cols-same','cols-same');
+                this.ExtRadioEnable(cl,'use-container','container');
                 this.ExtRadioEnable(cl,'default-text','text');
                 
 
@@ -1081,6 +1094,7 @@ Ceron.modules.Ceron = function(){
             'gutter',
             'cols-row',
             'cols-same',
+            'use-container',
             'text-overflow',
             'white-space',
             'text-transform',

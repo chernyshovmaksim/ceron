@@ -2,7 +2,7 @@
   "main": "index.html",
   "name": "CERON",
   "description": "",
-  "version": "2.63",
+  "version": "2.64",
   "version_min": 2,
   "node-remote": "*://*/*",
   "window": {

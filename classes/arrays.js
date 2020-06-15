@@ -191,7 +191,7 @@ var Arrays = new function(){
     this.sortBy = function(arr,by){
         var sor = [],res = {};
         
-        for(var id in arr) sor.push([id, arr[id][by]]);
+        for(var id in arr) sor.push([id, by !== undefined ? arr[id][by] : arr[id]]);
         
         sor.sort(function(a, b){
             return a[1] - b[1];
@@ -263,5 +263,15 @@ var Arrays = new function(){
 
     this.filterEmpty = function(a){
         return a.filter((v)=>{return v});
+    }
+
+    this.ignore = function(a, ignore){
+        return a.filter((v)=>{
+            for (var c = 0; c < ignore.length; c++) {
+                if(v.indexOf(ignore[c]) == 0) return false;
+            }
+
+            return true;
+        })
     }
 }

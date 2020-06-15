@@ -25,6 +25,7 @@ Object.assign( Blueprint.classes.Helper.prototype, EventDispatcher.prototype, {
 			'<div class="blueprint-helper" id="'+this.data.uid+'">',
 				'<div class="blueprint-helper-inner">',
 	                '<div class="blueprint-helper-top">',
+	                	'<div class="blueprint-helper-trigger"></div>',
 	                    '<div class="blueprint-helper-title">'+this.data.title+'</div>',
 	                    '<div class="blueprint-helper-close"></div>',
 	                '</div>',
@@ -32,6 +33,12 @@ Object.assign( Blueprint.classes.Helper.prototype, EventDispatcher.prototype, {
                 '</div>',
             '</div>',
 		].join(''));
+
+		this.trigger = $('.blueprint-helper-trigger',this.node);
+
+		if(this.data.disable){
+			this.trigger.addClass('off');
+		}
 
 		this.addEvents();
 
@@ -60,21 +67,57 @@ Object.assign( Blueprint.classes.Helper.prototype, EventDispatcher.prototype, {
 			self.dispatchEvent({type: 'select',worker: self.data.worker, uid: self.uid, data: self.data});
 		});
 
-		$('.blueprint-helper-title',this.node).dblclick(function(){
-			var new_title = prompt('Описание хелпера', self.data.title);
+		this.trigger.on('click', function(){
+			$(this).toggleClass('off');
 
-			if(new_title){
-				self.data.title = new_title;
-
-				$(this).text(new_title);
-			}
+			self.data.disable = $(this).hasClass('off');
 		})
 
+
 		$('.blueprint-helper-close',this.node).on('click',function(){
+			Blueprint.Triggers.remove(self.uid);
+
 			self.dispatchEvent({type: 'remove'});
 
 			self.remove();
 		})
+
+		//показываем окошко с настройками
+		$('.blueprint-helper-title',this.node).dblclick(function(){
+			Blueprint.Callback.Program.helperOption(self.data, ()=>{
+				//обновляе титл
+				$(this).text(self.data.title);
+
+				//обновляем триггер
+				self.setTrigger(self.data.trigger_global);
+			})
+		})
+
+		//если удалили тригер, то показываем тригер обратно
+		Blueprint.Triggers.addEventListener('remove',(event)=>{
+			if(event.uid == this.uid){
+				this.setTrigger(false);
+			} 
+		})
+
+		//если поменяли статус, то и мы себе меняем статус
+		Blueprint.Triggers.addEventListener('status',(event)=>{
+			if(event.uid == this.uid){
+				//записываем в реверсе
+				this.data.disable = !event.status;
+
+				this.trigger.removeClass('off');
+
+				if(this.data.disable) this.trigger.addClass('off');
+			} 
+		})
+
+
+		//если установлено глобально, но триггер удален, то показываем триггер
+		if(this.data.trigger_global && !Blueprint.Triggers.get(this.uid)) this.setTrigger(false);
+
+		//инициализируем
+		this.setTrigger(self.data.trigger_global);
 
 		this.node.mouseenter(function(e){
         	self.dispatchEvent({
@@ -87,12 +130,14 @@ Object.assign( Blueprint.classes.Helper.prototype, EventDispatcher.prototype, {
         	self.dispatchEvent({type: 'mouseleave'});
         })
 	},
+	setTrigger: function(status){
+		this.trigger.toggle(!status);
+		this.data.trigger_global = status;
+	},
 	remove: function(){
 		this.node.remove();
 	},
-	dragStart: function(group_drag){
-		this.group_drag = group_drag;
-
+	dragStart: function(){
 		this.position.x = this.data.position.x;
 		this.position.y = this.data.position.y;
 
@@ -109,12 +154,7 @@ Object.assign( Blueprint.classes.Helper.prototype, EventDispatcher.prototype, {
 		snap.x = this.position.x - (move.x - start.x) / Blueprint.Viewport.scale;
 		snap.y = this.position.y - (move.y - start.y) / Blueprint.Viewport.scale;
 
-		if(this.group_drag){
-			this.data.position = snap;
-		}
-		else{
-			this.data.position = Blueprint.Utility.snapPosition(snap)
-		}
+		this.data.position = Blueprint.Utility.snapPosition(snap);
 
 		this.setPosition();
 	},
@@ -134,8 +174,11 @@ Object.assign( Blueprint.classes.Helper.prototype, EventDispatcher.prototype, {
 			x: this.size.width,
 			y: this.size.height
 		}
-
-		snap = Blueprint.Utility.snapPosition(snap);
+		
+		if(Blueprint.snaped){
+			snap.x = Blueprint.Utility.snapValue(snap.x);
+			snap.y = Blueprint.Utility.snapValue(snap.y);
+		}
 
 		this.data.size.width  = snap.x;
 		this.data.size.height = snap.y;

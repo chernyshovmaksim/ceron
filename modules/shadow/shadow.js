@@ -12,12 +12,24 @@ Ceron.modules.Shadow = function(){
                 blur  = '3px',
                 size  = '0',
                 pos   = '',
+                type  = 'box',
                 color = '#ddd';
 
-            var setShadow = function(){
-                var name = 'box-shadow';
+            var name, value;
 
-                var value = [pos,x,y,blur,size,color].join(' ');
+            var setShadow = function(){
+                if(type == 'box'){
+                    name  = 'box-shadow';
+                    value = [pos,x,y,blur,size,color].join(' ');
+                }
+                else if(type == 'text'){
+                    name  = 'text-shadow';
+                    value = [x,y,blur,color].join(' ');
+                }
+                else{
+                    name  = 'filter';
+                    value = 'drop-shadow('+[x,y,blur,color].join(' ')+')';
+                }
 
                 Generators.Css.Add(name + ': ' + value);
             }
@@ -32,6 +44,10 @@ Ceron.modules.Shadow = function(){
                 pos = val;
 
                 setShadow();
+            });
+
+            Form.RadioChangeEvent($('.box-shadow-type',self.module),function(val){
+                type = val;
             });
 
             Form.InputChangeEvent($('.box-shadow-x',self.module),function(name,val){

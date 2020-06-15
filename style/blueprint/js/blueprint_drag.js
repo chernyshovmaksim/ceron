@@ -99,6 +99,7 @@ Object.assign( Blueprint.classes.Drag.prototype, EventDispatcher.prototype, {
 	},
 	stop: function(e){
 		this.drag.active = false;
+		this.drag.node   = false;
 
 		this.callbacks = [];
 		this.sticking  = [];

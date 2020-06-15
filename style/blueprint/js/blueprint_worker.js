@@ -32,21 +32,61 @@ Object.assign( Blueprint.classes.Worker.prototype, EventDispatcher.prototype, {
 
 	    return assign;
 	},
-	build: function(blueprintUid,nodes){
+	intersect: function(board,node){
+		var a = {
+			left: board.position.x,
+			top: board.position.y,
+			width: board.size.width,
+			height: board.size.height
+		}
+
+		var b = {
+			left: node.position.x,
+			top: node.position.y,
+			width: 30,
+			height: 15
+		}
+
+		return Blueprint.Utility.intersect(a,b);
+	},
+	build: function(blueprintUid,nodes,helpers){
 		var workers = [];
+		var areas   = [];
 
-		var node,assign,working;
+		if(helpers){
+			for(var i in helpers){
+				var help = helpers[i];
+				var trig = BlueprintTriggers.get(help.uid);
 
+				if(trig){
+					if(!trig.status) areas.push(help);
+				}
+				else if(help.disable){
+					areas.push(help);
+				}
+			}
+		}
+
+		var node,assign,working,disable;
+		
 		for(var uid in nodes){
 			node = nodes[uid];
 
-			assign = this.assign(node.worker);
-			
-			working = new assign(node,workers);
+			disable = false;
 
-			working.blueprintUid = blueprintUid;
+			for (var i = 0; i < areas.length; i++) {
+				if(this.intersect(areas[i],node)) disable = true;
+			}
 
-			workers.push(working);
+			if(!disable){
+				assign = this.assign(node.worker);
+				
+				working = new assign(node,workers);
+
+				working.blueprintUid = blueprintUid;
+
+				workers.push(working);
+			}
 		}
 
 		function countParents(work){
@@ -54,7 +94,7 @@ Object.assign( Blueprint.classes.Worker.prototype, EventDispatcher.prototype, {
             
             for(var i = 0; i < work.parents.length; i++) countParents(work.parents[i]);
         }
-        
+
         for(var i = workers.length; i--;) workers[i].init();
         for(var i = workers.length; i--;) countParents(workers[i]);
         

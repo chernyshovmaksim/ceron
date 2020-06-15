@@ -16,6 +16,8 @@ Ceron.modules.Display = function(){
 		Form.InputDrag($('.flex .form-input',this.module),'')
 		Form.InputChange($('.flex .form-input',this.module))
 
+		Form.RadioChange($('.flex-subtype',this.module),'display');
+
 		/**
 		 * Align
 		 */
@@ -41,6 +43,8 @@ Ceron.modules.Display = function(){
 		Form.InputChange($('.gap .form-input',this.module));
 
 		Form.InputChange($('.grid .form-input',this.module));
+
+		Form.RadioChange($('.grid-subtype',this.module),'display');
 
 
 		//авто колонки
@@ -80,14 +84,21 @@ Ceron.modules.Display = function(){
 	this.ShowDisplay = function(name){
 		$('.display-all',this.module).hide();
 
+		name = name.replace('inline-','');
+
 		$('.display-'+name,this.module).show();
 	}
 
 	this.Select = function(){
-		Form.RadioSelect($('.display',this.module),'display');
+		var display = Generators.Css.Get('display');
+			display = display.replace('inline-','');
+
+		Form.RadioSetValueOnly($('.display',this.module),display);
 
 		Form.RadioSelect($('.flex-direction',this.module),'flex-direction');
 		Form.RadioSelect($('.flex-wrap',this.module),'flex-wrap');
+		Form.RadioSelect($('.flex-subtype',this.module),'display');
+		Form.RadioSelect($('.grid-subtype',this.module),'display');
 
 		Form.RadioSelect($('.justify-content',this.module),'justify-content');
 		Form.RadioSelect($('.align-content',this.module),'align-content');

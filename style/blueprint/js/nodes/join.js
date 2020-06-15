@@ -12,14 +12,16 @@ Blueprint.Worker.add('join',{
 				input: {
 					disableChange: true,
 					varType: 'round',
-					color: '#ddd'
+					color: '#ddd',
+					//tunnel: true
 				},
 			},
 			output: {
 				output: {
 					disableChange: true,
 					varType: 'round',
-					color: '#ddd'
+					color: '#ddd',
+					//tunnel: true
 				},
 			}
 		},

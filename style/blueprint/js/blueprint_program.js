@@ -213,7 +213,7 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 			            	event.target.setValue(entrance, name, file);
 
 			                input.val(file)
-			            },nw.path.dirname(Functions.LocalPath(path)))
+			            },path ? nw.path.dirname(Functions.LocalPath(path)) : '');
 			        });
 
 			        $('.clear',html).on('click',function(){
@@ -223,15 +223,21 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 			        })
 				}
 				else{
+					var bent = '<input type="'+(params.inputType || 'text')+'" name="'+name+'" value="" autocomplete="new-password" placeholder="'+(params.placeholder || (params.name || name))+'" />';
+
+					if(params.type == 'textarea'){
+						bent = '<textarea name="'+name+'" autocomplete="new-password" placeholder="'+(params.placeholder || (params.name || name))+'"></textarea>';
+					}
+
 					html = $([
 						'<div class="m-b-5">',
 	                        '<div class="form-input">',
-	                            '<input type="'+(params.inputType || 'text')+'" name="'+name+'" value="" autocomplete="new-password" placeholder="'+(params.placeholder || (params.name || name))+'" />',
+	                            bent,
 	                        '</div>',
 		                '</div>',
 					].join(''));
 
-					$('input',html).val(event.target.getValue(entrance, name));
+					$('input,textarea',html).val(event.target.getValue(entrance, name));
 
 					var change = function(inputName, inputValue){
 						if(inputValue == undefined) inputValue= '';
@@ -285,6 +291,69 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 
 		$('#blueprint-node-option').empty().append(options);
 		
+	},
+
+	/**
+	 * Опции для хелпера
+	 * @param  {Object}   data
+	 * @param  {Function} callback
+	 */
+	helperOption: function(data, callback){
+		var checkUid = Functions.Uid();
+
+		var content = $([
+			'<div>',
+				'<div class="form-group">',
+	                '<div class="form-name">Описание</div>',
+	                '<div class="form-content">',
+	                    '<div class="form-input descrip">',
+                            '<input type="text" name="title" value="" placeholder="">',
+                        '</div>',
+	                '</div>',
+	           '</div>',
+			
+				'<div class="form-group">',
+	                '<div class="form-name">Триггер</div>',
+	                '<div class="form-content">',
+	                	'<div class="form-btn trigger">',
+	                        'Сделать глобальным',
+	                    '</div>',
+			            '<span class="help-block m-b-0 text-center">Триггер будет доступен в окне триггеров.</span>',
+	                '</div>',
+	           '</div>',
+			'</div>'
+		].join(''));
+
+		var descrip = $('.descrip',content);
+		var trigger = $('.trigger',content);
+
+		trigger.on('click',function(){
+			data.trigger_global = true;
+
+			BlueprintTriggers.create(data.uid, data.title);
+
+			BlueprintTriggers.set(data.uid, 'status', !data.disable);
+
+			Functions.Notify('Добавлено');
+
+			callback();
+    	});
+
+    	Form.InputSetValue(descrip, data.title);
+
+    	Form.InputChangeEventSimple(descrip,(name, value)=>{
+    		data.title = value;
+
+    		BlueprintTriggers.set(data.uid, 'name', data.title)
+
+    		callback();
+    	});
+
+    	Form.InputEnter(descrip,function(){
+    		Popup.Hide();
+    	});
+
+		Popup.Window('Настройки',content,{size: 'sm'});
 	},
 
 	_processStart: function(){
@@ -386,6 +455,12 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 		$.each(needSave,function(i,uid){
 			var node = self.data[uid];
 
+			if(!node){
+				Arrays.remove(Data.blueprint.opened, uid);
+
+				return; //чет там не то, либо блюпринт был удален
+			} 
+
 			var change = JSON.stringify(node).length;
 			
 			//if(change !== node.change){
@@ -397,7 +472,7 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 		})
 
 
-		//удаляем то что осталось лервое
+		//удаляем то что осталось левое
 		var _uidsDelete = $(this._uidsSaved).not(uidsNow).get();
 
 		for(var i = _uidsDelete.length; i--;){
@@ -422,7 +497,7 @@ Object.assign( Blueprint.classes.Program.prototype, EventDispatcher.prototype, {
 		try{
 			this._processComplite(uid);
 			
-			Blueprint.Worker.build(uid, this.data[uid].data.nodes);
+			if(this.data[uid]) Blueprint.Worker.build(uid, this.data[uid].data.nodes, this.data[uid].data.helpers);
 		}
 		catch(err){
 			Console.Add(err)

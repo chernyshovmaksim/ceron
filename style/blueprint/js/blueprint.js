@@ -1,7 +1,17 @@
 var Blueprint = {
 	classes: {},
 	cache: {},
-	seed: 0
+	seed: 0,
+	icons: {
+		var: '<svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="5" cy="5" r="4.5" stroke="currentColor"/><path d="M14 5L8 1C8 1 10 2.5 10 5C10 7.5 8 9 8 9L14 5Z" /></svg>',
+		content: '<svg width="12" height="10" viewBox="0 0 12 10" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 9.5H7.65454L11.3524 5.15104L7.64487 0.5H0.5V9.5Z" stroke="currentColor" /></svg>',
+	}
+};
+
+Blueprint.Unclosed = function(){};
+
+Blueprint.Close    = function(){
+	Blueprint.Render.close();
 };
 
 Blueprint.Initialization = {
@@ -15,8 +25,10 @@ Blueprint.Initialization = {
 		Blueprint.Selection = new Blueprint.classes.Selection();
 
 		var selectNode, drag, has_focus, presed, dragCopy;
-		var cursor = {x: 0, y: 0};
-		var buffer = [];
+
+		var cursor   = {x: 0, y: 0};
+		var buffer   = [];
+		var unclosed = 0;
 
 		//drag and drop
 
@@ -25,6 +37,7 @@ Blueprint.Initialization = {
 			selectNode = false;
 
 			Blueprint.Render.sticking = Blueprint.Utility.getSticking();
+			Blueprint.Render.stick    = false;
 
 			//если зажата одна из клавиш
 			//то показывме мыделение
@@ -164,6 +177,8 @@ Blueprint.Initialization = {
 
 		//перестали таскать
 		Blueprint.Drag.addEventListener('stop',function(event){
+			Blueprint.Render.stick = false;
+
 			if(selectNode){
 				cursor.x = event.drag.move.x;
 				cursor.y = event.drag.move.y;
@@ -205,6 +220,14 @@ Blueprint.Initialization = {
 		//если жмекнули сохранить то говорим что нуно сохранить
 		Blueprint.Shortcut.add('Ctrl+S',function(){
 			parent.Shortcut.Fire('Ctrl+S');
+		})
+
+		Blueprint.Shortcut.add('Ctrl+F',function(){
+			parent.Shortcut.Fire('Ctrl+F');
+		})
+
+		Blueprint.Shortcut.add('Ctrl+P',function(){
+			parent.Shortcut.Fire('Ctrl+P');
 		})
 
 		Blueprint.Shortcut.add('Ctrl+C',function(){
@@ -335,6 +358,12 @@ Blueprint.Initialization = {
 		Blueprint.Render.addEventListener('addNode',function(e){
 			var node = e.node;
 
+			if(node.params.unclosed){
+				unclosed += 1;
+
+				Blueprint.Unclosed(unclosed);
+			}
+
 			//вешаем эвенты на сам нод
 
 			//эвент удаления
@@ -344,6 +373,12 @@ Blueprint.Initialization = {
 				Blueprint.Selection.remove(node);
 
 				Blueprint.Callback.Program.dispatchEvent({type: 'nodeRemove', node: node});
+
+				if(node.params.unclosed){
+					unclosed -= 1;
+					
+					Blueprint.Unclosed(unclosed);
+				} 
 			})
 
 			//начали тянуть линию
@@ -373,25 +408,38 @@ Blueprint.Initialization = {
 			node.addEventListener('input',function(event){
 				if(selectNode !== this && selectNode && event.entrance !== selectNode.selectEntrance){
 					var selectVar = selectNode.selectVar;
+					var compare   = true;
 
 					if(event.entrance !== 'input'){
-						selectNode.data.parents.push({
-							uid: this.data.uid,
-							output: event.name,
-							input: selectVar
-						})
+						compare = Blueprint.Utility.compareVarialbe(node, selectNode, event.name, selectVar);
+						compare = Blueprint.Utility.maxConnections(compare, selectNode, selectVar);
+
+						if(compare){
+							selectNode.data.parents.push({
+								uid: this.data.uid,
+								output: event.name,
+								input: selectVar
+							})
+						}
 					}
 					else{
-						this.data.parents.push({
-							uid: selectNode.data.uid,
-							output: selectVar,
-							input: event.name
-						})
+						compare = Blueprint.Utility.compareVarialbe(selectNode, node, selectVar, event.name);
+						compare = Blueprint.Utility.maxConnections(compare, node, event.name);
+
+						if(compare){
+							this.data.parents.push({
+								uid: selectNode.data.uid,
+								output: selectVar,
+								input: event.name
+							})
+						}
 					}
 
-					Blueprint.Callback.Program.fireChangeEvent({type: 'input'});
-					
-					Blueprint.Render.update();
+					if(compare){
+						Blueprint.Callback.Program.fireChangeEvent({type: 'input'});
+						
+						Blueprint.Render.update();
+					}
 				}
 
 				selectNode = false;
@@ -487,11 +535,15 @@ Blueprint.Initialization = {
 				}
 
 				if(first){
-					node.data.parents.push({
-						uid: selectNode.data.uid,
-						output: selectNode.selectVar,
-						input: first
-					})
+					var compare = Blueprint.Utility.compareVarialbe(selectNode, node, selectNode.selectVar, first);
+
+					if(compare){
+						node.data.parents.push({
+							uid: selectNode.data.uid,
+							output: selectNode.selectVar,
+							input: first
+						})
+					}
 				}
 
 				Blueprint.Render.update();
@@ -527,20 +579,34 @@ Blueprint.Initialization = {
 				Blueprint.Callback.Program.dispatchEvent({type: 'helperRemove', helper: helper});
 			})
 
+			var nodes_move = [];
+
 			//если нод двигают
 			helper.addEventListener('drag',function(event){
 				var h_size = helper.data.size;
 				var h_posi = helper.data.position;
 
-				this.group_drag = true;
+				nodes_move = [];
 
 				for (var i = 0; i < Blueprint.Render.nodes.length; i++) {
 					var n_node = Blueprint.Render.nodes[i],
 						n_posi = n_node.data.position;
 
 					if(n_posi.x > h_posi.x && n_posi.x < h_posi.x + h_size.width  &&  n_posi.y > h_posi.y && n_posi.y < h_posi.y + h_size.height){
-						n_node.dragStart(true);
+						nodes_move.push({node:n_node, start: {x: n_posi.x, y: n_posi.y}});
 					}
+				}
+			})
+
+			//двигаем попутно ноды что внутри
+			helper.addEventListener('position',function(event){
+				for (var i = 0; i < nodes_move.length; i++) {
+					var nn = nodes_move[i];
+
+					nn.node.data.position.x = nn.start.x - (helper.position.x - helper.data.position.x);
+					nn.node.data.position.y = nn.start.y - (helper.position.y - helper.data.position.y);
+
+					nn.node.setPosition();
 				}
 			})
 

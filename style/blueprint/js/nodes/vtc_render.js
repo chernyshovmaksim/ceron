@@ -60,6 +60,8 @@ Blueprint.Worker.add('vtc_render',{
 			}
 
 			if(template){
+				VTC.Build.startInstruction();
+
 				data = VTC.Build.template(template, match.data.key);
 			}
 			else{
@@ -70,6 +72,7 @@ Blueprint.Worker.add('vtc_render',{
 				var variable = vars[i];
 
 				if(Arrays.isObject(variable)){
+					data = data.replace(new RegExp('{@'+name+'~.*?}',"g"), variable.value);
 					data = data.replace(new RegExp('{@'+variable.name+'}',"g"), variable.value);
 				}
 			}
@@ -88,7 +91,11 @@ Blueprint.Worker.add('vtc_render',{
 				Ceron.cache.vtc_render[cache_name] = data_hash;
 			}
 
-			data = data.replace(new RegExp('{@(.*?)}',"g"),''); //затираем лишнии переменные
+			data = Functions.AttachHtmlFiles(data);
+			data = Functions.ClearHtmlVars(data);
+
+			//data = data.replace(new RegExp('{@.*?~(.*?)}',"g"),'$1'); //оставляем дефолтные значения
+			//data = data.replace(new RegExp('{@(.*?)}',"g"),''); //затираем лишнии переменные
 
 			this.setValue('output', data);
 			this.setValue('change', change);

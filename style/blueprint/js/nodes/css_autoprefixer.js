@@ -46,7 +46,11 @@ Blueprint.Worker.add('css_autoprefixer',{
 				result = nw.postcss([nw.autoprefixer({ browsers: version.split(',') })]).process(result).css;
 			}
 			catch(e){
-				Console.Add({message: 'Autoprefixer: ' + e.message, stack: e.stack});
+				Functions.AutoprefixerPrintError({
+					result: result,
+					message: e.message,
+					title: 'Blueprint - (autoprefixer) error: '
+				});
 			}
 			
 			this.setValue('output',result);

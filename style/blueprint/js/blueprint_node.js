@@ -88,17 +88,18 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 
 			var use_color = params.color 
 
-			
-
 			var variable, select,
 				is_content = name == 'input' || name == 'output';
 
 			var type      = is_content && !params.varType ? 'content' : params.varType || '',
 				className = 'var var-' + entrance + '-' + name + ' ' + type;
 
+			var ico = type == 'content' ? 'content' : 'var';
+			var svg = Blueprint.icons[ico];
+
 			
 			variable = $('<div><span>'+(params.name || '')+'<span class="display-var display-'+entrance+'-'+name+'">'+(params.display ? '('+self.getValue(entrance, name)+')' : '')+'</span></span></div>');
-			select   = $('<i class="'+className+'"></i>');
+			select   = $('<i class="'+className+'">'+svg+'</i>');
 
 			if(params.colorText) variable.css('color',params.colorText);
 
@@ -118,13 +119,15 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 			}
 			
 			if(use_color){
-				var img = type == 'content' ? 'node-content' : 'var';
+				select.css({color: use_color});
 
+				/*
 				Blueprint.Image.color('style/blueprint/img/'+img+'.png',use_color,function(base){
 					select.css({
 						backgroundImage: 'url('+base+')'
 					})
 				})
+				*/
 			}
 
 			select.on('mousedown',function(event){
@@ -265,6 +268,8 @@ Object.assign( Blueprint.classes.Node.prototype, EventDispatcher.prototype, {
 
 		this.dragCall = this.drag.bind(this);
 
+		Blueprint.Drag.drag.node = this;
+		
 		Blueprint.Drag.add(this.dragCall);
 	},
 	dragRemove: function(){

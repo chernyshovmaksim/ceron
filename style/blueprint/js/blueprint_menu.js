@@ -6,8 +6,8 @@ Blueprint.classes.Menu = function(){
 		blueprints: 'Blueprints',
 		blueprint: 'Blueprint',
 		function: 'Function',
-		vtc: 'Vtc',
-		css: 'Css',
+		vtc: 'VTC',
+		css: 'CSS',
 		file: 'File',
 		all: 'All'
 	}
@@ -89,9 +89,9 @@ Object.assign( Blueprint.classes.Menu.prototype, EventDispatcher.prototype, {
 
 			if(params.params.category == 'none') return;
 
-			//var node = $('<li><span>'+params.params.name+'<br><small>'+Functions.Substring(params.params.description || '', 50)+'</small></span></li>'),
-			var node = $('<li><span>'+params.params.name+'</span></li>'),
-				cat  = cats[params.params.category];
+			var node = $('<li><span><replace><name>'+params.params.name+'</name></replace><br><small>'+Functions.Substring(params.params.description || '', 50)+'</small></span></li>'),
+			//var node = $('<li><span>'+params.params.name+'</span></li>'),
+				cat  = cats[params.params.category]; 
 
 			node.on('click',function(){
 				Blueprint.Menu.select(name)
@@ -106,6 +106,9 @@ Object.assign( Blueprint.classes.Menu.prototype, EventDispatcher.prototype, {
 		this.dispatchEvent({type: 'build'})
 	},
 	search: function(){
+		//надо бы транслит забабахать
+		this.input.val(Functions.ToLatin(this.input.val()));
+
 		var term      = this.input.val(),
 			categorys = $(' > li',this.list),
 			category,inner,txt;
@@ -121,13 +124,13 @@ Object.assign( Blueprint.classes.Menu.prototype, EventDispatcher.prototype, {
 			inner.each(function(){
 				li = $(this)
 
-				txt = $('span',li).html().replace(self.highlightRep,'$1');
+				txt = ($('name',li).html() || '').replace(self.highlightRep,'$1');
 
 		        if(term !== ''){
 			        txt = txt.replace(new RegExp('(' + term + ')', 'gi'), self.highlightAdd);
 			    }
 		          
-		        li.html('<span>'+txt+'</span>'); 
+		        $('replace',li).html('<name>'+txt+'</name>'); 
 
 		        li.show();
 

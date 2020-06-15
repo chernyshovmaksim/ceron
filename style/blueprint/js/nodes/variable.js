@@ -1,7 +1,7 @@
-Blueprint.Worker.add('string',{
+Blueprint.Worker.add('variable',{
 	params: {
-		name: 'String',
-		description: 'Строка',
+		name: 'Variable',
+		description: 'Переменная',
 		saturation: 'hsl(197, 98%, 83%)',
 		alpha: 0.42,
 		category: 'all',
@@ -11,7 +11,7 @@ Blueprint.Worker.add('string',{
 				input: {
 					enableChange: true,
 					varType: 'round',
-					color: '#ddd'
+					color: '#ddd',
 				},
 			},
 			output: {
@@ -20,7 +20,7 @@ Blueprint.Worker.add('string',{
 					enableChange: true,
 					displayInTitle: true,
 					varType: 'round',
-					color: '#ddd'
+					color: '#ddd',
 				},
 			}
 		},
@@ -31,6 +31,9 @@ Blueprint.Worker.add('string',{
 		},
 		remove: function(){
 
+		},
+		close: function(){
+			
 		}
 	},
 	working: {
@@ -40,10 +43,9 @@ Blueprint.Worker.add('string',{
 		build: function(){
 			var input  = this.getValue('input',true).join('');
 			var output = this.getDefault('output', 'output')
+			var name   = input ? input + output : output;
 
-				output = input ? input + output : output;
-
-			this.setValue('output', output);
+			this.setValue('output', Variables.Get(name));
 		}
 	}
 });

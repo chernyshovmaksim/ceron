@@ -1,7 +1,7 @@
 Blueprint.Worker.add('string_change',{
 	params: {
 		name: 'String change',
-		description: 'Проверяет изменилась ли строки',
+		description: 'Проверяет изменилась ли строка',
 		saturation: 'hsl(197, 98%, 83%)',
 		alpha: 0.42,
 		category: 'function',

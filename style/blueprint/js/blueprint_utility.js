@@ -52,10 +52,14 @@ Blueprint.Utility = {
             if(stick.sticked){
                 position.x = stick.point.x;
                 position.y = stick.point.y;
+
+                Blueprint.Render.stick = stick;
             }
             else{
                 position.x = Blueprint.Utility.snapValue(position.x)
                 position.y = Blueprint.Utility.snapValue(position.y)
+
+                Blueprint.Render.stick = false;
             }
         }
 
@@ -93,6 +97,13 @@ Blueprint.Utility = {
         }
     },
 
+    getDataPointToScreen: function(position){
+        return {
+            x: (position.x + Blueprint.Viewport.position.x) * Blueprint.Viewport.scale,
+            y: (position.y + Blueprint.Viewport.position.y) * Blueprint.Viewport.scale
+        }
+    },
+
     getStickingNodes: function(select, start){
         var diff = {};
 
@@ -124,15 +135,21 @@ Blueprint.Utility = {
         //дальше самое интресное
         var sticking = [];
 
-        var node, point;
+        var node, point, height, width;
+
+        var all = [].concat(Blueprint.Render.nodes, Blueprint.Render.helpers);
 
         //надо найти линии 
-        for (var i = 0; i < Blueprint.Render.nodes.length; i++) {
-            node = Blueprint.Render.nodes[i];
+        for (var i = 0; i < all.length; i++) {
 
-            point = node.data.position;
+            node   = all[i];
+            point  = node.data.position;
+
+            height = node.node.outerHeight();
+            width  = node.node.outerWidth();
 
             //добовляем линии
+            
             //линия |
             sticking.push({
                 pos: point.x - dif.x, 
@@ -140,14 +157,7 @@ Blueprint.Utility = {
                 node: node, 
                 dif: dif
             });
-            //линия | + width
-            sticking.push({
-                pos: point.x + node.node.outerWidth() - dif.x, 
-                dir: 'y',
-                node: node, 
-                dif: dif
-            });
-
+            
             //линия --
             sticking.push({
                 pos: point.y - dif.y, 
@@ -156,22 +166,61 @@ Blueprint.Utility = {
                 dif: dif
             });
 
-            //линия -- + height
-            sticking.push({
-                pos: point.y + node.node.outerHeight() - dif.y, 
-                dir: 'x',
-                node: node, 
-                dif: dif
-            });
+            
+            if(Blueprint.Drag.drag.node){
+                var in_height = Blueprint.Drag.drag.node.node.outerHeight(),
+                    in_width  = Blueprint.Drag.drag.node.node.outerWidth()
 
-            //линия -- + height / 2
-            sticking.push({
-                pos: point.y + node.node.outerHeight() / 2 - dif.y, 
-                dir: 'x',
-                node: node, 
-                dif: dif
-            });
+                if(height == in_height){
+                    sticking.push({
+                        pos: point.y + height - dif.y, 
+                        dir: 'x',
+                        node: node, 
+                        dif: dif
+                    });
+                }
+                else{
+                    sticking.push({
+                        pos: point.y + (height - in_height) - dif.y, 
+                        dir: 'x',
+                        node: node, 
+                        dif: dif
+                    });
+
+                    sticking.push({
+                        pos: point.y + (height / 2 - in_height / 2) - dif.y, 
+                        dir: 'x',
+                        node: node, 
+                        dif: dif
+                    });
+                }
+
+                if(width == in_width){
+                    sticking.push({
+                        pos: point.x + width - dif.x, 
+                        dir: 'y',
+                        node: node, 
+                        dif: dif
+                    });
+                }
+                else{
+                    sticking.push({
+                        pos: point.x + (width - in_width) - dif.x, 
+                        dir: 'y',
+                        node: node, 
+                        dif: dif
+                    });
+
+                    sticking.push({
+                        pos: point.x + (width / 2 - in_width / 2) - dif.x, 
+                        dir: 'y',
+                        node: node, 
+                        dif: dif
+                    });
+                }
+            }
         }
+
 
         return sticking;
     },
@@ -224,21 +273,28 @@ Blueprint.Utility = {
     },
 
     checkSticking: function(sticking, point, ammount){
-        var st,dr,tr,cr = {
+        var st,dr,tr,df,cr = {
             x: (point.pageX || point.left || point.x),
             y: (point.pageY || point.top || point.y)
         };
 
         var power = ammount || this.sticking_ammount;
 
+        var ds = {x: Infinity,y: Infinity};
+
         for (var i = 0; i < sticking.length; i++) {
             st = sticking[i];
             dr = st.dir == 'x' ? 'y' : 'x';
 
             if(cr[dr] > st.pos - power && cr[dr] < st.pos + power ){
-                cr[dr] = st.pos;
+                df = cr[dr] > st.pos ? cr[dr] - st.pos : st.pos - cr[dr];
 
-                tr = st;
+                if(df < ds[dr]){
+                    cr[dr] = st.pos;
+                    ds[dr] = df;
+
+                    tr = st;
+                }
             }
         }
 
@@ -275,5 +331,46 @@ Blueprint.Utility = {
     },
     intersectPoint: function(box, point){
         return point.x > box.left && point.x < box.left + box.width && point.y > box.top && point.y < box.top + box.height;
+    },
+    compareVarialbe: function(from, to, from_var, to_var){
+        var entrance_from = from.params.vars.output[from_var];
+        var entrance_to   = to.params.vars.input[to_var];
+
+        //если это тунель, то велком
+        if(entrance_from.tunnel || entrance_to.tunnel){
+            return true;
+        }
+        //если (В) нету не каких разрешений
+        else if(!entrance_to.allowed){
+            //но (ИЗ) стоят разрешения
+            if(entrance_from.allowed){
+                //если (ИЗ) есть разрешение (строка) то все гуд
+                if(entrance_from.allowed.indexOf('string') !== -1) return true;
+            }
+            else return true;
+        }
+        //если (ИЗ) нету разрешений но есть разрешения (В)
+        else if(!entrance_from.allowed){
+            //если (В) есть разрешение (строка) то все гуд
+            if(entrance_to.allowed.indexOf('string') !== -1) return true;
+        }
+        //если у обоих есть разрешения
+        else{
+            //то проверяем есть ли обшие разрешение у обоих входа
+            if(entrance_to.allowed.filter(element => entrance_from.allowed.includes(element)).length) return true;
+        }
+
+        return false;
+    },
+    maxConnections: function(compare, node, variable){
+        var max = node.params.vars.input[variable].maxConnections;
+
+        if(max){
+            var count = node.data.parents.filter(elem => elem.input == variable);
+
+            if(count.length >= max) return false;
+        }
+
+        return compare;
     }
 }

@@ -11,6 +11,8 @@ Blueprint.classes.Viewport = function(){
 		y: 0
 	}
 
+    this.timer_resize;
+
 	this.zoom = $('.blueprint-zoom');
 	this.wrap = $('.blueprint-wrap');
 	this.body = $('body');
@@ -37,10 +39,9 @@ Object.assign( Blueprint.classes.Viewport.prototype, EventDispatcher.prototype, 
             delta *= 0.120;
 
 
-        var zoom = (1.1 - (delta < 0 ? 0.2 : 0));
+        var zoom = 1.1 - (delta < 0 ? 0.2 : 0);
             
-        var newscale = this.scale * zoom;
-            newscale = newscale > 1 ? 1 : newscale;
+        var newscale = Math.max(0.1,Math.min(2,this.scale * zoom));
 
         var mx = -this.cursor.x;
         var my = -this.cursor.y;
@@ -59,6 +60,16 @@ Object.assign( Blueprint.classes.Viewport.prototype, EventDispatcher.prototype, 
 
         this.dispatchEvent({type: 'zoom'})
     },
+    setScale: function(scale){
+        this.scale = scale;
+
+        this.zoom.css({
+            transform: 'scale('+this.scale+')',
+            transformOrigin: '0 0'
+        })
+
+        this.dispatchEvent({type: 'zoom'})
+    },
     drag: function(dif){
         this.position.x -= dif.x / this.scale;
         this.position.y -= dif.y / this.scale;
@@ -68,9 +79,31 @@ Object.assign( Blueprint.classes.Viewport.prototype, EventDispatcher.prototype, 
             top: this.position.y + 'px'
         })
 
-        this.body.css({
-            backgroundPosition: this.position.x + 'px ' + this.position.y + 'px'
+        /** 
+         * Магия чуваки!
+         * После движения, все блюрится, но!
+         * Если потом сделать заново зум, то все отлично.
+        **/
+
+        clearTimeout(this.timer_resize)
+
+        this.zoom.css({
+            transform: 'scale('+(this.scale * 0.99999)+')',
+            transformOrigin: '0 0'
         })
+
+        this.timer_resize = setTimeout(()=>{
+            this.zoom.css({
+                transform: 'scale('+this.scale+')',
+                transformOrigin: '0 0'
+            })
+        },100)
+
+        /*
+        this.body.css({
+            backgroundPosition: Math.round(this.position.x) + 'px ' + Math.round(this.position.y) + 'px'
+        })
+        */
 
         this.dispatchEvent({type: 'drag'})
     }
